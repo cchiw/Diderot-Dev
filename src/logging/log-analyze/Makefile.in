@@ -1,0 +1,84 @@
+# Makefile for log-analyze tool
+#
+# This code is part of the Diderot Project (http://diderot-language.cs.uchicago.edu)
+#
+# COPYRIGHT (c) 2016 The University of Chicago
+# All rights reserved.
+#
+# @configure_input@
+#
+
+#### Start of system configuration section. ####
+
+#
+# directories for the install target
+#
+PREFIX =		@prefix@
+INSTALL_BINDIR =	$(PREFIX)/bin
+INSTALL_HEAPDIR =	$(INSTALL_BINDIR)/.heap
+INSTALL_LIBDIR =	$(PREFIX)/lib
+INSTALL_INCDIR =	$(PREFIX)/include
+
+#
+# directories for the local-install target
+#
+SRCDIR =	@DIDEROT_ROOT@/src
+LIBDIR =	@DIDEROT_ROOT@/lib
+BINDIR =	@DIDEROT_ROOT@/bin
+HEAPDIR =	$(BINDIR)/.heap
+
+INSTALL =	@INSTALL@
+SHELL =		@SHELL@
+@SET_MAKE@
+
+CC =		@CC@
+CFLAGS =	@CFLAGS@
+CXX =		@CXX@
+CXXFLAGS =	@CXXFLAGS@
+LDFLAGS =
+CPPFLAGS =	-I. -I../../lib/include -I../lib
+
+#### End of system configuration section. ####
+
+TARGET =	log-analyze
+
+VPATH =		../lib
+
+CXX_SRCS =	log-analyze.cxx \
+		load-log-desc.cxx event-desc.cxx log-desc.cxx load-log.cxx json.cxx
+OBJS =		$(patsubst %.c,%.o,$(C_SRCS)) $(patsubst %.cxx,%.o,$(CXX_SRCS))
+
+build:		$(TARGET)
+
+$(TARGET):	$(OBJS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(TARGET) $(OBJS)
+
+log-analyze.o:	quantize.hxx svg.hxx
+
+%.o: %.cxx
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
+
+local-install: $(TARGET)
+
+install: $(TARGET)
+
+#################### Cleanup ####################
+
+CLEAN_SUBDIRS =		$(SUBDIRS)
+CLEAN_FILES =
+DISTCLEAN_FILES =
+DEVCLEAN_FILES =
+
+include ../../../mk/clean-rules.gmk
+
+.PHONY:		clean
+
+clean:
+	rm -rf $(OBJS) $(TARGET)
+	rm -rf *.dSYM
+
+local-install:
+
+install:
+
+

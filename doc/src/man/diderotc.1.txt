@@ -1,0 +1,157 @@
+DIDEROTC(1)
+===========
+:doctype:	manpage
+:man source:	Diderot
+:man version:	{version}
+
+NAME
+----
+diderotc - compiler for the parallel domain-specific language Diderot
+
+
+SYNOPSIS
+--------
+*diderotc* ['OPTIONS'] 'FILE'
+
+
+DESCRIPTION
+-----------
+The diderotc(1) command compiles Diderot source code into either a library
+(the default) or a stand-alone executable.
+The Diderot language is a parallel domain-specific language for image-analysis
+algorithms that supports a high-level mathematical programming model based
+on the differential tensor calculus.
+
+
+OPTIONS
+-------
+*-h, --help*::
+  Display a list of command-line options and then exit.
+  This list includes additional options used to support development and debugging of
+  the compiler.
+
+*-H*::
+  Display a list of *all* of the command-line options and then exit.  This list
+  includes compiler controls that are meant for debugging the compiler.
+
+*--version*::
+  Show the compiler version and exit.
+
+*--about*::
+  Show information about the Diderot language and compiler and then exit.
+
+*--exec*::
+  Compile the Diderot program to run as a standalone executable.
+
+*-o, --output*='OUTFILE'::
+  Use the name 'OUTFILE' as the stem for the generated code files.
+  When coupled with the *--exec* flag, 'OUTFILE' will be the name of
+  the executable.
+
+*--namespace*='PREFIX'::
+  Specify a namespace prefix for generated interface to the Diderot program.
+  The default namespace prefix is \texttt{Diderot}.
+
+*--snapshot*::
+  Generate code to get a snapshot of strand states (ignored if the *--exec* flag is given).
+
+*-g*, *--debug*::
+  Enable assertions and debugging information in the generated code and runtime system.
+
+*--double*::
+  Use double-precision floating-point for the Diderot real type.
+
+*--longint*::
+  Use 64-bit integers for the Diderot real type.
+
+*--scalar*::
+  Do not generate vectorized code (*i.e.*, code that uses the **gcc* vector extensions).
+
+*--log*::
+  Emit a log file of the compiler's intermediate representations.
+  This option is mainly used to debug the compiler.
+
+*--stats*::
+  Collect and report statistics about optimizations, etc.
+
+*--verbose*::
+  Print messages to stderr as each compiler stage starts and ends.
+
+*--target*='TARGET'::
+  Specify the target platform for the generated code.
+  The *diderotc* compiler currently supports the following choices for 'TARGET':
++
+--
+  *sequential*;;
+    single-threaded sequential implementation.
+  *parallel*;;
+    parallel implementation for shared-memory multiprocessors using pthreads.
+  *opencl*;;
+    parallel implementation for GPUs using OpenCL (if supported).
+  *cuda*;;
+    parallel implementation for GPUs using CUDA (if supported).
+--
++
+Note that not all targets are supported by all installations.  Use the *--help* command to
+determine the targets supported by a given instance of the compiler.
+
+
+OUTPUT FILES
+------------
+The *diderotc* compiler produces one or more output files, depending on the command-line
+options.
+These files will have a common stem, which will either be the stem of the source file (i.e.,
+'foo' for the source file 'foo.diderot') or the name specified by the *--output* option.
+
+
+RUNTIME OPTIONS
+---------------
+  The executables produced by the compiler when using the *--exec* option recognize
+  a number of standard options.
+
+*-v*, *--verbose*::
+  Enable runtime-system messages to standard error.
+
+*-t*, *--timing*::
+  Report execution time to standard output.
+
+*-l 'NUM'*, *--limit 'NUM'*::
+  Specify the limit on the number of super-steps taken by the program to 'NUM'
+  (0 means unlimited). The default is unlimited.
+
+*-s 'NUM'*, *--snapshot 'NUM'*::
+  Generate a snapshot of the strand state after every 'NUM' super-steps.  This option is
+  only present if both the *--snapshot* and *--exec* options were given to the compiler.
+
+*-print* 'FILE'::
+  Specify where to direct printed output.  The default is standard output.
+
+
+ENVIRONMENT
+-----------
+
+*DIDEROT_TEEM_DIR*::
+  If this environment variable is present, it is used to specify the path
+  to the Teem installation.
+  The *diderotc* compiler uses this path to find teem executables, libraries, and include
+  files that are used during the compilation process.
+
+
+SEE ALSO
+--------
+*diderot-api*(5)
+
+teem -- http://teem.sourceforge.net[]
+
+Diderot home page -- http://diderot-language.cs.uchicago.edu[]
+
+
+AUTHOR
+------
+
+The Diderot Language was designed by Charisee Chiw, Gordon Kindlmann,
+John Reppy, and Lamont Samuels.  The compiler was written by Charisee
+Chiw, John Reppy, and Lamont Samuels.  All code is Copyright (c) 2016
+by the University of Chicago and is released under the
+https://opensource.org/licenses/MIT[MIT License]. More information
+about the Diderot project can be found at http://diderot-language.cs.uchicago.edu[].

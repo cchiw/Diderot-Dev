@@ -1,0 +1,79 @@
+========================================================
+Bugs:
+============================
+
+========================================================
+High-priority things to fix:
+============================
+
+code generation for const variables
+
+Parallel target:
+  - new, die
+  - parallel reduction
+
+Use of numStable(), etc. in strand methods means that we
+need to run in BSP mode!
+
+Figure out the memory-management policy for nrrd data
+that is passed into a generated library.  Should we make
+a copy of the data or require that the caller keep the
+data live as long as the world object exists?
+
+========================================================
+Medium-priority things to fix:
+============================
+
+A configuration/compiler support for producing shared-libraries.
+This feature is required to use Diderot libraries with Python.
+
+Name-mangle Diderot identifiers that have non-ASCII
+characters in their names (e.g., greek letters)
+
+Support for map-reduce fusion
+
+Support for variance
+
+Direct dynamic sequence initialization from E_Seq
+
+Mechanism to dump basis library for documentation purposes
+
+Improve parallel runtime in various ways:
+  1) more efficient barrier sync and spin locks
+
+Apply value numbering to globals to eliminate redundancy (e.g., inside3 test).
+
+Support vector arguments to user functions and strand-creation
+
+Bad propagation of error type leads to an extra error message
+Also, when overloading fails, we should print a list of candidates
+(see bug008.diderot).
+
+Better naming of meta variables in types when printing error messages.
+
+Code generation improvements:
+  complex conditionals
+  more use of vector arithmetic
+  constant propagation
+
+Allow field definitions at strand scope; to do so means that we need
+to prune them away later (since fields don't have a runtime
+representation).  We will also need to introduce new shadow
+parameters when the field is defined in terms of a parameter.
+E.g.,
+	strand S (real r) { field#2(3)[] G = r*F; ... }
+
+Fuse run function and update method for non-bsp programs (this optimization
+will reduce memory traffic and should allow for better optimization of
+the generated C++ code)
+
+========================================================
+Low-priority things to fix:
+============================
+
+Typechecker overhaul: use poly-types for basis, but mono-types for
+typechecking expressions (e.g., SimpleTypes).  Use matching instead
+of unification.  This approach would require passing the expected type
+down into expression checking, but would allow a richer notation for
+poly types (e.g., min constraints).
+

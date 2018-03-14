@@ -1,0 +1,11 @@
+The log-gen tool generates the event-logging infrastructure from
+a description in the ../log-events.json file.  The generated code
+includes
+
+	src/lib/include/diderot/log-events.hxx
+	src/lib/include/diderot/logging.hxx
+
+The file ../log-events.json includes a description of the specification-
+file format.
+
+This code was ported from the Manticore project (http://manticore.cs.uchicago.edu)

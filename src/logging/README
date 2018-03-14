@@ -1,0 +1,6 @@
+This directory contains infrastructure for relatively light-weight logging
+of events in the parallel execution of Diderot programs.  The mechanism
+has to be enabled at configuration time (by passing the '--enable-event-logging'
+flag to the configure command) and at compile time (by passing the '--log-events'
+flag to the diderotc command).  Futhermore, logging is only supported for the
+parallel target at this time.

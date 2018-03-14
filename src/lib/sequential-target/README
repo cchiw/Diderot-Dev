@@ -1,0 +1,4 @@
+This directory holds code that is specific to the runtime system for
+sequential execution.  Currently, there is no such code, but we need
+the directory to support the build process.
+

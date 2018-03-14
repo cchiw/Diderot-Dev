@@ -1,0 +1,33 @@
+(* sources.cm
+ *
+ * This code is part of the Diderot Project (http://diderot-language.cs.uchicago.edu)
+ *
+ * COPYRIGHT (c) 2015 The University of Chicago
+ * All rights reserved.
+ *)
+
+Library
+
+  structure Ein
+  structure EinFilter
+  structure EinPP
+  structure EinSums
+  structure EinUtil
+  structure MkOperators
+  structure DerivativeEin
+
+is
+
+  $/basis.cm
+  $/smlnj-lib.cm
+
+  ../common/sources.cm
+  ../fem/sources.cm
+
+  ein.sml
+  ein-filter.sml
+  ein-pp.sml
+  ein-sums.sml
+  ein-util.sml
+  mk-operators.sml
+  deriv_ein.sml

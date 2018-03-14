@@ -1,0 +1,49 @@
+(* rules.grm
+ *
+ * This code is part of the Diderot Project (http://diderot-language.cs.uchicago.edu)
+ *
+ * COPYRIGHT (c) 2015 The University of Chicago
+ * All rights reserved.
+ *)
+
+%name Rules;
+
+%header (functor RulesParseFn (Lex:ANTLR_LEXER));
+
+%tokens
+  : OPER of Atom.atom
+  | ID of Atom.atom
+  | LP                  ("(")
+  | RP                  (")")
+  | LANGLE              ("<")
+  | RANGLE              (">")
+  | COMMA               (",")
+  | SEMI                (";")
+  | ARROW               ("=>")
+  ;
+ 
+Specification
+	: Rule*
+		=> (ParseTree.Spec Rule)
+	;
+
+Rule
+	: Pattern "=>" Pattern ";"
+		=> (ParseTree.Rule(Pattern1, Pattern2))
+	;
+
+Pattern
+	: ID
+		=> (ParseTree.IdPat ID)
+	| Operator "(" Pattern ("," Pattern)* ")"
+		=> (ParseTree.OpPat(Operator, Pattern::SR))
+	;
+
+Operator
+        : ID TypeArgs?
+                => (ID)
+        ;
+
+TypeArgs
+        : "<" ID ("," ID)* ">"
+        ;

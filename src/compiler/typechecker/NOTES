@@ -1,0 +1,17 @@
+Rules for variables:
+
+Constant variables have global scope and cannot be updated
+
+Input and Global variables have global scope.  They may be updated
+in the global Start block and the global Update block.
+
+Function parameters have function scope and cannot be updated
+
+Strand parameters have strand scope and cannot be updated
+
+Strand state variables have strand scope and can be updated in methods
+
+Local variables have local scope and can be updated
+
+Variables must be defined before they are used (this is a control flow property)
+

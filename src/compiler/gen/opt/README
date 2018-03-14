@@ -1,0 +1,2 @@
+This directory contains a tool for generating rewriting-based optimizations for
+the Diderot compiler.

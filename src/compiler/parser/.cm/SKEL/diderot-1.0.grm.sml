@@ -1,0 +1,2 @@
+Skeleton 5
+d3f3d"Atom"ä¢RealLit"d"IntLit"aä¢Diderot100Tokens"è0ae"Diderot100ParseFn"i2aä¢Lex"gp1c"ANTLR_LEXER"f5Cÿd"List"d"StrandUtil"d"AntlrStreamPos"ÿNh1bd4aä¢Tok"gp1ÿad"UserCode"h3ad"PT"gp1d"ParseTree"ad"L"gp1d"Literal"ad"Op"gp1d"Operators"ad"Err"jh2aÿ‚gp1ÿ‚aÿgp1ÿgp1e"AntlrErrHandler"ad"EBNF"ÿ2f0

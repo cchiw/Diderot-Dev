@@ -1,0 +1,3 @@
+#!/bin/sh
+#
+exec /usr/local/smlnj/bin/sml @SMLcmdname=$0 @SMLload=/Users/chariseechiw/diderot/femprime/bin/.heap/diderotc.x86-darwin $@

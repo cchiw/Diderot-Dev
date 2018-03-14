@@ -1,0 +1,17 @@
+# fragments.gmk
+#
+# This code is part of the Diderot Project (http://diderot-language.cs.uchicago.edu)
+#
+# COPYRIGHT (c) 2016 The University of Chicago
+# All rights reserved.
+#
+# !!! THIS FILE WAS GENERATED; DO NOT EDIT !!!
+#
+
+codegen/fragments.sml: \
+    codegen/fragments/CATALOG \
+    codegen/fragments/lib-h-foot.in \
+    codegen/fragments/lib-h-body.in \
+    codegen/fragments/lib-h-par-extras.in \
+    codegen/fragments/lib-h-head.in \
+    codegen/fragments/lib-api.json

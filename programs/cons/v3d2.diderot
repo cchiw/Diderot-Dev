@@ -1,0 +1,34 @@
+//creates vector field with scalar and then indexing vectors and matrices
+
+//unu save -f nrrd -e ascii -i out.nrrd | less
+//M.nrrd 5 7 9 22
+//C.nrrd is all 3s
+//sd2 -> 41 only
+// v2d2 is [88,97]
+
+int outSize = 10;
+field#0(2)[2,2] G = tent ⊛ image("../data/M2x2.nrrd");
+field#0(2)[2] V = tent ⊛ image("../data/v2d2.nrrd");
+field#0(2)[] S = tent ⊛ image("../data/sd2.nrrd");
+
+field#0(2)[3] F = concat(S,V[0],G[1,1]);
+//expected 41 88 22
+
+
+// expected 9 22 5 9
+strand sample (int ui, int vi) {
+   real uu = lerp(0.0, 1.0, -0.5, real(ui), real(outSize)-0.5);
+   real vv = lerp(0.0, 1.0, -0.5, real(vi), real(outSize)-0.5);
+   vec2 pos = [uu, vv];
+   tensor[3] base = [nan,nan,nan];
+    output tensor[3] out = base;
+
+   update {
+        if (inside(pos,F)){
+        out = F(pos);
+        }
+             stabilize;
+   }
+}
+
+initially [ sample(ui, vi) | vi in 0..(outSize-1), ui in 0..(outSize-1) ];

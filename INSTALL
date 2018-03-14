@@ -1,0 +1,96 @@
+Build instructions for the Diderot compiler
+
+===============
+PREREQUISITES
+===============
+
+You must have TEEM installed, which you can get from
+
+  http://teem.sourceforge.net/download/index.html
+
+You also must have SML/NJ (version 110.79 or later) installed, which you can
+get from
+
+  http://smlnj.org/dist/working/index.html
+
+Diderot is currently supported on Linux and Mac OS X.  It requires a system that is
+capable of running 64-bit executables.  Note that SML/NJ is a 32-bit program, so
+on Linux systems you must also have the 32-bit compatibility libraries installed
+(the exact libraries/packages required will depend on your distribution).
+
+===============
+SOURCE CHECKOUT
+===============
+
+You can checkout the stable version of the Diderot source tree with:
+
+  svn co https://svn.smlnj-gforge.cs.uchicago.edu/svn/diderot/trunk diderot
+
+An anonymous checkout is available via user name "anonsvn" and
+password "anonsvn".  At times, there may also be unstable or
+experimental development branches.  You can explore these using the
+web interface at
+
+  https://smlnj-gforge.cs.uchicago.edu/scm/viewvc.php/?root=diderot
+
+===============
+CONFIGURATION
+===============
+
+Run autoheader:
+
+  % autoheader -Iconfig
+
+Run autoconf:
+
+  % autoconf -Iconfig
+
+Configure the makefiles etc.
+
+  % ./configure --with-teem=/path/to/teem
+
+where "/path/to/teem" is the full path of the directory
+containing the "lib" and "include" directories containing
+"libteem.{a,so,dylib}" and "teem/*.h", respectively.
+
+You can also specify the location of the doxygen executable at
+configuration time using the option
+
+	--with-doxygen=/path/to/doxygen
+
+Doxygen (http://doxygen.org) is used to generate documentation
+for the runtime system.  If you have the Doxygen application
+installed on the Mac, you should specify
+
+	--with-doxygen=/Applications/Doxygen.app/Contents/Resources/doxygen
+
+(assuming that the Doxygen application is installed in the Applications
+folder).
+
+===============
+INSTALLATION
+===============
+
+From the root of the Diderot tree, run
+
+  % make local-install
+
+This command will build the Diderot compiler (bin/diderotc) and
+runtime support.  Assuming that $ROOT is the root of the Diderot tree;
+the above make command will create the following files and directories:
+
+	$ROOT/bin/diderotc	-- the diderotc compiler script
+	$ROOT/bin/.heap		-- contains the diderotc heap image (used by
+				   the diderotc script)
+	$ROOT/lib		-- various versions of the Diderot runtime system
+				   compiled as ".o" files
+	$ROOT/include/Diderot	-- the Diderot header files, which are needed to
+				   compile the output of the diderotc compiler.
+
+It is also possible to install the system outside the Diderot tree.  To do so,
+use the "--prefix" option to the configure command.  For example:
+
+  % configure --with-teem=/path/to/teem --prefix=/usr/local/Diderot
+  % make install
+
+will install the Diderot compiler, libraries, and headers in /usr/local/Diderot.

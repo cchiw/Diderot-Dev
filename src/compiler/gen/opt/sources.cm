@@ -1,0 +1,30 @@
+(* sources.cm
+ *
+ * This code is part of the Diderot Project (http://diderot-language.cs.uchicago.edu)
+ *
+ * COPYRIGHT (c) 2015 The University of Chicago
+ * All rights reserved.
+ *)
+
+Library
+
+  structure Main
+
+is
+
+  $/basis.cm
+  $/smlnj-lib.cm
+  $/pp-lib.cm
+  $/ml-lpt-lib.cm
+
+  rules.lex : ml-ulex
+  rules.grm : ml-antlr
+
+  check-spec.sml
+  dump-dfa.sml
+  error.sml
+  keywords.sml	
+  main.sml
+  match.sml
+  parse-tree.sml
+  rules-parser.sml

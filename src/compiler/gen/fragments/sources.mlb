@@ -1,0 +1,16 @@
+(* sources.mlb
+ *
+ * MLB for generators using MLton
+ *
+ * This code is part of the Diderot Project (http://diderot-language.cs.uchicago.edu)
+ *
+ * COPYRIGHT (c) 2016 The University of Chicago
+ * All rights reserved.
+ *)
+
+$(SML_LIB)/basis/basis.mlb
+$(SML_LIB)/smlnj-lib/Util/smlnj-lib.mlb
+$(SML_LIB)/smlnj-lib/JSON/json-lib.mlb
+
+mkfrags.sml
+main.sml

@@ -1,0 +1,68 @@
+/*! \file logging.hxx
+ *
+ * \author John Reppy
+ *
+ * Inline operations for recording log entries.
+ *
+ * WARNING: this file is generated; do not edit!!!
+ */
+
+/*
+ * This code is part of the Diderot Project (http://diderot-language.cs.uchicago.edu)
+ *
+ * COPYRIGHT (c) 2016 The University of Chicago
+ * All rights reserved.
+ *
+ * This code was ported from the Manticore project (http://manticore.cs.uchicago.edu)
+ */
+
+#ifndef _DIDEROT_LOGGING_HXX_
+#define _DIDEROT_LOGGING_HXX_
+
+#ifdef DIDEROT_ENABLE_LOGGING
+
+#include "log-file.hxx"
+
+namespace diderot {
+
+    namespace log {
+
+      /*! \brief set a timestamp field
+       *  \param ts the address of the timestamp field
+       */
+        inline void set_time_stamp (time_stamp *ts)
+        {
+#if defined(HAVE_MACH_ABSOLUTE_TIME)
+            ts->_mach = mach_absolute_time();
+#elif defined(HAVE_CLOCK_GETTIME)
+            struct timespec t;
+#ifdef CLOCK_MONOTONIC
+            clock_gettime (CLOCK_MONOTONIC, &t);
+#else
+            clock_gettime (CLOCK_REALTIME, &t);
+#endif
+            ts->_tv._sec = t.tv_sec;
+            ts->_tv._frac = t.tv_nsec;
+#else
+            struct timeval t;
+            gettimeofday (&t, 0);
+            ts->_tv._sec = t.tv_sec;
+            ts->_tv._frac = t.tv_usec;
+#endif
+        }
+
+    } // namespace log
+
+} // namespace diderot
+
+@GENERIC-LOG-FUNCTIONS@
+
+@LOG-FUNCTIONS@
+
+#else /* !ENABLE_LOGGING */
+
+@DUMMY-LOG-FUNCTIONS@
+
+#endif
+#endif /* !_DIDEROT_LOGGING_HXX_ */
+

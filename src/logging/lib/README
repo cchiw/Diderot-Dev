@@ -1,0 +1,4 @@
+Some common infrastructure for reading the log files generated
+by the Diderot runtime.  This code also includes support for
+reading the JSON files that describe the log-file format.
+

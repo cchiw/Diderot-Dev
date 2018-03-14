@@ -1,0 +1,36 @@
+/*! \file log-events.hxx
+ *
+ * \author John Reppy
+ *
+ * WARNING: this file is generated; do not edit!!!
+ */
+
+/*
+ * This code is part of the Diderot Project (http://diderot-language.cs.uchicago.edu)
+ *
+ * COPYRIGHT (c) 2016 The University of Chicago
+ * All rights reserved.
+ *
+ * This code was ported from the Manticore project (http://manticore.cs.uchicago.edu)
+ */
+
+#ifndef _LOG_EVENTS_HXX_
+#define _LOG_EVENTS_HXX_
+
+@DATE@
+@VERSION@
+
+namespace diderot {
+
+    namespace log {
+
+        enum {
+            @LOG-EVENTS@
+            NumLogEvents
+        };
+
+    } // namespace log
+
+} // namespace diderot
+
+#endif /* !_LOG_EVENTS_H_ */

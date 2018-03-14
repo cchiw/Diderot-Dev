@@ -1,0 +1,35 @@
+# Makefile for diderot man pages
+#
+# This code is part of the Diderot Project (http://diderot-language.cs.uchicago.edu)
+#
+# COPYRIGHT (c) 2015 The University of Chicago
+# All rights reserved.
+#
+
+SHELL =		@SHELL@
+@SET_MAKE@
+
+A2X =		@A2X@
+
+MANPAGES =	diderotc.1 diderot-api.5
+
+.PHONY:		all
+all:		$(MANPAGES)
+
+diderotc.1:	diderotc.1.txt
+	$(A2X) --doctype manpage --format manpage diderotc.1.txt
+
+diderot-api.5:  diderot-api.5.txt
+	$(A2X) --doctype manpage --format manpage diderot-api.5.txt
+
+#################### Cleanup ####################
+
+CLEAN_SUBDIRS =
+
+CLEAN_FILES =		$(MANPAGES) *.xml
+
+DISTCLEAN_FILES +=	Makefile
+
+DEVCLEAN_FILES =	
+
+include @DIDEROT_MKDIR@/clean-rules.gmk

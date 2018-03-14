@@ -1,0 +1,22 @@
+//unu save -f nrrd -e ascii -i out.nrrd | less
+//M3x3d2 becomes 1 2 3 4 5 6 7 8 9
+int outSize = 10;
+
+field#0(2)[3,3] G = tent ⊛ image("../data/M3x3d2.nrrd");
+field#0(2)[2,3] F = concat(G[1,:],G[:,0]);
+//becomes 4 5 6 1 4 7
+
+strand sample (int ui, int vi) {
+   real uu = lerp(0.0, 1.0, -0.5, real(ui), real(outSize)-0.5);
+   real vv = lerp(0.0, 1.0, -0.5, real(vi), real(outSize)-0.5);
+   vec2 pos = [uu, vv];
+   tensor[2,3] base = [[nan,nan, nan],[nan,nan, nan]];
+   output tensor[2,3] out = base;
+
+   update {
+      out = F(pos) if (inside(pos,F)) else base;
+             stabilize;
+   }
+}
+
+initially [ sample(ui, vi) | vi in 0..(outSize-1), ui in 0..(outSize-1) ];

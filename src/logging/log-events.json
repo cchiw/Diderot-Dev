@@ -1,0 +1,176 @@
+/* log-events.json
+ *
+ * This code is part of the Diderot Project (http://diderot-language.cs.uchicago.edu)
+ *
+ * This code was ported from the Manticore project (http://manticore.cs.uchicago.edu)
+ *
+ * COPYRIGHT (c) 2016 The University of Chicago
+ * All rights reserved.
+ *
+ * This file describes the various events that can be logged by the Diderot system.  It defines
+ * a JSON object with three fields:
+ *
+ *	data	-- a string representing the YYYYMMDD date as a hexadecimal literal.
+ *
+ *	version	-- an array of three integers representing the major, minor, and patch-level
+ *		   version numbers of the file.  The version numbers should be increased as
+ *		   follows:
+ *			-- increase the patch number when changing the description of an event or
+ *			   argument.
+ *			-- increase the minor-version number when adding new events to the end of
+ *			   the file.  Such changes should not effect existing logs with the same
+ *			   major-version number.
+ *			-- increase the major version number when changing the order of events,
+ *			   or changing the order, number, or type of argument to existing events.
+ *
+ *	events	-- an array of event descriptors.  An event descriptor is either a single
+ *		   event, or it is a group of event descriptors.
+ *
+ * The fields of an event descriptor are
+ *
+ *	name	-- symbolic name
+ *
+ *	args	-- an array of argument descriptors.  Each log entry can have up to 20 bytes of
+ *		   argument data, which starts at byte 12 of the event object.
+ *			name	-- the argument's name
+ *			ty	-- the type of the argument.  The types are:
+ *					self	-- 32-bit strand ID of current strand
+ *					strand	-- 32-bit strand ID of other strand
+ *					int	-- 32-bit signed integer
+ *					word	-- 32-bit unsigned integer
+ *					float	-- 32-bit floating-point number
+ *					double	-- 64-bit floating-point number
+ *					new-id	-- a new 64-bit event identifier.  This will be
+ *						   generated and returned by the logging code.
+ *					id	-- 64-bit event identifier
+ *					strN	-- N-character string (0 < N <= 20)
+ *			loc	-- the offset of the field (in bytes) from the start of the event.
+ *				   This field is required when the order of arguments does not
+ *				   determine the layout.
+ *			desc	-- English-language description of argument
+ *
+ *	is-src	-- a boolean that is true if this event is the source of a dependent event and
+ *                 has a new-id argument.
+ *
+ *	desc	-- English-language description of event
+ */
+{
+  "date" : "0x20161219",
+  "version" : [1, 0, 0],
+  "events" : [
+    /* Scheduler events */
+      { "name" : "SchedulerStart",
+	"is-src" : false,
+	"args" : [],
+	"desc" : "scheduler startup"
+      },
+      { "name" : "SchedulerShutdown",
+	"is-src" : false,
+	"args" : [],
+	"desc" : "scheduler shutdown"
+      },
+    /* Worker events */
+      { "name" : "WorkerStart",
+	"is-src" : false,
+	"args" : [],
+	"desc" : "worker thread starts running"
+      },
+      { "name" : "WorkerExit",
+	"is-src" : false,
+	"args" : [],
+	"desc" : "worker thread terminates"
+      },
+      { "name" : "GetStrandBlock",
+	"is-src" : false,
+	"args" : [],
+	"desc" : "attempt to get a new block of strands"
+      },
+      { "name" : "GotStrandBlock",
+	"is-src" : false,
+	"args" : [],
+	"desc" : "got a new block of strands"
+      },
+      { "name" : "NoStrandBlock",
+	"is-src" : false,
+	"args" : [],
+	"desc" : "no available strand blocks"
+      },
+    /* Worker-gate synchronization events */
+      { "name" : "WorkerGateWait",
+	"is-src" : false,
+	"args" : [],
+	"desc" : "worker_gate::worker_wait()"
+      },
+      { "name" : "ControllerGateWait",
+	"is-src" : false,
+	"args" : [],
+	"desc" : "worker_gate::controller_wait()"
+      },
+      { "name" : "GateReleaseWorkers",
+	"is-src" : false,
+	"args" : [],
+	"desc" : "worker_gate::release_workers()"
+      },
+      { "name" : "WorkerGateResume",
+	"is-src" : false,
+	"args" : [],
+	"desc" : "worker_gate::worker_wait() completes"
+      },
+      { "name" : "ControllerGateResume",
+	"is-src" : false,
+	"args" : [],
+	"desc" : "worker_gate::controller_wait() completes"
+      },
+    /* Barrier synchronization events */
+      { "name" : "BarrierWait",
+	"is-src" : false,
+	"args" : [],
+	"desc" : "barrier::wait()"
+      },
+      { "name" : "BarrierResume",
+	"is-src" : false,
+	"args" : [],
+	"desc" : "barrier::wait() completes"
+      },
+    /* KD-Tree events */
+      { "name" : "KDTreeRebuildStart",
+	"is-src" : false,
+	"args" : [],
+	"desc" : "kdtree::rebuild starts"
+      },
+      { "name" : "KDTreeRebuildDone",
+	"is-src" : false,
+	"args" : [],
+	"desc" : "kdtree::rebuild completes"
+      },
+    /* Strand Events */
+      { "name" : "StrandStart",
+	"is-src" : false,
+	"args" : [
+            {"name" : "self", "ty" : "self", "desc" : "Strand ID"}
+          ],
+	"desc" : "strand starts"
+      },
+      { "name" : "StrandUpdate",
+	"is-src" : false,
+	"args" : [
+            {"name" : "self", "ty" : "self", "desc" : "Strand ID"}
+          ],
+	"desc" : "run strand update method"
+      },
+      { "name" : "StrandDie",
+	"is-src" : false,
+	"args" : [
+            {"name" : "self", "ty" : "self", "desc" : "Strand ID"}
+          ],
+	"desc" : "strand dies"
+      },
+      { "name" : "StrandStabilize",
+	"is-src" : false,
+	"args" : [
+            {"name" : "self", "ty" : "self", "desc" : "Strand ID"}
+          ],
+	"desc" : "strand stabilizes"
+      }
+    ]
+}

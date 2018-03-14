@@ -1,0 +1,293 @@
+/* config/config_h.in.  Generated from configure.ac by autoheader.  */
+
+
+/*
+ * This code is part of the Diderot Project (http://diderot-language.cs.uchicago.edu)
+ *
+ * COPYRIGHT (c) 2016 The University of Chicago * All rights reserved.
+ */
+
+#ifndef _DIDEROT_CONFIG_H_
+#define _DIDEROT_CONFIG_H_
+
+
+
+/* Define if building universal (internal helper macro) */
+#undef AC_APPLE_UNIVERSAL_BUILD
+
+/* host vector types are arrays */
+#undef CL_HOST_VECTORS_ARE_ARRAYS
+
+/* host vector types are structs */
+#undef CL_HOST_VECTORS_ARE_STRUCTS
+
+/* version of OpenCL supported by system */
+#undef DIDEROT_CL_VERSION
+
+/* path for Diderot header files */
+#undef DIDEROT_INCLUDE_PATH
+
+/* Define to 1 to support Advanced Bit Manipulation */
+#undef HAVE_ABM
+
+/* Define to 1 to support Multi-Precision Add-Carry Instruction Extensions */
+#undef HAVE_ADX
+
+/* Define to 1 to support Advanced Encryption Standard New Instruction Set
+   (AES-NI) */
+#undef HAVE_AES
+
+/* Support Altivec instructions */
+#undef HAVE_ALTIVEC
+
+/* Define to 1 to support Advanced Vector Extensions */
+#undef HAVE_AVX
+
+/* Define to 1 to support Advanced Vector Extensions 2 */
+#undef HAVE_AVX2
+
+/* Define to 1 to support AVX-512 Byte and Word Instructions */
+#undef HAVE_AVX512_BW
+
+/* Define to 1 to support AVX-512 Conflict Detection Instructions */
+#undef HAVE_AVX512_CD
+
+/* Define to 1 to support AVX-512 Doubleword and Quadword Instructions */
+#undef HAVE_AVX512_DQ
+
+/* Define to 1 to support AVX-512 Exponential & Reciprocal Instructions */
+#undef HAVE_AVX512_ER
+
+/* Define to 1 to support AVX-512 Foundation Extensions */
+#undef HAVE_AVX512_F
+
+/* Define to 1 to support AVX-512 Integer Fused Multiply Add Instructions */
+#undef HAVE_AVX512_IFMA
+
+/* Define to 1 to support AVX-512 Conflict Prefetch Instructions */
+#undef HAVE_AVX512_PF
+
+/* Define to 1 to support AVX-512 Vector Byte Manipulation Instructions */
+#undef HAVE_AVX512_VBMI
+
+/* Define to 1 to support AVX-512 Vector Length Extensions */
+#undef HAVE_AVX512_VL
+
+/* Define to 1 to support Bit Manipulation Instruction Set 1 */
+#undef HAVE_BMI1
+
+/* Define to 1 to support Bit Manipulation Instruction Set 2 */
+#undef HAVE_BMI2
+
+/* Define to 1 if gcc compiler provides atomic operations. */
+#undef HAVE_BUILTIN_ATOMIC_OPS
+
+/* is clock_gettime available? */
+#undef HAVE_CLOCK_GETTIME
+
+/* Define to 1 if you have the <CL/cl.h> header file. */
+#undef HAVE_CL_CL_H
+
+/* define if the compiler supports basic C++11 syntax */
+#undef HAVE_CXX11
+
+/* Define to 1 to support Fused Multiply-Add Extensions 3 */
+#undef HAVE_FMA3
+
+/* Define to 1 to support Fused Multiply-Add Extensions 4 */
+#undef HAVE_FMA4
+
+/* Define to 1 if you have the `getcpu' function. */
+#undef HAVE_GETCPU
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H
+
+/* Define to 1 if you have the `numa' library (-lnuma). */
+#undef HAVE_LIBNUMA
+
+/* Define to 1 if you have the <linux/getcpu.h> header file. */
+#undef HAVE_LINUX_GETCPU_H
+
+/* Define to 1 if you have the `mach_absolute_time' function. */
+#undef HAVE_MACH_ABSOLUTE_TIME
+
+/* Define to 1 if you have the `memalign' function. */
+#undef HAVE_MEMALIGN
+
+/* Define to 1 if you have the <memory.h> header file. */
+#undef HAVE_MEMORY_H
+
+/* Define to 1 to support Multimedia Extensions */
+#undef HAVE_MMX
+
+/* Define to 1 to support Memory Protection Extensions */
+#undef HAVE_MPX
+
+/* Define to 1 if you have the `nanosleep' function. */
+#undef HAVE_NANOSLEEP
+
+/* Define to 1 if you have the `nrrdMetaDataNormalize' function. */
+#undef HAVE_NRRDMETADATANORMALIZE
+
+/* Define to 1 if you have the <OpenCL/cl.h> header file. */
+#undef HAVE_OPENCL_CL_H
+
+/* Define to 1 if you have the `posix_memalign' function. */
+#undef HAVE_POSIX_MEMALIGN
+
+/* Define to 1 to support Prefetch Vector Data Into Caches WT1 */
+#undef HAVE_PREFETCHWT1
+
+/* Define if you have POSIX threads libraries and header files. */
+#undef HAVE_PTHREAD
+
+/* Define to 1 if you have the `pthread_barrier_init' function. */
+#undef HAVE_PTHREAD_BARRIER_INIT
+
+/* Define to 1 if you have the `pthread_getcpuclockid' function. */
+#undef HAVE_PTHREAD_GETCPUCLOCKID
+
+/* is pthread_setaffinity_np available? */
+#undef HAVE_PTHREAD_SETAFFINITY_NP
+
+/* Define to 1 to support Digital Random Number Generator */
+#undef HAVE_RDRND
+
+/* Define to 1 if you have the `sched_getcpu' function. */
+#undef HAVE_SCHED_GETCPU
+
+/* Define to 1 to support Secure Hash Algorithm Extension */
+#undef HAVE_SHA
+
+/* Define to 1 if you have the `sigtimedwait' function. */
+#undef HAVE_SIGTIMEDWAIT
+
+/* Define to 1 to support Streaming SIMD Extensions */
+#undef HAVE_SSE
+
+/* Define to 1 to support Streaming SIMD Extensions */
+#undef HAVE_SSE2
+
+/* Define to 1 to support Streaming SIMD Extensions 3 */
+#undef HAVE_SSE3
+
+/* Define to 1 to support Streaming SIMD Extensions 4.1 */
+#undef HAVE_SSE4_1
+
+/* Define to 1 to support Streaming SIMD Extensions 4.2 */
+#undef HAVE_SSE4_2
+
+/* Define to 1 to support AMD Streaming SIMD Extensions 4a */
+#undef HAVE_SSE4a
+
+/* Define to 1 to support Supplemental Streaming SIMD Extensions 3 */
+#undef HAVE_SSSE3
+
+/* Define to 1 if stdbool.h conforms to C99. */
+#undef HAVE_STDBOOL_H
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the <strings.h> header file. */
+#undef HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#undef HAVE_STRING_H
+
+/* Define to 1 if the system has the type `struct timespec'. */
+#undef HAVE_STRUCT_TIMESPEC
+
+/* Define if SYS_getcpu is defined in <sys/syscall.h> */
+#undef HAVE_SYS_GETCPU
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H
+
+/* Define to 1 if you have the `valloc' function. */
+#undef HAVE_VALLOC
+
+/* Define to 1 to support eXtended Operations Extensions */
+#undef HAVE_XOP
+
+/* Define to 1 if the system has the type `_Bool'. */
+#undef HAVE__BOOL
+
+/* Define to 1 if you have the file `/proc/cpuinfo'. */
+#undef HAVE__PROC_CPUINFO
+
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
+
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
+
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
+
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
+
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* Define to necessary symbol if this constant uses a non-standard name on
+   your system. */
+#undef PTHREAD_CREATE_JOINABLE
+
+/* The size of `cl_double', as computed by sizeof. */
+#undef SIZEOF_CL_DOUBLE
+
+/* The size of `cl_float', as computed by sizeof. */
+#undef SIZEOF_CL_FLOAT
+
+/* The size of `cl_int', as computed by sizeof. */
+#undef SIZEOF_CL_INT
+
+/* The size of `cl_long', as computed by sizeof. */
+#undef SIZEOF_CL_LONG
+
+/* The size of `double', as computed by sizeof. */
+#undef SIZEOF_DOUBLE
+
+/* The size of `float', as computed by sizeof. */
+#undef SIZEOF_FLOAT
+
+/* The size of `int', as computed by sizeof. */
+#undef SIZEOF_INT
+
+/* The size of `long', as computed by sizeof. */
+#undef SIZEOF_LONG
+
+/* Define to 1 if you have the ANSI C header files. */
+#undef STDC_HEADERS
+
+/* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
+   significant byte first (like Motorola and SPARC, unlike Intel). */
+#if defined AC_APPLE_UNIVERSAL_BUILD
+# if defined __BIG_ENDIAN__
+#  define WORDS_BIGENDIAN 1
+# endif
+#else
+# ifndef WORDS_BIGENDIAN
+#  undef WORDS_BIGENDIAN
+# endif
+#endif
+
+
+
+#endif /* !_DIDEROT_CONFIG_H_ */
+

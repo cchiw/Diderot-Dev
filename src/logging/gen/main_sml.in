@@ -1,0 +1,69 @@
+(* main_sml.in
+ *
+ * This code is part of the Diderot Project (http://diderot-language.cs.uchicago.edu)
+ *
+ * COPYRIGHT (c) 2016 The University of Chicago
+ * All rights reserved.
+ *
+ * This code was ported from the Manticore project (http://manticore.cs.uchicago.edu)
+ *
+ * @configure_input@
+ *)
+
+structure Main : sig
+
+    val main : (string * string list) -> OS.Process.status
+
+  end = struct
+
+    structure P = OS.Path
+
+    structure GenLogEventsHxx = GeneratorFn (GenLogEventsHxx)
+    structure GenLoggingHxx = GeneratorFn (GenLoggingHxx)
+
+    val rootDir = "@DIDEROT_ROOT@"
+    val templateDir = "@DIDEROT_SRCDIR@/logging/gen/templates"
+    val jsonFile = "@DIDEROT_SRCDIR@/logging/log-events.json"
+
+    fun mkTarget (template, path, gen) =
+	  (P.concat(templateDir, template), P.concat(rootDir, path), gen)
+
+    val targets = List.map mkTarget [
+	    (GenLogEventsHxx.template,	GenLogEventsHxx.path,	GenLogEventsHxx.gen),
+	    (GenLoggingHxx.template,	GenLoggingHxx.path,	GenLoggingHxx.gen)
+	  ]
+
+    fun usage () = TextIO.output (TextIO.stdErr, "usage: log-gen [-help] [-clean] [-depend]\n")
+
+    fun main (cmd, args) = let
+	  val info = LoadFile.loadFile jsonFile
+	(* remove the generated file *)
+	  fun cleanOne (_, path, _) = if OS.FileSys.access(path, [])
+		then OS.FileSys.remove path
+		else ()
+	(* output the "make" dependency for the target *)
+	  fun genDependOne (template, path, _) = TextIO.print(concat[
+		  path, ": ", template, " ", jsonFile, "\n"
+		])
+	(* generate a file from its template *)
+	  fun genOne (template, path, gen) = (
+		TextIO.output(TextIO.stdErr, concat[
+		    "generating ", path, " from ", template, "\n"
+		  ]);
+		gen {logSpec = info, template = template, target = path})
+	  in
+	    case args
+	     of ["-clean"] => List.app cleanOne targets
+	      | ["-depend"] => List.app genDependOne targets
+	      | ["-help"] => usage()
+	      | [] => List.app genOne targets
+	      | _ => (usage(); OS.Process.exit OS.Process.failure)
+	    (* end case *);
+	    OS.Process.success
+	  end
+	    handle ex => (
+	      print(concat["uncaught exception ", General.exnMessage ex, "\n"]);
+	      OS.Process.failure)
+
+  end
+

@@ -1,0 +1,8 @@
+// some test rules
+
+ProbeField(AddField(F,G),x)         => AddField(ProbeField(F,x), ProbeField(G,x));
+ProbeField(SubField(F,G),x)         => SubField(ProbeField(F,x), ProbeField(G,x));
+ProbeField(DotField (F,G),x)        => DotField(ProbeField(F,x), ProbeField(G,x));
+ProbeField(ScaleField(s,F),x)       => ScaleField(s,ProbeField(F,x));
+DiffField(DotField(F,G))            => AddField(DotField(DiffField(F),G), DotField(F, DiffField (G)));
+

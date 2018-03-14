@@ -1,0 +1,28 @@
+(* sources.cm
+ *
+ * This code is part of the Diderot Project (http://diderot-language.cs.uchicago.edu)
+ *
+ * COPYRIGHT (c) 2016 The University of Chicago
+ * All rights reserved.
+ *
+ * This code was ported from the Manticore project (http://manticore.cs.uchicago.edu)
+ *)
+
+Library
+  structure Main
+is
+
+  $/basis.cm
+  $/smlnj-lib.cm
+  $/json-lib.cm
+  $/regexp-lib.cm
+
+  event-sig.sml
+  generator-fn.sml
+  generator-sig.sml
+  load-file.sml
+  main.sml
+
+(* specific generators *)
+  gen-log-events-hxx.sml
+  gen-logging-hxx.sml

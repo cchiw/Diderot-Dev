@@ -1,0 +1,11 @@
+    | translateCoordinates of meshElem.fnspace *int * real list* string list * string list list
+(when is it the same? fnspace?
+
+
+      | findCellExpand of meshElem.fnspace *string*int*int*int
+      | basisEvaluation  of meshElem.fnspace *string list * int * string list
+      | ProbePhi of meshElem.fnspace*int*int*int*int
+      | findCellPush of int * string
+      | EvalFem of meshElem.fnspace * int * int * int list
+      | checkCell
+       | RIfWrap
