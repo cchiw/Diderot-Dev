@@ -129,6 +129,7 @@ ArcSin : : 1 : 1 : returns the arcsine
 Tan    : : 1 : 1 : returns the tangent
 ArcTan : : 1 : 1 : returns the arctangent
 Exp    : : 1 : 1 : returns "e" raised to its argument
+Sgn    : : 1 : 1 : return the sign
 #
 # convert an integer to a real
 IntToReal : : 1 : 1 :
@@ -203,3 +204,9 @@ checkCell: : 1: 1 : #check if result of findcell is TF
 #ifwrap
 IfWrap:: 1 :3 : #if expression. creates in-line function else.
 sp_getCell: : 1: 1: #convert fcTy to cell
+# swap expression
+swap2: : 1 :2 : #swap 2
+swap3: : 1 :3 : #swap 3
+swap4: : 1 :4 : #swap 4
+swap5: : 1 :5 : #swap 5
+swap6: : 1 :6 : #swap 6

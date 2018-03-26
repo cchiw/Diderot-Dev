@@ -173,17 +173,10 @@ CellToNode : : 1 : 1 : # Cell To Node map
 NodeToPoint : : 1 : 1 : #Node To Point map
 NodeToCoord : : 1 : 1  : #Node To Coord Map
 Coordinates : : 1 : 1 : #Coordinates
-#expand find cell
-#makeTransformHelper :int * intList * stringList : 1 : 0 : # make Transform
-#makeTransform : int : 1 : 4 : # make Transform
-#makeJacobiansHelper :int * ty * ty * ty: 1 : 0 : # make jacobian
-#makeJacobians :int : 1 : 4 : # get jacobians
-#makeJIs :int *ty * ty * ty * ty * ty: 1 : 0 : # make jacobian
 # calls jacobInverse and helpJIs
 makeTranslateCoordinates :fnspace*int * realList* stringList * stringLists: 1 : 0 : # make translate coords
 makeFindCellExpand: fnspace* string*int*int*int : 1 : 6 : #make find cell
 makeBasisEvaluation: fnspace*stringList*int*stringList :1:6: #make basis evaluation and basis derivative evaluation
-#makeAffineDerivative : fnspace*int*int*int*int*sting list list : 1
 # push find cell
 makeFindCellPush  : int * string : 1 : 6 : #FindCell
 # post find cel

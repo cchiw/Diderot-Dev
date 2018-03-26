@@ -87,9 +87,122 @@ structure Ctl =
             help = "disable tree-ir contraction",
             default = true
           }
-    val optimizeControls = [
-            inline, highVN, midVN, midContract, lowVN, lowContract, treeContract
-          ]
+    val sliceFlag = C.genControl {
+            name = "sliceFlag",
+            pri = [2, 2, 0],
+            obscurity = 5,
+            help = "disable slicing",
+            default = true
+        }
+    val fullSplitFlag= C.genControl {
+            name = "fullSplitFlag",
+            pri = [2, 2, 0],
+            obscurity = 5,
+            help = "full splitting (besides probe)",
+            default = true
+        }
+
+    val  scaFlag= C.genControl {
+            name = "scaFlag",
+            pri = [2, 2, 0],
+            obscurity = 5,
+            help = " limits vector operators to scalars",
+            default = false
+        }
+    val replaceFlag = C.genControl {
+            name = "replaceFlag",
+            pri = [2, 2, 0],
+            obscurity = 5,
+            help = "replace fields instead of lifting",
+            default = false
+        }
+
+    val readEin1 = C.genControl {
+            name = "readEin1",
+            pri = [2, 2, 0],
+            obscurity = 5,
+            help = "readable version of EIN notation. One pass",
+            default = false
+        }
+
+    val readEin2 = C.genControl {
+            name = "readEin2",
+            pri = [2, 2, 0],
+            obscurity = 5,
+            help = "readable version of EIN notation. Two passes",
+            default = false
+        }
+
+    val readEin3 = C.genControl {
+            name = "readEin3",
+            pri = [2, 2, 0],
+            obscurity = 5,
+            help = "readable version of EIN notation. Three passes",
+            default = false
+        }
+
+    val readEin4 = C.genControl {
+            name = "readEin4",
+            pri = [2, 2, 0],
+            obscurity = 5,
+            help = "readable version of EIN notation. Four passes",
+            default = false
+        }
+    val readEin5 = C.genControl {
+            name = "readEin5",
+            pri = [2, 2, 0],
+            obscurity = 5,
+            help = "readable version of EIN notation. Five passes",
+            default = false
+        }
+
+
+    val readEinRewrite = C.genControl {
+            name = "readEinRewrite",
+            pri = [2, 2, 0],
+            obscurity = 5,
+            help = "readable version of EIN notation. Prints multiple versions from various rewriting passes.",
+            default = false
+        }
+
+    val readEinSplit = C.genControl {
+            name = "readEinSplit",
+            pri = [2, 2, 0],
+            obscurity = 5,
+            help = "readable version of EIN notation. Prints out the computation split into pieces. ",
+            default = false
+        }
+
+
+    val readEinUni = C.genControl {
+            name = "readEinUni",
+            pri = [2, 2, 0],
+            obscurity = 5,
+            help = "Translate EIN to unicode",
+            default = false
+        }
+
+    val readEinLatex = C.genControl {
+            name = "readEinLatex",
+            pri = [2, 2, 0],
+            obscurity = 5,
+            help = "Translate EIN to latex",
+            default = false
+        }
+
+    val readEinWord = C.genControl {
+            name = "readEinWord",
+            pri = [2, 2, 0],
+            obscurity = 5,
+            help = "Translate EIN to words",
+            default = false
+        }
+
+
+
+val optimizeControls = [
+inline, highVN, midVN, midContract, lowVN, lowContract, treeContract,sliceFlag, fullSplitFlag, scaFlag ,replaceFlag,readEin1, readEin2, readEin3, readEin4,readEin5, readEinRewrite,readEinSplit,readEinUni,readEinLatex,readEinWord]
+
 
     val dumpPT = C.genControl {
             name = "dump-pt",

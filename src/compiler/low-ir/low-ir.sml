@@ -29,10 +29,10 @@ structure LowOps =
     val hashelement = meshElem.hashElement
     val elementToString = meshElem.toStringElement
 
-type fnspace = meshElem.fnspace
-val samefnspace = meshElem.samefnspace
-val hashfnspace= meshElem.hashfnspace
-val fnspaceToString = meshElem.toStringfnspace
+    type fnspace = meshElem.fnspace
+    val samefnspace = meshElem.samefnspace
+    val hashfnspace= meshElem.hashfnspace
+    val fnspaceToString = meshElem.toStringfnspace
 
 
   (* required helper functions for type lists *)
@@ -63,27 +63,27 @@ val fnspaceToString = meshElem.toStringfnspace
     val hashidxctl = IndexCtl.hash
     val idxctlToString = IndexCtl.toString
 
-type intList = int list
-fun sameintList(tys1, tys2) = ListPair.allEq sameint (tys1, tys2)
-fun hashintList tys =  List.foldl (fn (ty, s) => hashint ty + 0w3 * s) 0w0 tys
-fun intListToString  e = "int list"
+    type intList = int list
+    fun sameintList(tys1, tys2) = ListPair.allEq sameint (tys1, tys2)
+    fun hashintList tys =  List.foldl (fn (ty, s) => hashint ty + 0w3 * s) 0w0 tys
+    fun intListToString  e = "int list"
 
 
-type realList = real list
-fun samereal(e1:real,e2:real)=  (abs(e1-e2)<0.001)
-fun samerealList(tys1, tys2) = ListPair.allEq samereal (tys1, tys2)
-fun hashrealList tys =  List.foldl (fn (ty, s) =>   0w3 * s) 0w0 tys
-fun realListToString  e = "real list"
+    type realList = real list
+    fun samereal(e1:real,e2:real)=  (abs(e1-e2)<0.001)
+    fun samerealList(tys1, tys2) = ListPair.allEq samereal (tys1, tys2)
+    fun hashrealList tys =  List.foldl (fn (ty, s) =>   0w3 * s) 0w0 tys
+    fun realListToString  e = "real list"
 
-type stringList = string list
-fun samestringList(tys1, tys2) = ListPair.allEq samestring (tys1, tys2)
-fun hashstringList tys =  List.foldl (fn (ty, s) => hashstring ty + 0w3 * s) 0w0 tys
-fun stringListToString e = "string list"
+    type stringList = string list
+    fun samestringList(tys1, tys2) = ListPair.allEq samestring (tys1, tys2)
+    fun hashstringList tys =  List.foldl (fn (ty, s) => hashstring ty + 0w3 * s) 0w0 tys
+    fun stringListToString e = "string list"
 
-type stringLists = string list list
-fun samestringLists(tys1, tys2) = ListPair.allEq samestringList (tys1, tys2)
-fun hashstringLists tys = List.foldl (fn (ty, s) => hashstringList ty + 0w3 * s) 0w0 tys
-fun stringListsToString e = "string list list "
+    type stringLists = string list list
+    fun samestringLists(tys1, tys2) = ListPair.allEq samestringList (tys1, tys2)
+    fun hashstringLists tys = List.foldl (fn (ty, s) => hashstringList ty + 0w3 * s) 0w0 tys
+    fun stringListsToString e = "string list list "
 
     datatype rator
       = IAdd
@@ -150,6 +150,7 @@ fun stringListsToString e = "string list list "
       | Tan
       | ArcTan
       | Exp
+      | Sgn
       | Ceiling of int
       | Floor of int
       | Round of int
@@ -195,6 +196,11 @@ fun stringListsToString e = "string list list "
       | checkCell
       | IfWrap
       | sp_getCell
+      | swap2
+      | swap3
+      | swap4
+      | swap5
+      | swap6
 
     fun resultArity IAdd = 1
       | resultArity ISub = 1
@@ -260,6 +266,7 @@ fun stringListsToString e = "string list list "
       | resultArity Tan = 1
       | resultArity ArcTan = 1
       | resultArity Exp = 1
+      | resultArity Sgn = 1
       | resultArity (Ceiling _) = 1
       | resultArity (Floor _) = 1
       | resultArity (Round _) = 1
@@ -305,6 +312,11 @@ fun stringListsToString e = "string list list "
       | resultArity checkCell = 1
       | resultArity IfWrap = 1
       | resultArity sp_getCell = 1
+      | resultArity swap2 = 1
+      | resultArity swap3 = 1
+      | resultArity swap4 = 1
+      | resultArity swap5 = 1
+      | resultArity swap6 = 1
 
     fun arity IAdd = 2
       | arity ISub = 2
@@ -370,6 +382,7 @@ fun stringListsToString e = "string list list "
       | arity Tan = 1
       | arity ArcTan = 1
       | arity Exp = 1
+      | arity Sgn = 1
       | arity (Ceiling _) = 1
       | arity (Floor _) = 1
       | arity (Round _) = 1
@@ -415,6 +428,11 @@ fun stringListsToString e = "string list list "
       | arity checkCell = 1
       | arity IfWrap = 3
       | arity sp_getCell = 1
+      | arity swap2 = 2
+      | arity swap3 = 3
+      | arity swap4 = 4
+      | arity swap5 = 5
+      | arity swap6 = 1
 
     fun isPure (MkDynamic _) = false
       | isPure (Append _) = false
@@ -489,6 +507,7 @@ fun stringListsToString e = "string list list "
       | same (Tan, Tan) = true
       | same (ArcTan, ArcTan) = true
       | same (Exp, Exp) = true
+      | same (Sgn, Sgn) = true
       | same (Ceiling(a0), Ceiling(b0)) = sameint(a0, b0)
       | same (Floor(a0), Floor(b0)) = sameint(a0, b0)
       | same (Round(a0), Round(b0)) = sameint(a0, b0)
@@ -534,6 +553,11 @@ fun stringListsToString e = "string list list "
       | same (checkCell, checkCell) = true
       | same (IfWrap, IfWrap) = true
       | same (sp_getCell, sp_getCell) = true
+      | same (swap2, swap2) = true
+      | same (swap3, swap3) = true
+      | same (swap4, swap4) = true
+      | same (swap5, swap5) = true
+      | same (swap6, swap6) = true
       | same _ = false
 
     fun hash IAdd = 0w3
@@ -600,51 +624,57 @@ fun stringListsToString e = "string list list "
       | hash Tan = 0w307
       | hash ArcTan = 0w311
       | hash Exp = 0w313
-      | hash (Ceiling(a0)) = 0w317 + hashint a0
-      | hash (Floor(a0)) = 0w331 + hashint a0
-      | hash (Round(a0)) = 0w337 + hashint a0
-      | hash (Trunc(a0)) = 0w347 + hashint a0
-      | hash IntToReal = 0w349
-      | hash (RealToInt(a0)) = 0w353 + hashint a0
-      | hash (NumStrands(a0)) = 0w359 + StrandSets.hash a0
-      | hash (Strands(a0,a1)) = 0w367 + hashty a0 + StrandSets.hash a1
-      | hash (Transform(a0)) = 0w373 + ImageInfo.hash a0
-      | hash (Translate(a0)) = 0w379 + ImageInfo.hash a0
-      | hash (ControlIndex(a0,a1,a2)) = 0w383 + ImageInfo.hash a0 + hashidxctl a1 + hashint a2
-      | hash (LoadVoxel(a0)) = 0w389 + ImageInfo.hash a0
-      | hash (Inside(a0,a1)) = 0w397 + ImageInfo.hash a0 + hashint a1
-      | hash (IndexInside(a0,a1)) = 0w401 + ImageInfo.hash a0 + hashint a1
-      | hash (ImageDim(a0,a1)) = 0w409 + ImageInfo.hash a0 + hashint a1
-      | hash (LoadSeq(a0,a1)) = 0w419 + hashty a0 + hashstring a1
-      | hash (LoadImage(a0,a1)) = 0w421 + hashty a0 + hashstring a1
-      | hash KillAll = 0w431
-      | hash StabilizeAll = 0w433
-      | hash (Print(a0)) = 0w439 + hashtys a0
-      | hash (MathFn(a0)) = 0w443 + MathFns.hash a0
-      | hash Dimension = 0w449
-      | hash NumCells = 0w457
-      | hash GetTracker = 0w461
-      | hash BasisData = 0w463
-      | hash CellToNode = 0w467
-      | hash NodeToPoint = 0w479
-      | hash NodeToCoord = 0w487
-      | hash Coordinates = 0w491
-      | hash (makeTranslateCoordinates(a0,a1,a2,a3,a4)) = 0w499 + hashfnspace a0 + hashint a1 + hashrealList a2 + hashstringList a3 + hashstringLists a4
-      | hash (makeFindCellExpand(a0,a1,a2,a3,a4)) = 0w503 + hashfnspace a0 + hashstring a1 + hashint a2 + hashint a3 + hashint a4
-      | hash (makeBasisEvaluation(a0,a1,a2,a3)) = 0w509 + hashfnspace a0 + hashstringList a1 + hashint a2 + hashstringList a3
-      | hash (makeFindCellPush(a0,a1)) = 0w521 + hashint a0 + hashstring a1
-      | hash GetCell = 0w523
-      | hash GetPos = 0w541
-      | hash GetNode = 0w547
-      | hash ProbeNodeB = 0w557
-      | hash ProbeNodeC = 0w563
-      | hash (ProbeF(a0,a1,a2,a3)) = 0w569 + hashfnspace a0 + hashint a1 + hashint a2 + hashint a3
-      | hash (ProbeInvF(a0,a1,a2,a3)) = 0w571 + hashfnspace a0 + hashint a1 + hashint a2 + hashint a3
-      | hash (ProbePhi(a0,a1,a2,a3)) = 0w577 + hashfnspace a0 + hashint a1 + hashint a2 + hashint a3
-      | hash (EvalFem(a0,a1,a2,a3)) = 0w587 + hashfnspace a0 + hashint a1 + hashint a2 + hashintList a3
-      | hash checkCell = 0w593
-      | hash IfWrap = 0w599
-      | hash sp_getCell = 0w601
+      | hash Sgn = 0w317
+      | hash (Ceiling(a0)) = 0w331 + hashint a0
+      | hash (Floor(a0)) = 0w337 + hashint a0
+      | hash (Round(a0)) = 0w347 + hashint a0
+      | hash (Trunc(a0)) = 0w349 + hashint a0
+      | hash IntToReal = 0w353
+      | hash (RealToInt(a0)) = 0w359 + hashint a0
+      | hash (NumStrands(a0)) = 0w367 + StrandSets.hash a0
+      | hash (Strands(a0,a1)) = 0w373 + hashty a0 + StrandSets.hash a1
+      | hash (Transform(a0)) = 0w379 + ImageInfo.hash a0
+      | hash (Translate(a0)) = 0w383 + ImageInfo.hash a0
+      | hash (ControlIndex(a0,a1,a2)) = 0w389 + ImageInfo.hash a0 + hashidxctl a1 + hashint a2
+      | hash (LoadVoxel(a0)) = 0w397 + ImageInfo.hash a0
+      | hash (Inside(a0,a1)) = 0w401 + ImageInfo.hash a0 + hashint a1
+      | hash (IndexInside(a0,a1)) = 0w409 + ImageInfo.hash a0 + hashint a1
+      | hash (ImageDim(a0,a1)) = 0w419 + ImageInfo.hash a0 + hashint a1
+      | hash (LoadSeq(a0,a1)) = 0w421 + hashty a0 + hashstring a1
+      | hash (LoadImage(a0,a1)) = 0w431 + hashty a0 + hashstring a1
+      | hash KillAll = 0w433
+      | hash StabilizeAll = 0w439
+      | hash (Print(a0)) = 0w443 + hashtys a0
+      | hash (MathFn(a0)) = 0w449 + MathFns.hash a0
+      | hash Dimension = 0w457
+      | hash NumCells = 0w461
+      | hash GetTracker = 0w463
+      | hash BasisData = 0w467
+      | hash CellToNode = 0w479
+      | hash NodeToPoint = 0w487
+      | hash NodeToCoord = 0w491
+      | hash Coordinates = 0w499
+      | hash (makeTranslateCoordinates(a0,a1,a2,a3,a4)) = 0w503 + hashfnspace a0 + hashint a1 + hashrealList a2 + hashstringList a3 + hashstringLists a4
+      | hash (makeFindCellExpand(a0,a1,a2,a3,a4)) = 0w509 + hashfnspace a0 + hashstring a1 + hashint a2 + hashint a3 + hashint a4
+      | hash (makeBasisEvaluation(a0,a1,a2,a3)) = 0w521 + hashfnspace a0 + hashstringList a1 + hashint a2 + hashstringList a3
+      | hash (makeFindCellPush(a0,a1)) = 0w523 + hashint a0 + hashstring a1
+      | hash GetCell = 0w541
+      | hash GetPos = 0w547
+      | hash GetNode = 0w557
+      | hash ProbeNodeB = 0w563
+      | hash ProbeNodeC = 0w569
+      | hash (ProbeF(a0,a1,a2,a3)) = 0w571 + hashfnspace a0 + hashint a1 + hashint a2 + hashint a3
+      | hash (ProbeInvF(a0,a1,a2,a3)) = 0w577 + hashfnspace a0 + hashint a1 + hashint a2 + hashint a3
+      | hash (ProbePhi(a0,a1,a2,a3)) = 0w587 + hashfnspace a0 + hashint a1 + hashint a2 + hashint a3
+      | hash (EvalFem(a0,a1,a2,a3)) = 0w593 + hashfnspace a0 + hashint a1 + hashint a2 + hashintList a3
+      | hash checkCell = 0w599
+      | hash IfWrap = 0w601
+      | hash sp_getCell = 0w607
+      | hash swap2 = 0w613
+      | hash swap3 = 0w617
+      | hash swap4 = 0w619
+      | hash swap5 = 0w631
+      | hash swap6 = 0w641
 
     fun toString IAdd = "IAdd"
       | toString ISub = "ISub"
@@ -710,6 +740,7 @@ fun stringListsToString e = "string list list "
       | toString Tan = "Tan"
       | toString ArcTan = "ArcTan"
       | toString Exp = "Exp"
+      | toString Sgn = "Sgn"
       | toString (Ceiling(a0)) = concat["Ceiling<", intToString a0, ">"]
       | toString (Floor(a0)) = concat["Floor<", intToString a0, ">"]
       | toString (Round(a0)) = concat["Round<", intToString a0, ">"]
@@ -755,6 +786,11 @@ fun stringListsToString e = "string list list "
       | toString checkCell = "checkCell"
       | toString IfWrap = "IfWrap"
       | toString sp_getCell = "sp_getCell"
+      | toString swap2 = "swap2"
+      | toString swap3 = "swap3"
+      | toString swap4 = "swap4"
+      | toString swap5 = "swap5"
+      | toString swap6 = "swap6"
 
   end
 
