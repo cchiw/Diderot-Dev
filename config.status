@@ -433,7 +433,7 @@ Copyright (C) 2012 Free Software Foundation, Inc.
 This config.status script is free software; the Free Software Foundation
 gives unlimited permission to copy, distribute and modify it."
 
-ac_pwd='/Users/chariseechiw/diderot/femprime'
+ac_pwd='/Users/chariseechiw/diderot/Diderot-Dev'
 srcdir='.'
 INSTALL='/usr/bin/install -c'
 test -n "$AWK" || AWK=awk
@@ -631,8 +631,8 @@ S["ASCIIDOC"]="none"
 S["DOXYGEN"]="none"
 S["SML"]="smlnj"
 S["MLTON"]=""
-S["INSTALL_SMLNJ_WRAPPER"]="/Users/chariseechiw/diderot/femprime/bin/install-sml-wrapper.sh"
-S["HEAP_IMAGE_DIR"]="/Users/chariseechiw/diderot/femprime/bin/.heap"
+S["INSTALL_SMLNJ_WRAPPER"]="/Users/chariseechiw/diderot/Diderot-Dev/bin/install-sml-wrapper.sh"
+S["HEAP_IMAGE_DIR"]="/Users/chariseechiw/diderot/Diderot-Dev/bin/.heap"
 S["ML_BUILD"]="/usr/local/smlnj/bin/ml-build"
 S["ML_MAKEDEPEND"]="/usr/local/smlnj/bin/ml-makedepend"
 S["SMLNJ_HEAP_SUFFIX"]="x86-darwin"
@@ -689,12 +689,12 @@ S["CPPFLAGS"]=""
 S["LDFLAGS"]=""
 S["CFLAGS"]="-g -O2"
 S["CC"]="gcc"
-S["DIDEROT_MKDIR"]="/Users/chariseechiw/diderot/femprime/mk"
-S["DIDEROT_BINDIR"]="/Users/chariseechiw/diderot/femprime/bin"
-S["DIDEROT_LIBDIR"]="/Users/chariseechiw/diderot/femprime/lib"
-S["DIDEROT_SRCDIR"]="/Users/chariseechiw/diderot/femprime/src"
-S["DIDEROT_DOCDIR"]="/Users/chariseechiw/diderot/femprime/doc"
-S["DIDEROT_ROOT"]="/Users/chariseechiw/diderot/femprime"
+S["DIDEROT_MKDIR"]="/Users/chariseechiw/diderot/Diderot-Dev/mk"
+S["DIDEROT_BINDIR"]="/Users/chariseechiw/diderot/Diderot-Dev/bin"
+S["DIDEROT_LIBDIR"]="/Users/chariseechiw/diderot/Diderot-Dev/lib"
+S["DIDEROT_SRCDIR"]="/Users/chariseechiw/diderot/Diderot-Dev/src"
+S["DIDEROT_DOCDIR"]="/Users/chariseechiw/diderot/Diderot-Dev/doc"
+S["DIDEROT_ROOT"]="/Users/chariseechiw/diderot/Diderot-Dev"
 S["host_os"]="darwin14.5.0"
 S["host_vendor"]="apple"
 S["host_cpu"]="x86_64"
@@ -829,7 +829,7 @@ D["HAVE_STRUCT_TIMESPEC"]=" 1"
 D["HAVE_NANOSLEEP"]=" 1"
 D["DIDEROT_CL_VERSION"]=" 0"
 D["HAVE_NRRDMETADATANORMALIZE"]=" 1"
-D["DIDEROT_INCLUDE_PATH"]=" \"/Users/chariseechiw/diderot/femprime/src/lib/include\""
+D["DIDEROT_INCLUDE_PATH"]=" \"/Users/chariseechiw/diderot/Diderot-Dev/src/lib/include\""
   for (key in D) D_is_set[key] = 1
   FS = ""
 }

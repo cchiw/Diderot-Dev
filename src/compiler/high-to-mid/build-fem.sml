@@ -69,30 +69,22 @@ structure BuildFem : sig
     (* get name of data file*)
     fun evaluate (y, rhs as IR.EINAPP(ein as E.EIN{body,index,...}, args)) =
     let
-        (*val _ = (EinPP.expToString(body))*)
-            val _ = print"\n\nbefore BF eval"
+        (*deconstruct body *)
         val E.Probe(fld, E.Tensor(pid,_)) = body
-
-        val _ = print "a"
         val E.Probe(E.OField(ofield, E.Tensor(fid, _), dx) , E.Tensor(pid,_)) = body
         val vp = List.nth(args, pid)
 
         val body = fld
 	val level = List.length(dx)
-     val _ = print "b"
 	val shape = List.rev(List.drop(List.rev(index),level))
-     val _ = print "c"
         val (Pall, space, sdim, dim, sBasisFunctions, vL, mN, mP, vTC, vfindcell, mC, vX, vB,sBasisDervs) = translate(body, vp, args)
 
-        val _ = print "d"
         val nn = length(sBasisDervs)
-        val _ = (String.concat["\nsBasisDervs: ",Int.toString(nn),"level:",Int.toString(level)])
+        (*val _ = (String.concat["\nsBasisDervs: ",Int.toString(nn),"level:",Int.toString(level)])*)
 
         val _ = if(level>nn) then raise Fail ("unsupported level of diff") else 1
-        val _ = print "e"
         val Peval =
 	    EF.eval(level, shape,y, index, space, sdim, dim, sBasisFunctions, vp, vL, mN, mP, vTC, vfindcell, mC, vX, vB,sBasisDervs)
-        val _ = print "f"
         in
             Pall@Peval
         end
@@ -102,13 +94,9 @@ structure BuildFem : sig
 
     fun sum_evaluate (y, rhs as IR.EINAPP(ein as E.EIN{body,index,params}, args)) =
         let
-            val _ = print"\n\nbefore BF sum eval"
             val E.Sum(sx, E.Probe(E.OField(ofield,E.Tensor(fid, alpha), dx),pos)) = body
             fun cvtTerm (alpha, dx) = E.Probe(E.OField(ofield,E.Tensor(fid, alpha), dx), pos)
             val E.FLD(dim, shape) = List.nth(params, fid)
-
-
-            val _ = print("\n sum eval "^EinPP.expToString(body)^"\n\n")
             val (sid, lb, ub) = (case sx
                 of [e1] => e1
                 | _ => raise Fail "unhandled summation"
@@ -143,7 +131,7 @@ structure BuildFem : sig
         val fsize = sortF(alpha, 0)
         val dxsize =sortF(dx, 0)
         val size = fsize@dxsize
-        val _ = List.map (fn n => print("-"^Int.toString(n))) size
+        (*val _ = List.map (fn n => print("-"^Int.toString(n))) size*)
 
 
         (*evaluate ofields*)
@@ -161,9 +149,9 @@ structure BuildFem : sig
 
     fun slice_evaluate (y, rhs as IR.EINAPP(ein as E.EIN{body,index,params}, args)) =
         let
-   val _ = print("\n slice eval "^EinPP.expToString(body)^"\n\n")
 
-         val E.Probe(E.OField(ofield, E.Tensor(fid, alpha), dx), pos) = body
+
+        val E.Probe(E.OField(ofield, E.Tensor(fid, alpha), dx), pos) = body
         val E.FLD(dim, shape) = List.nth(params, fid)
 
 
@@ -205,7 +193,6 @@ structure BuildFem : sig
 
     fun scan_evaluate (y, rhs as IR.EINAPP(ein as E.EIN{body,index,params}, args)) =
         let
-             val _ = print"\nbefore BF scan eval"
             val E.Probe(E.OField(ofield, E.Tensor(fid, alpha), dx), pos) = body
         in  (case (List.find (fn E.C _ => true |  _ => false)  (alpha@dx))
             of NONE     =>  evaluate (y, rhs)
@@ -217,7 +204,6 @@ structure BuildFem : sig
     (* check ifposition is inside field *)
     fun inside(y, dim, [vp, f]) =
         let
-            val _ = "\n Before BF inside"
             val (E.EIN{body,...}, args) = getRHSEIN f (*get EIN operator attached to variable*)
             val (Pall, space, sdim, dim, sBasisFunctions, vL, mN, mP, vTC, vfindcell, mC, vX, vB,sBasisDervs) = translate(body, vp, args)
             val p14 = (y, IR.OP(Op.checkCell, [vfindcell]))

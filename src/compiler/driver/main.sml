@@ -102,12 +102,12 @@ structure Main : sig
           val high = HighOptimizer.checkAfter ("simple-to-high translation", high)
           val _ = verbosePrint["done\n"]
         (***** HIGH-IR OPTIMIZATION *****)
-            val _ = print"\n\n high -r"
+
           val _ = verbosePrint["optimizing HighIR ... "]
           val high = PhaseTimer.withTimer Timers.timeHigh HighOptimizer.optimize high
           val _ = verbosePrint["done\n"]
         (***** TRANSLATION TO MID IR *****)
-            val _ = print"\n\n high to mid "
+
           val _ = verbosePrint["translating to MidIR ... "]
           val mid = PhaseTimer.withTimer Timers.timeHighToMid HighToMid.translate high
           val _ = verbosePrint["done\n"]
@@ -115,26 +115,24 @@ structure Main : sig
           val mid = MidOptimizer.checkAfter ("high-to-mid translation", mid)
           val _ = verbosePrint["done\n"]
         (***** MID-IR OPTIMIZATION *****)
-        val _ = print"\n\n mid ir "
           val _ = verbosePrint["optimizing MidIR ... "]
           val mid = PhaseTimer.withTimer Timers.timeMid MidOptimizer.optimize mid
           val _ = verbosePrint["done\n"];
         (***** TRANSLATION TO LOW IR *****)
-        val _ = print"\n\n mid to low low-ir "
           val _ = verbosePrint["translating to LowIR ... "]
           val low = PhaseTimer.withTimer Timers.timeMidToLow MidToLow.translate mid
           val _ = verbosePrint["done\n"]
           val _ = verbosePrint["checking LowIR ... "]
-        val _ = print"\n\n low-ir "
+
           val low = LowOptimizer.checkAfter ("mid-to-low translation", low)
           val _ = verbosePrint["done\n"]
         (***** LOW-IR OPTIMIZATION *****)
-      val _ =  print"\n\n low opt "
+
           val _ = verbosePrint["optimizing LowIR ... "]
           val low = PhaseTimer.withTimer Timers.timeLow LowOptimizer.optimize low
           val _ = verbosePrint["done\n"]
         (***** TRANSLATION TO TREE IR *****)
-      val _ =  print"\n\n translate to tree-r "
+
           val _ = verbosePrint["translating to TreeIR ... "]
           val tree = PhaseTimer.withTimer Timers.timeLowToTree LowToTree.translate (low, info)
           val _ = verbosePrint["done\n"]
@@ -142,13 +140,12 @@ structure Main : sig
           val tree = TreeOptimizer.checkAfter ("low-to-tree translation", tree)
           val _ = verbosePrint["done\n"]
         (***** TREE-IR OPTIMIZATION *****)
-      val _ = print"\n\n tree-r opt "
+
           val _ = verbosePrint["optimizing TreeIR ... "]
           val tree = PhaseTimer.withTimer Timers.timeTree TreeOptimizer.optimize tree
           val _ = verbosePrint["done\n"]
           in
           (***** CODE GENERATION *****)
- "\n\n code gen ";
             verbosePrint["generating code ... "];
             PhaseTimer.withTimer Timers.timeCodegen generate tree;
             verbosePrint["done\n"]

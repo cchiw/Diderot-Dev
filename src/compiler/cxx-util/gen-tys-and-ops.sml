@@ -448,7 +448,7 @@ structure GenTysAndOps : sig
                       end
                   | VDot(w, pw) => let
                       val name = RN.vdot w
-                      val _ = print(concat["\nVDOT ",name,"w:",Int.toString(w),"\tpw:",Int.toString(pw)])
+                 
                       val vTy = RN.vecTy w
                       val params = [CL.PARAM([], vTy, "u"), CL.PARAM([], vTy, "v")]
                       fun mkSum 0 = CL.mkSubscript(CL.mkVar "w", mkInt 0)
@@ -512,7 +512,7 @@ structure GenTysAndOps : sig
                   | VLoad(w, pw) => let
              
                       val name = RN.vload w
-                                     val _ = print(concat["\nVLoad ",name,"w:",Int.toString(w),"\tpw:",Int.toString(pw)])
+                   
                       val cTy = RN.vecTy w
                       fun arg i = CL.mkSubscript(CL.mkVar "vp", mkInt i)
                       in
@@ -522,7 +522,7 @@ structure GenTysAndOps : sig
                       end
                   | VCons(w, pw) => let
                       val name = RN.vcons w
-                                          val _ = print(concat["\nCons ",name,"w:",Int.toString(w),"\tpw:",Int.toString(pw)])
+                      
                       val cTy = RN.vecTy w
                       val params = List.tabulate(w, fn i => CL.PARAM([], realTy, "r"^Int.toString i))
                       fun arg i = CL.mkVar("r"^Int.toString i)

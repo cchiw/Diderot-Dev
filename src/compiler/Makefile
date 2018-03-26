@@ -22,9 +22,9 @@ INSTALL_INCDIR =	$(PREFIX)/include
 #
 # directories for the local-install target
 #
-SRCDIR =	/Users/chariseechiw/diderot/femprime/src
-LIBDIR =	/Users/chariseechiw/diderot/femprime/lib
-BINDIR =	/Users/chariseechiw/diderot/femprime/bin
+SRCDIR =	/Users/chariseechiw/diderot/Diderot-Dev/src
+LIBDIR =	/Users/chariseechiw/diderot/Diderot-Dev/lib
+BINDIR =	/Users/chariseechiw/diderot/Diderot-Dev/bin
 HEAPDIR =	$(BINDIR)/.heap
 
 INSTALL =	/usr/bin/install -c
@@ -40,7 +40,7 @@ MKFRAGS =	$(SRCDIR)/compiler/gen/fragments/mkfrags.sh
 #
 # SML/NJ build tools
 #
-INSTALL_SMLNJ_WRAPPER = /Users/chariseechiw/diderot/femprime/bin/install-sml-wrapper.sh
+INSTALL_SMLNJ_WRAPPER = /Users/chariseechiw/diderot/Diderot-Dev/bin/install-sml-wrapper.sh
 ML_BUILD =		/usr/local/smlnj/bin/ml-build
 ML_BUILD_FLAGS =	-Ctdp.instrument=true \$$smlnj-tdp/back-trace.cm
 ML_MAKEDEPEND =		/usr/local/smlnj/bin/ml-makedepend
@@ -153,4 +153,4 @@ DISTCLEAN_FILES +=	Makefile \
 
 DEVCLEAN_FILES =
 
-include /Users/chariseechiw/diderot/femprime/mk/clean-rules.gmk
+include /Users/chariseechiw/diderot/Diderot-Dev/mk/clean-rules.gmk

@@ -40,7 +40,7 @@ DEPFLAGS =	-MT $@ -MMD -MP -MF $(DEPDIR)/$*.Td
 # tools and flags
 #
 CXX =		clang++ -std=gnu++11
-INCLUDES =	-I/Users/chariseechiw/diderot/femprime/src/lib/include -I/usr/local/include
+INCLUDES =	-I/Users/chariseechiw/diderot/Diderot-Dev/src/lib/include -I/usr/local/include
 CXXFLAGS =	$(DEPFLAGS) -m64 -Wreturn-type -Wuninitialized -fPIC 
 LDFLAGS =
 CPPFLAGS =	 $(INCLUDES)
@@ -109,4 +109,4 @@ $(DEPDIR)/%.d: ;
 CLEAN_FILES = 		$(OBJS) $(TARGET)
 CLEAN_FILES += 		$(wildcard *.dSYM)
 
-include /Users/chariseechiw/diderot/femprime/mk/clean-rules.gmk
+include /Users/chariseechiw/diderot/Diderot-Dev/mk/clean-rules.gmk

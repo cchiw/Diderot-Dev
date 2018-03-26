@@ -82,7 +82,6 @@ structure DataFem : sig
                 (*fn space argument*)
                 val vfnspace = List.nth(args, fnspaceid)
                 val (mesh, element, d ) =  (getRHSMesh vfnspace ,  getRHSElement vfnspace, getRHSDegree vfnspace)
-		val _ = print("\n"^d^"\n fucked \n")
                 val dd : int = case (Int.fromString(d)) of
                                    SOME(i) => i
                                  | _ => raise Fail "Expected integer for dimension, but got something else"

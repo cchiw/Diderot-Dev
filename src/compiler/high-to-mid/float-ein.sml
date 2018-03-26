@@ -19,7 +19,7 @@ structure FloatEin : sig
 
     fun cut (name, origProbe, params, index, sx, argsOrig, avail, newvx) = let
         (* clean and rewrite current body *)
-val _ = print"-\tcut"
+
           val (tshape1, sizes1, body1) = CleanIndex.clean (origProbe, index, sx)
           val id = length params
           val Rparams = params@[E.TEN(true, sizes1)]
@@ -51,7 +51,6 @@ val _ = print"-\tcut"
 
     fun cut_ofield1 (name, origProbe, params, index, sx, argsOrig, avail, c1, shiftcx) = let
             (* clean and rewrite current body *)
-            val _ = print(String.concat["\n\n   incoming:",EinPP.expToString(origProbe)])
             val (tshape1, sizes1, body1) = CleanIndex.clean (origProbe, index, sx)
             val id = length params
             val Rparams = params@[E.TEN(true, sizes1)]

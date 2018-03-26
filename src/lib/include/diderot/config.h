@@ -26,7 +26,7 @@
 #define DIDEROT_CL_VERSION 0
 
 /* path for Diderot header files */
-#define DIDEROT_INCLUDE_PATH "/Users/chariseechiw/diderot/femprime/src/lib/include"
+#define DIDEROT_INCLUDE_PATH "/Users/chariseechiw/diderot/Diderot-Dev/src/lib/include"
 
 /* Define to 1 to support Advanced Bit Manipulation */
 /* #undef HAVE_ABM */

@@ -23,7 +23,6 @@ structure translateField : sig
 
     fun transform (y, IR.EINAPP(ein as E.EIN{body,...}, args)) = (case (body)
             of E.Probe(E.OField(ofld, _,_),_) => let
-             val _ = print"\nbefore calling plaintranslate"
 (*
 
             val _ = (String.concat ["\n\n\n Transform oField:\n\t", EinPP.toString(ein)])
@@ -37,7 +36,6 @@ structure translateField : sig
             (* end case*))
             end
         |  E.Sum(_, E.Probe(E.OField(ofld, _,_),_)) => let
-             val _ = print"\nbefore calling sum translate"
 (*
             val _ = (String.concat ["\n\n\n Transform oField:\n\t", EinPP.toString(ein)])
             val _ = ("\n\n with args:"^String.concatWith "," (List.map IR.Var.name  args))

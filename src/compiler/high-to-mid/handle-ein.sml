@@ -28,16 +28,12 @@ structure HandleEin : sig
 
             (*"-",ll(args,0),"\n\n"])*)
         (* ************** distribute and push Summation*********** *)
-val _ = print("\nabout to move sums:"^EinPP.toString(ein))
           val ein' = EinSums.transform ein
-
-         val _ = (String.concat["\n\n  **************   EinSums ***********\n:","-",ll(args,0)])
-
          val newbies = [(lhs, DstIR.EINAPP(ein', args))]
 
             fun prntNewbies(newbies, id) = let
                 val _ = (id)
-                val _=  List.map (fn (lhs,DstIR.EINAPP(e,a))=> print(String.concat["\n\n ->:", MidTypes.toString(DstIR.Var.ty lhs)," ",DstIR.Var.name(lhs),"=",EinPP.toString(e) ,"-",ll(a,0)])  | _ =>  print"") newbies
+                val _=  List.map (fn (lhs,DstIR.EINAPP(e,a))=> (String.concat["\n\n ->:", MidTypes.toString(DstIR.Var.ty lhs)," ",DstIR.Var.name(lhs),"=",EinPP.toString(e) ,"-",ll(a,0)])  | _ =>  "") newbies
                in  "done ing"
                 end
 
@@ -48,14 +44,12 @@ val _ = print("\nabout to move sums:"^EinPP.toString(ein))
             in
                 iter(es, ys@y1)
             end
-    val _ = "\nbefore split"
-    val _ = prntNewbies(newbies, "\n\n\n pre splitting ")
+        val _ = "\nbefore split"
+        val _ = prntNewbies(newbies, "\n\n\n pre splitting ")
         (* **************** split phase ************* *)
 
         val newbies =iter(newbies, [])
-    val _ = "\npostsplit"
-    val _ = prntNewbies(newbies, "\n\n\npost floatx1")
-    val _ = "about to split again"
+        val _ = prntNewbies(newbies, "\n\n\npost floatx1")
         val newbies =iter(newbies, [])
         val newbies =iter(newbies, [])
         val _ = prntNewbies(newbies, "\n\n\npost floatx2")
@@ -66,13 +60,10 @@ val _ = print("\nabout to move sums:"^EinPP.toString(ein))
         (*val _ = prntNewbies(newbies, "\n\n\npost transform fields")*)
         val _ = "\n\n--------------\n"
         (* ************** ProbeEIN *********** *)
-
-             val _ = "about to probe"
-          val avail = AvailRHS.new()
+        val avail = AvailRHS.new()
           val _ = List.app (ProbeEin.expand avail) (newbies);
           val stmts = List.rev (AvailRHS.getAssignments avail)
           val asgn = List.map DstIR.ASSGN stmts
-    val _ = "done handle ein"
           in
             asgn
           end

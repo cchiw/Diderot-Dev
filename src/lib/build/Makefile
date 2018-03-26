@@ -28,13 +28,13 @@ INSTALL_LIBDIR =	$(PREFIX)/lib
 #
 # directories for the local-install target
 #
-LIBDIR =	/Users/chariseechiw/diderot/femprime/lib
+LIBDIR =	/Users/chariseechiw/diderot/Diderot-Dev/lib
 
 #
 # optional logging support
 #
 ifeq (false,true)
-LOGGING_HXX =		/Users/chariseechiw/diderot/femprime/src/lib/include/diderot/logging.hxx
+LOGGING_HXX =		/Users/chariseechiw/diderot/Diderot-Dev/src/lib/include/diderot/logging.hxx
 endif
 
 .PHONY:			build local-install install
@@ -59,11 +59,11 @@ install:		$(LOGGING_HXX)
 #
 # optional logging support
 #
-$(LOGGING_HXX):		/Users/chariseechiw/diderot/femprime/bin/log-gen
-	/Users/chariseechiw/diderot/femprime/bin/log-gen
+$(LOGGING_HXX):		/Users/chariseechiw/diderot/Diderot-Dev/bin/log-gen
+	/Users/chariseechiw/diderot/Diderot-Dev/bin/log-gen
 
-/Users/chariseechiw/diderot/femprime/bin/log-gen:
-	(cd /Users/chariseechiw/diderot/femprime/src/logging/gen; $(MAKE) local-install)
+/Users/chariseechiw/diderot/Diderot-Dev/bin/log-gen:
+	(cd /Users/chariseechiw/diderot/Diderot-Dev/src/logging/gen; $(MAKE) local-install)
 
 #################### Cleanup ####################
 
@@ -71,4 +71,4 @@ CLEAN_SUBDIRS =		$(wildcard rt-*)
 DISTCLEAN_FILES =	$(wildcard rt-*) mk/build.gmk
 DEVCLEAN_FILES =
 
-include /Users/chariseechiw/diderot/femprime/mk/clean-rules.gmk
+include /Users/chariseechiw/diderot/Diderot-Dev/mk/clean-rules.gmk

@@ -193,7 +193,7 @@ structure HighToMid : sig
               | SrcOp.LoadSeq(ty, file) => assign (DstOp.LoadSeq(cvtTy ty, file))
               | SrcOp.LoadImage(ty, file) => assign (DstOp.LoadImage(cvtTy ty, file))
               | SrcOp.MathFn e => assign (DstOp.MathFn e)
-              | SrcOp.InsideFEM dim => let val a = print("Agg\n\n\n\n\n\n") in BuildFem.inside(y, dim, Env.renameList(env, args)) end
+              | SrcOp.InsideFEM dim => BuildFem.inside(y, dim, Env.renameList(env, args)) 
               | SrcOp.BuildMesh e => assign (DstOp.BuildMesh (e))
               | SrcOp.BuildElement e => assign (DstOp.BuildElement (e))
               | SrcOp.BuildSpace => assign (DstOp.BuildSpace)

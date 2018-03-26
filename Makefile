@@ -36,7 +36,7 @@ help:
 	@echo "  help          -- print this message."
 	@echo "  build         -- build Diderot tools and libraries"
 	@echo "  local-install -- install Diderot tools, libraries, and headers in "
-	@echo "                   /Users/chariseechiw/diderot/femprime/{bin,lib,include}"
+	@echo "                   /Users/chariseechiw/diderot/Diderot-Dev/{bin,lib,include}"
 	@echo "  install       -- install Diderot tools, libraries, and headers in "
 	@echo "                   @INSTALL_ROOT@/{bin,lib,include}"
 	@echo "  clean         -- remove intermediate files generated during building"
@@ -92,4 +92,4 @@ DISTCLEAN_FILES +=	Makefile config.status config.log \
 DEVCLEAN_FILES =	configure \
 			config/config_h.in
 
-include /Users/chariseechiw/diderot/femprime/mk/clean-rules.gmk
+include /Users/chariseechiw/diderot/Diderot-Dev/mk/clean-rules.gmk

@@ -25,9 +25,9 @@ INSTALL_INCDIR =	$(PREFIX)/include
 #
 # directories for the local-install target
 #
-SRCDIR =	/Users/chariseechiw/diderot/femprime/src
-LIBDIR =	/Users/chariseechiw/diderot/femprime/lib
-BINDIR =	/Users/chariseechiw/diderot/femprime/bin
+SRCDIR =	/Users/chariseechiw/diderot/Diderot-Dev/src
+LIBDIR =	/Users/chariseechiw/diderot/Diderot-Dev/lib
+BINDIR =	/Users/chariseechiw/diderot/Diderot-Dev/bin
 
 INSTALL =	/usr/bin/install -c
 SHELL =		/bin/sh

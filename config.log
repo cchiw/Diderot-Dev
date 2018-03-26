@@ -30,8 +30,8 @@ Kernel configured for up to 4 processors.
 Processor type: x86_64h (Intel x86-64h Haswell)
 Processors active: 0 1 2 3
 Primary memory available: 4.00 gigabytes
-Default processor set: 218 tasks, 996 threads, 4 processors
-Load average: 4.28, Mach factor: 0.87
+Default processor set: 263 tasks, 1152 threads, 4 processors
+Load average: 1.26, Mach factor: 2.73
 /bin/machine           = unknown
 /usr/bin/oslevel       = unknown
 /bin/universe          = unknown
@@ -39,6 +39,7 @@ Load average: 4.28, Mach factor: 0.87
 PATH: /usr/local/smlnj/bin
 PATH: /usr/local
 PATH: /usr/bin
+PATH: /Library/Frameworks/Python.framework/Versions/3.6/bin
 PATH: /usr/local/bin
 PATH: /usr/bin
 PATH: /bin
@@ -615,7 +616,7 @@ configure:5936: gcc -o conftest -g -O2   conftest.c  >&5
 configure:5936: $? = 0
 configure:5936: ./conftest
 configure:5936: $? = 0
-configure:5946: result: 306d4:2100800:7ffafbbf:bfebfbff
+configure:5946: result: 306d4:3100800:7ffafbbf:bfebfbff
 configure:5973: checking for x86 cpuid 0x00000007 output
 configure:6005: gcc -o conftest -g -O2   conftest.c  >&5
 configure:6005: $? = 0
@@ -1262,7 +1263,7 @@ configure:7594: checking for pthread_barrier_init
 configure:7594: gcc -o conftest -g -O2   conftest.c  >&5
 Undefined symbols for architecture x86_64:
   "_pthread_barrier_init", referenced from:
-      _main in conftest-eec8ce.o
+      _main in conftest-0ed7f3.o
 ld: symbol(s) not found for architecture x86_64
 clang: error: linker command failed with exit code 1 (use -v to see invocation)
 configure:7594: $? = 1
@@ -1420,7 +1421,7 @@ configure:7637: checking for pthread_getcpuclockid
 configure:7637: gcc -o conftest -g -O2   conftest.c  >&5
 Undefined symbols for architecture x86_64:
   "_pthread_getcpuclockid", referenced from:
-      _main in conftest-7111e5.o
+      _main in conftest-dc9f08.o
 ld: symbol(s) not found for architecture x86_64
 clang: error: linker command failed with exit code 1 (use -v to see invocation)
 configure:7637: $? = 1
@@ -1513,7 +1514,7 @@ configure:7649: checking for sigtimedwait
 configure:7649: gcc -o conftest -g -O2   conftest.c  >&5
 Undefined symbols for architecture x86_64:
   "_sigtimedwait", referenced from:
-      _main in conftest-eb4921.o
+      _main in conftest-392af4.o
 ld: symbol(s) not found for architecture x86_64
 clang: error: linker command failed with exit code 1 (use -v to see invocation)
 configure:7649: $? = 1
@@ -1964,7 +1965,7 @@ configure:7831: checking for sched_getcpu
 configure:7831: gcc -o conftest -g -O2   conftest.c  >&5
 Undefined symbols for architecture x86_64:
   "_sched_getcpu", referenced from:
-      _main in conftest-e4afe7.o
+      _main in conftest-115d15.o
 ld: symbol(s) not found for architecture x86_64
 clang: error: linker command failed with exit code 1 (use -v to see invocation)
 configure:7831: $? = 1
@@ -2219,7 +2220,7 @@ ax_cv_cxx_compile_cxx11__std_gnupp11=yes
 ax_cv_gcc_x86_avx_xgetbv_0x00000000=7:0
 ax_cv_gcc_x86_avx_xgetbv_=unknown
 ax_cv_gcc_x86_cpuid_0x00000000=14:756e6547:6c65746e:49656e69
-ax_cv_gcc_x86_cpuid_0x00000001=306d4:2100800:7ffafbbf:bfebfbff
+ax_cv_gcc_x86_cpuid_0x00000001=306d4:3100800:7ffafbbf:bfebfbff
 ax_cv_gcc_x86_cpuid_0x00000007=0:21c27ab:0:0
 ax_cv_gcc_x86_cpuid_0x80000000=80000008:0:0:0
 ax_cv_gcc_x86_cpuid_0x80000001=0:0:121:2c100800
@@ -2347,12 +2348,12 @@ CXXFLAGS_BASE='-Wreturn-type -Wuninitialized -fPIC'
 CXXFLAG_Mxx='-m64'
 DBLATEX='none'
 DEFS='-DHAVE_CONFIG_H'
-DIDEROT_BINDIR='/Users/chariseechiw/diderot/femprime/bin'
-DIDEROT_DOCDIR='/Users/chariseechiw/diderot/femprime/doc'
-DIDEROT_LIBDIR='/Users/chariseechiw/diderot/femprime/lib'
-DIDEROT_MKDIR='/Users/chariseechiw/diderot/femprime/mk'
-DIDEROT_ROOT='/Users/chariseechiw/diderot/femprime'
-DIDEROT_SRCDIR='/Users/chariseechiw/diderot/femprime/src'
+DIDEROT_BINDIR='/Users/chariseechiw/diderot/Diderot-Dev/bin'
+DIDEROT_DOCDIR='/Users/chariseechiw/diderot/Diderot-Dev/doc'
+DIDEROT_LIBDIR='/Users/chariseechiw/diderot/Diderot-Dev/lib'
+DIDEROT_MKDIR='/Users/chariseechiw/diderot/Diderot-Dev/mk'
+DIDEROT_ROOT='/Users/chariseechiw/diderot/Diderot-Dev'
+DIDEROT_SRCDIR='/Users/chariseechiw/diderot/Diderot-Dev/src'
 DOXYGEN='none'
 ECHO_C='\c'
 ECHO_N=''
@@ -2361,12 +2362,12 @@ EGREP='/usr/bin/grep -E'
 EXEEXT=''
 GREP='/usr/bin/grep'
 HAVE_CXX11='1'
-HEAP_IMAGE_DIR='/Users/chariseechiw/diderot/femprime/bin/.heap'
+HEAP_IMAGE_DIR='/Users/chariseechiw/diderot/Diderot-Dev/bin/.heap'
 HIGHLIGHTER='/usr/local/bin/pygmentize'
 INSTALL_DATA='${INSTALL} -m 644'
 INSTALL_PROGRAM='${INSTALL}'
 INSTALL_SCRIPT='${INSTALL}'
-INSTALL_SMLNJ_WRAPPER='/Users/chariseechiw/diderot/femprime/bin/install-sml-wrapper.sh'
+INSTALL_SMLNJ_WRAPPER='/Users/chariseechiw/diderot/Diderot-Dev/bin/install-sml-wrapper.sh'
 LD='/usr/bin/ld'
 LDFLAGS=''
 LDPATHS=''
@@ -2500,6 +2501,6 @@ with_mlton='no'
 #define HAVE_NANOSLEEP 1
 #define DIDEROT_CL_VERSION 0
 #define HAVE_NRRDMETADATANORMALIZE 1
-#define DIDEROT_INCLUDE_PATH "/Users/chariseechiw/diderot/femprime/src/lib/include"
+#define DIDEROT_INCLUDE_PATH "/Users/chariseechiw/diderot/Diderot-Dev/src/lib/include"
 
 configure: exit 0
