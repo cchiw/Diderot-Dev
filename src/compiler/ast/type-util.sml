@@ -257,9 +257,9 @@ structure TypeUtil : sig
           (* end case *))
      (* returns true if the type is an FemTy *)
      fun isMeshType ty = (case prune ty
-        of Ty.T_FemFld _ => true
-        | _ => false
-     (* end case *))
+            of Ty.T_FemFld _ => true
+            | _ => false
+            (* end case *))
  
   (* returns true if the type is a value type, or a strand type, or a sequence of such types *)
     fun isValueOrStrandType ty = (case prune ty
