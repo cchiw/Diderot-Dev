@@ -51,7 +51,11 @@ structure CollectInfo : sig
       | EvalFemShape of meshElem.fnspace * int * int * int list
       | checkCell
       | RIfWrap
- 
+      | swap2
+      | swap3
+      | swap4
+      | swap5
+      | swap6
  
  val collect : TreeIR.program -> t
 
@@ -98,7 +102,11 @@ structure CollectInfo : sig
       | EvalFemShape of meshElem.fnspace * int * int * int list
       | checkCell
       | RIfWrap
- 
+      | swap2
+      | swap3
+      | swap4
+      | swap5
+      | swap6
  (* operator to string (for debugging) *)
     local
       fun vop2s (rator, w, pw) = if (w = pw)
@@ -142,7 +150,12 @@ structure CollectInfo : sig
             | EvalFemShape _ => concat["EvalFemShape"]
             | checkCell => concat["checkcell"]
             | RIfWrap  => "RIfWrap "
-                    (* end case *))
+            | swap2 => "swap2"
+            | swap6 => "swap6"
+            | swap3 => "swap3"
+            | swap4 => "swap4"
+            | swap5 => "swap5"
+            (* end case *))
     end (* local *)
 
     structure OpTbl = HashTableFn (
@@ -190,6 +203,11 @@ structure CollectInfo : sig
                     
                 | checkCell => 0w137
                 | RIfWrap  => 0w123
+                | swap2 => 0w127
+                | swap6 => 0w129
+                | swap3 =>  0w131
+                | swap4 => 0w133
+                | swap5 => 0w137
               (* end case *))
         fun sameKey (op1, op2) = (case (op1, op2)
                of (Print ty1, Print ty2) => TreeTypes.same(ty1, ty2)
@@ -235,6 +253,11 @@ structure CollectInfo : sig
                     ME.samefnspace(m1, m2) andalso (l1=l2) andalso (tf1=tf2)
                 | (checkCell , checkCell) => true
                 | (RIfWrap,RIfWrap) => true
+                | (swap2,swap2) => true
+                | (swap3,swap3) => true
+                | (swap4,swap4) => true
+                | (swap5,swap5) => true
+                | (swap6,swap6) => true
                 | _ => false
      
               (* end case *))
@@ -360,6 +383,11 @@ structure CollectInfo : sig
                          end
                   | Op.checkCell => insert(checkCell)
                   | Op.IfWrap => insert RIfWrap
+                  | Op.swap2  => insert swap2
+                  | Op.swap3  => insert swap3
+                  | Op.swap4  => insert swap4
+                  | Op.swap5  => insert swap5
+                  | Op.swap6  => insert swap6
                   | _ => ()
                 (* end case *))
           in

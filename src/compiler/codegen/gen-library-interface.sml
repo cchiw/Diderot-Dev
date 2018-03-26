@@ -60,7 +60,8 @@ structure GenLibraryInterface : sig
             | Ty.StringTy => CL.constPtrTy CL.charTy
             | Ty.ImageTy(dim, shp) => CL.constPtrTy CL.charTy
             | Ty.SeqTy(ty, NONE) => raise Fail "unexpected dynamic SeqTy"
-            | Ty.SeqTy(ty, SOME n) => CL.T_Array(toCType(env, ty), SOME n)
+            (*| Ty.SeqTy(ty, SOME n) => CL.T_Array(toCType(env, ty), SOME n)*)
+            | Ty.SeqTy(ty, SOME n) => CL.T_Array(trType(env, ty), SOME n)
             | Ty.MeshTy =>  CL.voidPtr (* CL.T_Named ("FEMSrcTy")*)
         (* end case *))
 
@@ -112,10 +113,8 @@ structure GenLibraryInterface : sig
                                     | Ty.IntTy => CL.T_Ptr(toCType(env, ty))
                                     | Ty.TensorTy[] => CL.T_Ptr(toCType(env, ty))
                                     | Ty.TensorTy _=> toCType(env, ty)
-                                    | Ty.SeqTy(_, SOME _) => toCType(env, ty)
-(* QUESTION: for images and sequences, it is not clear what the get function should return.
- * For now, we just return 0
- *)
+                                    | Ty.SeqTy(_, SOME _) => trType(env, ty)
+                                    (*| Ty.SeqTy(_, SOME _) => toCType(env, ty)*)
                                     | Ty.SeqTy(_, NONE) => CL.T_Ptr CL.voidPtr
                                     | Ty.ImageTy _ => CL.T_Ptr CL.voidPtr
                                   (* end case *))
@@ -128,7 +127,8 @@ structure GenLibraryInterface : sig
                       fun loadPrototypes () = [
                               CL.D_Proto(
                                 [], Env.boolTy env, inputSetByName(spec, name),
-                                [wrldParam, CL.PARAM([], stringTy, "s")]),
+                                [wrldParam, CL.PARAM(["const"], CL.charPtr, "s")]),
+                                (*[wrldParam, CL.PARAM([], stringTy, "s")]),*)
                               CL.D_Proto(
                                 [], Env.boolTy env, inputSet(spec, name),
                                 [wrldParam, CL.PARAM([], nrrdPtrTy, "data")])
@@ -141,7 +141,8 @@ structure GenLibraryInterface : sig
                                 CL.D_Proto(
                                   [], Env.boolTy env, inputSet(spec, name),
                                   [wrldParam, CL.PARAM([], toCType(env, ty), "v")])
-                              ]
+                                (*[wrldParam, CL.PARAM([], trType(env, ty), "v")])*)
+
                         (* end case *)
                       end
                 in
