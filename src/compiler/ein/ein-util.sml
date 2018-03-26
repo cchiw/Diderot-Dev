@@ -42,6 +42,7 @@ structure EinUtil : sig
           | sameOp1 (E.ArcTangent, E.ArcTangent) = true
           | sameOp1 (E.PowInt n1, E.PowInt n2) = (n1 = n2)
           | sameOp1 (E.Abs, E.Abs) = true
+          | sameOp1 (E.Sgn, E.Sgn) = true
           | sameOp1 _ = false
         fun same (e1, e2) = (case (e1, e2)
                of (E.Const c1, E.Const c2) => (c1 = c2)
@@ -163,6 +164,7 @@ andalso (id14 = id24)
                      | E.PowInt _ => 0w107 + hash' e2
                      | E.Exp => 0w151 + hash' e2
                      | E.Abs => 0w153 + hash' e2
+                     | E.Sgn => 0w157 + hash' e2
                    (* end case *))
                 | E.Op2(E.Max, e1, e2) => 0w163 + hash' e1 + hash' e2
                 | E.Op2(E.Min, e1, e2) => 0w167 + hash' e1 + hash' e2
@@ -170,6 +172,7 @@ andalso (id14 = id24)
                 | E.Op2(E.Div, e1, e2) => 0w83 + hash' e1 + hash' e2
                 | E.Opn(E.Add, es) => 0w71 + iter es
                 | E.Opn(E.Prod, es) => 0w103 + iter es
+                | E.Opn(E.Swap id, es) => 0w177 + iter es
                 | E.BigF _ => 0w151
                 | E.Inverse _ => 0w157
                 | E.Basis _ =>0w163

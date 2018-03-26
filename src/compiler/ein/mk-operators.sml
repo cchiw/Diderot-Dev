@@ -758,9 +758,7 @@ structure MkOperators : sig
             E.EIN{
                 params = [E.FLD (dim, alpha), E.FLD (dim, alpha)],
                 index = alpha,
-                body = E.Opn(E.Prod, [
-                    f, E.Op2(E.Div, E.Const 1, E.Op1(E.Sqrt, E.Sum(sx, E.Opn(E.Prod, [g, g]))))
-                  ])
+                body = E.Op2(E.Div, f, E.Op1(E.Sqrt, (E.Sum(sx, E.Opn(E.Prod, [g, g])))))
               }
           end
 
@@ -1176,23 +1174,23 @@ structure MkOperators : sig
             }
         end
               
-              fun polyProbe2(alpha, dim, talphas) = let
-              val expindex = specialize(alpha, 0)
-              val fldtem = E.Field(0, expindex)
-              val n = length(talphas)
-              val tterm = List.tabulate(n, fn id => E.Tensor(id+1, []))
-              val bodyWrap = (case tterm
-              of [x] => x
-              | _ => E.Opn(E.Add, tterm)
-              (*end case*))
-              in
-              E.EIN{
-              params = [E.FLD (dim, alpha)]@ (List.map (fn talpha => mkNoSubstTEN talpha)  talphas),
-              index = alpha,
-              body = E.Probe(fldtem, bodyWrap)
-              }
-              end
-              
+    fun polyProbe2(alpha, dim, talphas) = let
+          val expindex = specialize(alpha, 0)
+          val fldtem = E.Field(0, expindex)
+          val n = length(talphas)
+          val tterm = List.tabulate(n, fn id => E.Tensor(id+1, []))
+          val bodyWrap = (case tterm
+            of [x] => x
+            | _ => E.Opn(E.Add, tterm)
+          (*end case*))
+        in
+          E.EIN{
+            params = [E.FLD (dim, alpha)]@ (List.map (fn talpha => mkNoSubstTEN talpha)  talphas),
+            index = alpha,
+            body = E.Probe(fldtem, bodyWrap)
+          }
+        end
+      
               
 
     fun ofieldfem (dim, alpha) = let

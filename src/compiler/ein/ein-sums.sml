@@ -1,7 +1,5 @@
 (* ein-sums.sml
  *
- * Transformations to push summations down in the expression tree.  Note that normalization
- * does not rewrite summations (CHECK THIS CLAIM!)
  *
  * This code is part of the Diderot Project (http://diderot-language.cs.uchicago.edu)
  *
@@ -72,6 +70,8 @@ structure EinSums : sig
               | E.Op1(_, e1)              => findSx (c, e1)
               | E.Op2(_, e1, e2)          => sort [e1, e2]
               | E.Opn(_, es)              => sort es
+              | E.If(E.LT(e1,e2), e3, e4) => sort [e1, e2, e3, e4]
+              | E.If(E.GT(e1,e2), e3, e4) => sort [e1, e2, e3, e4]
             (* end case *)
           end
 
@@ -165,6 +165,8 @@ structure EinSums : sig
                   | E.Op1(op1, e1)        => E.Op1(op1, rewriteBody e1)
                   | E.Op2(op2, e1, e2)    => E.Op2(op2, rewriteBody e1, rewriteBody e2)
                   | E.Opn(opn, es)        => E.Opn(opn, List.map rewriteBody es)
+                  | E.If(E.LT(e1,e2), e3, e4) => E.If(E.LT(rewriteBody e1,rewriteBody e2), rewriteBody e3, rewriteBody e4)
+                  | E.If(E.GT(e1,e2), e3, e4) => E.If(E.GT(rewriteBody e1,rewriteBody e2), rewriteBody e3, rewriteBody e4)
                   | _                     => body
                 (* end case *))
           in
@@ -227,7 +229,7 @@ structure EinSums : sig
                 end
           val b = loop body
           in
-            Ein.EIN{params=params, index=index, body=b}
+            Ein.EIN{params=params, index=index, body= distribute b}
           end
 
   (* distribute and clean summation *)

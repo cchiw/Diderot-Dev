@@ -51,9 +51,9 @@ structure Ein =
       | ArcSine
       | Tangent
       | ArcTangent
-(* QUESTION: should the int be IntInf.int? *)
       | PowInt of int
-      | Abs 
+      | Abs
+      | Sgn (* sign (positive or negative)*)
 
     and binary = Sub | Div | Max | Min
 

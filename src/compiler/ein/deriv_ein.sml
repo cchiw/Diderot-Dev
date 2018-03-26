@@ -96,7 +96,8 @@ val differentiate: Ein.mu list * Ein.ein_exp -> Ein.ein_exp
               | E.ArcTangent=>
                   mkProd [mkDiv(one, mkAdd[one, square]), del]
               | E.PowInt n  => mkProd [E.Const n, E.Op1(E.PowInt(n-1), e1), del]
-              | E.Abs       => mkProd [del, E.Op2(E.Div, e1, E.Op1(E.Abs, e1))]
+              | E.Abs       => mkProd [del,  E.Op1(E.Sgn, e1)]
+              | E.Sgn       => raise Fail "unhandled case: ask charisee"
           (* end case *)
           in ee
         end
