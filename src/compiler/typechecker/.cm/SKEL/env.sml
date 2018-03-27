@@ -1,2 +1,0 @@
-Skeleton 5
-d2f9d"AST"d"Atom"ä¢GlobalEnv"d"BasisNames"Cd"StrandUtil"d"Basis"d"Error"ä¢Types"d"TypeError"Cd"StrandEnv"ä¢AtomMap"d"Properties"d"BasisVars"d"Kernel"Nad"Env"jh3ad"GE"gp1ÿad"Ty"gp1ÿad"AMap"gp1ÿ)h0

@@ -1,4 +1,3 @@
-
 (* gen-library-interface.sml
  *
  * This code is part of the Diderot Project (http://diderot-language.cs.uchicago.edu)
@@ -53,19 +52,6 @@ structure GenLibraryInterface : sig
     val stringTy = CL.constPtrTy CL.charTy
 
   (* translate an APIType to the C type used to represent it in the external API *)
-
-fun trType (env, ty) = (case ty
-of Ty.IntTy => Env.intTy env
-| Ty.BoolTy => Env.boolTy env
-| Ty.TensorTy[] => Env.realTy env
-| Ty.TensorTy dd => CL.T_Array(Env.realTy env, SOME(List.foldl Int.* 1 dd))
-| Ty.StringTy => CL.constPtrTy CL.charTy
-| Ty.ImageTy(dim, shp) => CL.constPtrTy CL.charTy
-| Ty.SeqTy(ty, NONE) => raise Fail "unexpected dynamic SeqTy"
-| Ty.SeqTy(ty, SOME n) => CL.T_Array(trType(env, ty), SOME n)
-| Ty.MeshTy =>  CL.voidPtr (* CL.T_Named ("FEMSrcTy")*)
-(* end case *))
-
     fun toCType (env, ty) = (case ty
            of Ty.IntTy => Env.intTy env
             | Ty.BoolTy => Env.boolTy env
@@ -74,13 +60,11 @@ of Ty.IntTy => Env.intTy env
             | Ty.StringTy => CL.constPtrTy CL.charTy
             | Ty.ImageTy(dim, shp) => CL.constPtrTy CL.charTy
             | Ty.SeqTy(ty, NONE) => raise Fail "unexpected dynamic SeqTy"
-            (*| Ty.SeqTy(ty, SOME n) => CL.T_Array(toCType(env, ty), SOME n)*)
-            | Ty.SeqTy(ty, SOME n) => CL.T_Array(trType(env, ty), SOME n)
+            | Ty.SeqTy(ty, SOME n) => CL.T_Array(toCType(env, ty), SOME n)
             | Ty.MeshTy =>  CL.voidPtr (* CL.T_Named ("FEMSrcTy")*)
         (* end case *))
 
-
-fun mkSymbol base = let
+    fun mkSymbol base = let
           fun tr c = if Char.isAlpha c then Char.toUpper c
                 else if Char.isDigit c then c
                 else #"_"
@@ -128,8 +112,10 @@ fun mkSymbol base = let
                                     | Ty.IntTy => CL.T_Ptr(toCType(env, ty))
                                     | Ty.TensorTy[] => CL.T_Ptr(toCType(env, ty))
                                     | Ty.TensorTy _=> toCType(env, ty)
-                                    | Ty.SeqTy(_, SOME _) => trType(env, ty)
-                                    (*| Ty.SeqTy(_, SOME _) => toCType(env, ty)*)
+                                    | Ty.SeqTy(_, SOME _) => toCType(env, ty)
+(* QUESTION: for images and sequences, it is not clear what the get function should return.
+ * For now, we just return 0
+ *)
                                     | Ty.SeqTy(_, NONE) => CL.T_Ptr CL.voidPtr
                                     | Ty.ImageTy _ => CL.T_Ptr CL.voidPtr
                                   (* end case *))
@@ -142,8 +128,7 @@ fun mkSymbol base = let
                       fun loadPrototypes () = [
                               CL.D_Proto(
                                 [], Env.boolTy env, inputSetByName(spec, name),
-                                [wrldParam, CL.PARAM(["const"], CL.charPtr, "s")]),
-                                (*[wrldParam, CL.PARAM([], stringTy, "s")]),*)
+                                [wrldParam, CL.PARAM([], stringTy, "s")]),
                               CL.D_Proto(
                                 [], Env.boolTy env, inputSet(spec, name),
                                 [wrldParam, CL.PARAM([], nrrdPtrTy, "data")])
@@ -155,9 +140,8 @@ fun mkSymbol base = let
                           | _ => [
                                 CL.D_Proto(
                                   [], Env.boolTy env, inputSet(spec, name),
-                                  [wrldParam, CL.PARAM([], toCType(env, ty), "v")])]
-                                (*[wrldParam, CL.PARAM([], trType(env, ty), "v")])*)
-
+                                  [wrldParam, CL.PARAM([], toCType(env, ty), "v")])
+                              ]
                         (* end case *)
                       end
                 in

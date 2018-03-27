@@ -12,7 +12,7 @@ fi
 
 DIR=$1
 
-SRC=@DIDEROT_SRCDIR@/compiler/gen/fragments/sources.cm
+SRC=@DIDEROT_SRCDIR@/compiler/gen/fragments/mkfrags.sml
 
 if test "@SML@" = "smlnj" ; then
 @SMLNJ_CMD@ $SRC 2> /dev/null 1>/dev/null <<XXXX

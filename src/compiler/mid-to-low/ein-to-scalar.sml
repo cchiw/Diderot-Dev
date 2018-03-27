@@ -101,7 +101,6 @@ val _ = print(String.concat["\nin direction i:",Int.toString(i),"-",Int.toString
                             | E.PowInt n => Mk.intPow (avail, arg, n)
                             | E.Abs => Mk.realAbs(avail, arg)
                             | E.Sgn => Mk.realSgn(avail, arg)
-                            | E.Abs => Mk.realAbs(avail, arg)
                           (* end case *)
                         end
 

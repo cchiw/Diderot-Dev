@@ -1,2 +1,0 @@
-Skeleton 5
-d2f9d"Int"d"Char"ä¢List"d"UTF8"Cd"Option"ä¢String"d"TextIO"ä¢ULexBuffer"ä¢Vector"Cd"Substring"ä¢AntlrStreamPos"ä¢RealLit"d"StringCvt"ä¢IntInf"Nad"DiderotLex"h1bd2aä¢UserDeclarations"h1aä¢T"gp1d"DiderotTokens"bd2egp1ÿ‚#f5Cÿ‚9ÿÿ)ÿ‚#ÿ;Cÿÿÿ/d"Keywords"ÿ‚Nf0f3ÿ‚#ÿ;ÿ

@@ -761,7 +761,6 @@ structure GenTysAndOps : sig
                 in
                     CL.D_Verbatim ret
                 end
-
             | EvalFemShape (space as meshElem.Space(mesh,element,degree),sdim,dlevel,shape)=>
                 let
                     (*for fields with non-scalar shape*)

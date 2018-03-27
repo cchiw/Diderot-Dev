@@ -201,7 +201,7 @@ structure FloatEin : sig
           [(y, IR.EINAPP(ein, args))]
       | transform (y, ein as Ein.EIN{body=E.Sum(_, E.Probe (E.Conv _, _)), ...}, args) =
           [(y, IR.EINAPP(ein, args))]
-     | transform (y, ein as Ein.EIN{body=E.Tensor _, ...}, args) =
+      | transform (y, ein as Ein.EIN{body=E.Tensor _, ...}, args) =
             [(y, IR.EINAPP(ein, args))]
       | transform (y, Ein.EIN{params, index, body}, args) = let
           val avail = AvailRHS.new()
@@ -219,9 +219,9 @@ structure FloatEin : sig
                 in
                   filter (es, [], params, args)
                 end
-fun rewrite (sx, exp, params, args) = ((String.concat["\n\n  ** inside rewrite:",EinPP.expToString(exp)]);case exp
+        fun rewrite (sx, exp, params, args) = (case exp
                  of E.Probe(E.Conv(_, [E.C _], _, []), _) =>
-( "--cut";cut ("cut", exp, params, index, sx, args, avail, 0))
+                     (cut ("cut", exp, params, index, sx, args, avail, 0))
                   | E.Probe(E.Conv(_, [E.C _ ], _, [E.V 0]), _) =>
                      ( "--cut"; cut ("cut", exp, params, index, sx, args, avail, 1))
                   | E.Probe(E.Conv(_, [E.C _ ], _, [E.V 0, E.V 1]), _) =>
@@ -232,9 +232,6 @@ fun rewrite (sx, exp, params, args) = ((String.concat["\n\n  ** inside rewrite:"
                     let
                         fun cutAlpha(id,shiftcx)=
                             cut_ofield1 ("cut", exp, params, index, sx, args, avail, id,shiftcx)
-
-                            (*val _ =  ("exp:"^EinPP.expToString(exp))*)
-                        val _ =  "--ofield"
                         val shiftcx = 0
                         in (case (alpha, dx)
                             of (*([E.C c], []) =>  cutAlpha (E.C c, shiftcx)
@@ -270,6 +267,16 @@ fun rewrite (sx, exp, params, args) = ((String.concat["\n\n  ** inside rewrite:"
                       in
                         (E.Op1(op1, e1), params', args')
                       end
+                  | E.Op2(E.Div, E.Const 1, e2) => let
+                      val e1 = E.Const 1
+                      val (e1', params', args') = rewrite (sx, e1, params, args)
+                      val (e2', params', args') = rewrite (sx, e2, params', args')
+                      val ([e1', e2'], params', args') =
+                        filterOps ([e1', e2'], params', args', index, sx)
+                      in
+                        (E.Op2(E.Div, e1', e2'), params', args')
+                      end
+
                   | E.Op2(op2, e1, e2) => let
                       val (e1', params', args') = rewrite (sx, e1, params, args)
                       val (e2', params', args') = rewrite (sx, e2, params', args')

@@ -1,2 +1,0 @@
-Skeleton 5
-d2f7d"Fn"d"List"Cd"Option"d"ListPair"d"BorderCtl"ä¢Simple"d"String"Cd"SimpleFunc"d"TranslateTy"d"Array"d"TranslateBasis"d"MkOperators"Cd"Create"d"Properties"d"AnalyzeSimple"ä¢HighIR"ä¢Inputs"Nad"Translate"jh5Cad"S"gp1ÿ1ad"Ty"gp1d"SimpleTypes"aä¢SV"gp1d"SimpleVar"ad"VMap"gp2ÿƒ3d"Map"ad"VSet"gp2ÿƒ3d"Set"Cad"IR"gp1ÿ‚-ad"Op"gp1d"HighOps"ad"DstTy"gp1d"HighTypes"ad"Census"gp1d"HighCensus"ad"Inp"gp1ÿ‚6Nh0

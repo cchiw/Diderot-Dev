@@ -15,12 +15,8 @@
  *      <input file>    <fragment name>
  *
  * The resulting file (named fragments.sml) will contain a structure with the given
- * name; the structure consists of named fragments.  Two kinds of input files are
- * supported.  If the input file has a ".in" suffix, then it is converted to an
- * SML literal string in the output file.  If it has a ".json" suffix, then it
- * is parsed as a JSON value (see the SML/NJ JSON library) and the resulting
- * value in the output will be SML code that defines the corresponding JSON.value
- * value.
+ * name; the structure consists of named fragments, each of which is a string literal
+ * from the specified input file.
  *)
 
 structure MkFrags : sig
@@ -32,7 +28,6 @@ structure MkFrags : sig
   end = struct
 
     structure F = Format
-    structure J = JSON
 
   (* load the catalog from the file *)
     fun loadCatalog file = let
@@ -99,7 +94,7 @@ structure MkFrags : sig
               handle ex => (TextIO.closeIn inS; raise ex)
           end
 
-    fun doInFile (outS, fragDir) (srcFile, smlVar) = let
+    fun doFile (outS, fragDir) (srcFile, smlVar) = let
           val text = load (OS.Path.concat (fragDir, srcFile))
           fun prf (fmt, items) = TextIO.output(outS, F.format fmt items)
           in
@@ -110,58 +105,6 @@ structure MkFrags : sig
             prf ("          \\/*---------- end %s ----------*/\\n\\\n", [F.STR srcFile]);
             prf ("          \\\"\n", [])
           end
-
-    fun doJSONFile (outS, fragDir) (srcFile, smlVar) = let
-	  val value = JSONParser.parseFile (OS.Path.concat (fragDir, srcFile))
-	  fun pr s = TextIO.output(outS, s)
-          fun prf (fmt, items) = pr (F.format fmt items)
-	  fun prValue (indent, jv) = (case jv
-		 of J.OBJECT[] => pr "JSON.OBJECT[]"
-		  | J.OBJECT(fld::flds) => let
-		      fun prFld indent (fld, v) = (
-			    prf ("%s(\"%s\", ", [
-				F.LEFT(indent, F.STR ""), F.STR fld
-			      ]);
-			    prValue (indent, v);
-                            pr ")")
-		      in
-			prf ("JSON.OBJECT[\n", []);
-			prFld (indent+4) fld;
-			List.app (fn fld => (pr ",\n"; prFld (indent+4) fld)) flds;
-			prf ("\n%s]", [F.LEFT(indent+2, F.STR "")])
-		      end
-		  | J.ARRAY[] => pr "JSON.ARRAY[]"
-		  | J.ARRAY(v::vs) => (
-		      prf ("JSON.ARRAY[\n", []);
-		      prValue' (indent+4, v);
-		      List.app (fn v => (pr ",\n"; prValue' (indent+4, v))) vs;
-		      prf ("\n%s]", [F.LEFT(indent+2, F.STR "")]))
-		  | J.NULL => pr "JSON.NULL"
-		  | J.BOOL b => prf ("JSON.BOOL %b", [F.BOOL b])
-		  | J.INT n => prf ("JSON.INT %s", [F.STR(IntInf.toString n)])
-		  | J.FLOAT f => prf ("JSON.REAL %s", [F.STR(Real.toString f)])
-		  | J.STRING s => prf ("JSON.STRING \"%s\"", [F.STR(String.toString s)])
-		(* end case *))
-	  and prValue' (indent, jv) = (
-		prf ("%s", [F.LEFT(indent, F.STR "")]);
-		prValue (indent, jv))
-          in
-            pr "\n";
-            prf ("    val %s = ", [F.STR smlVar]);
-	    prValue (16, value);
-            pr "\n"
-          end
-
-    fun doFile arg = let
-	  val doInFile = doInFile arg
-	  val doJSONFile = doJSONFile arg
-	  in
-	    fn (srcFile, smlVar) => (case OS.Path.ext srcFile
-		 of SOME "in" => doInFile (srcFile, smlVar)
-		  | SOME "json" => doJSONFile (srcFile, smlVar)
-		  | _ => raise Fail "unexpected/missing file suffix"
-		(* end case *))
-	  end
 
     fun mkFragments dir = let
           val fragDir = OS.Path.concat(dir, "fragments")

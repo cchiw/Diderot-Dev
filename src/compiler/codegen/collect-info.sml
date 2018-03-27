@@ -51,11 +51,11 @@ structure CollectInfo : sig
       | EvalFemShape of meshElem.fnspace * int * int * int list
       | checkCell
       | RIfWrap
-      | swap2
-      | swap3
-      | swap4
-      | swap5
-      | swap6
+ | swap2
+ | swap3
+ | swap4
+ | swap5
+ | swap6
  
  val collect : TreeIR.program -> t
 
@@ -102,11 +102,12 @@ structure CollectInfo : sig
       | EvalFemShape of meshElem.fnspace * int * int * int list
       | checkCell
       | RIfWrap
-      | swap2
-      | swap3
-      | swap4
-      | swap5
-      | swap6
+ | swap2
+ | swap3
+ | swap4
+ | swap5
+ | swap6
+ 
  (* operator to string (for debugging) *)
     local
       fun vop2s (rator, w, pw) = if (w = pw)
@@ -204,11 +205,11 @@ structure CollectInfo : sig
                 | checkCell => 0w137
                 | RIfWrap  => 0w123
                 | swap2 => 0w127
-                | swap6 => 0w129
-                | swap3 =>  0w131
-                | swap4 => 0w133
-                | swap5 => 0w137
-              (* end case *))
+                | swap3 => 0w129
+                | swap4 => 0w131
+                | swap5 => 0w133
+                | swap6 => 0w137
+                (* end case *))
         fun sameKey (op1, op2) = (case (op1, op2)
                of (Print ty1, Print ty2) => TreeTypes.same(ty1, ty2)
                 | (RClamp, RClamp) => true
@@ -387,8 +388,7 @@ structure CollectInfo : sig
                   | Op.swap3  => insert swap3
                   | Op.swap4  => insert swap4
                   | Op.swap5  => insert swap5
-                  | Op.swap6  => insert swap6
-                  | _ => ()
+                  | Op.swap6  => insert swap6                  | _ => ()
                 (* end case *))
           in
             add'

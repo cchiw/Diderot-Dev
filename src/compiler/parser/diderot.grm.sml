@@ -1,311 +1,313 @@
-structure DiderotTokens =
-  struct
-    datatype token
-      = KW_bool
-      | KW_const
-      | KW_continue
-      | KW_create_array
-      | KW_create_collection
-      | KW_die
-      | KW_else
-      | KW_false
-      | KW_field
-      | KW_foreach
-      | KW_function
-      | KW_identity
-      | KW_if
-      | KW_image
-      | KW_in
-      | KW_initialize
-      | KW_input
-      | KW_int
-      | KW_kernel
-      | KW_load_image
-      | KW_load_sequence
-      | KW_mat2
-      | KW_mat3
-      | KW_mat4
-      | KW_nan
-      | KW_new
-      | KW_output
-      | KW_print
-      | KW_real
-      | KW_return
-      | KW_stabilize
-      | KW_start
-      | KW_strand
-      | KW_string
-      | KW_tensor
-      | KW_true
-      | KW_update
-      | KW_vec2
-      | KW_vec3
-      | KW_vec4
-      | KW_zeros
-      | KW_OField
-      | KW_fem
-      | KW_mesh
-      | KW_element
-      | KW_fnspace
-      | OP_eq
-      | OP_pluseq
-      | OP_minuseq
-      | OP_stareq
-      | OP_slasheq
-      | OP_modeq
-      | OP_orelse
-      | OP_andalso
-      | OP_lt
-      | OP_lte
-      | OP_eqeq
-      | OP_neq
-      | OP_gte
-      | OP_gt
-      | OP_plus
-      | OP_minus
-      | OP_star
-      | OP_convolve
-      | OP_dot
-      | OP_cross
-      | OP_outer
-      | OP_slash
-      | OP_mod
-      | OP_exp
-      | OP_comp
-      | OP_at
-      | OP_D
-      | OP_Dotimes
-      | OP_curl
-      | OP_Ddot
-      | LP
-      | RP
-      | LB
-      | RB
-      | LCB
-      | RCB
-      | COMMA
-      | SEMI
-      | COLON
-      | HASH
-      | BANG
-      | BAR
-      | DOT
-      | DOTDOT
-      | VERSION of int list
-      | ID of Atom.atom
-      | INT of IntLit.t
-      | REAL of RealLit.t
+structure 
+DiderotTokens = struct
+
+    datatype token = EOF
       | STRING of string
-      | EOF
-    val allToks = [
-            KW_bool, KW_const, KW_continue, KW_create_array, KW_create_collection, KW_die, KW_else, KW_false, KW_field, KW_foreach, KW_function, KW_identity, KW_if, KW_image, KW_in, KW_initialize, KW_input, KW_int, KW_kernel, KW_load_image, KW_load_sequence, KW_mat2, KW_mat3, KW_mat4, KW_nan, KW_new, KW_output, KW_print, KW_real, KW_return, KW_stabilize, KW_start, KW_strand, KW_string, KW_tensor, KW_true, KW_update, KW_vec2, KW_vec3, KW_vec4, KW_zeros, KW_OField, KW_fem, KW_mesh, KW_element, KW_fnspace, OP_eq, OP_pluseq, OP_minuseq, OP_stareq, OP_slasheq, OP_modeq, OP_orelse, OP_andalso, OP_lt, OP_lte, OP_eqeq, OP_neq, OP_gte, OP_gt, OP_plus, OP_minus, OP_star, OP_convolve, OP_dot, OP_cross, OP_outer, OP_slash, OP_mod, OP_exp, OP_comp, OP_at, OP_D, OP_Dotimes, OP_curl, OP_Ddot, LP, RP, LB, RB, LCB, RCB, COMMA, SEMI, COLON, HASH, BANG, BAR, DOT, DOTDOT, EOF
-           ]
+      | REAL of RealLit.t
+      | INT of IntLit.t
+      | ID of Atom.atom
+      | VERSION of int list
+      | DOTDOT
+      | DOT
+      | BAR
+      | BANG
+      | HASH
+      | COLON
+      | SEMI
+      | COMMA
+      | RCB
+      | LCB
+      | RB
+      | LB
+      | RP
+      | LP
+      | OP_Ddot
+      | OP_curl
+      | OP_Dotimes
+      | OP_D
+      | OP_at
+      | OP_comp
+      | OP_exp
+      | OP_mod
+      | OP_slash
+      | OP_outer
+      | OP_cross
+      | OP_dot
+      | OP_convolve
+      | OP_star
+      | OP_minus
+      | OP_plus
+      | OP_gt
+      | OP_gte
+      | OP_neq
+      | OP_eqeq
+      | OP_lte
+      | OP_lt
+      | OP_andalso
+      | OP_orelse
+      | OP_modeq
+      | OP_slasheq
+      | OP_stareq
+      | OP_minuseq
+      | OP_pluseq
+      | OP_eq
+      | KW_fnspace
+      | KW_element
+      | KW_mesh
+      | KW_fem
+      | KW_OField
+      | KW_zeros
+      | KW_vec4
+      | KW_vec3
+      | KW_vec2
+      | KW_update
+      | KW_true
+      | KW_tensor
+      | KW_string
+      | KW_strand
+      | KW_start
+      | KW_stabilize
+      | KW_return
+      | KW_real
+      | KW_print
+      | KW_output
+      | KW_new
+      | KW_nan
+      | KW_mat4
+      | KW_mat3
+      | KW_mat2
+      | KW_load_sequence
+      | KW_load_image
+      | KW_kernel
+      | KW_int
+      | KW_input
+      | KW_initialize
+      | KW_in
+      | KW_image
+      | KW_if
+      | KW_identity
+      | KW_function
+      | KW_foreach
+      | KW_field
+      | KW_false
+      | KW_else
+      | KW_die
+      | KW_create_collection
+      | KW_create_array
+      | KW_continue
+      | KW_const
+      | KW_bool
+
+    val allToks = [EOF, DOTDOT, DOT, BAR, BANG, HASH, COLON, SEMI, COMMA, RCB, LCB, RB, LB, RP, LP, OP_Ddot, OP_curl, OP_Dotimes, OP_D, OP_at, OP_comp, OP_exp, OP_mod, OP_slash, OP_outer, OP_cross, OP_dot, OP_convolve, OP_star, OP_minus, OP_plus, OP_gt, OP_gte, OP_neq, OP_eqeq, OP_lte, OP_lt, OP_andalso, OP_orelse, OP_modeq, OP_slasheq, OP_stareq, OP_minuseq, OP_pluseq, OP_eq, KW_fnspace, KW_element, KW_mesh, KW_fem, KW_OField, KW_zeros, KW_vec4, KW_vec3, KW_vec2, KW_update, KW_true, KW_tensor, KW_string, KW_strand, KW_start, KW_stabilize, KW_return, KW_real, KW_print, KW_output, KW_new, KW_nan, KW_mat4, KW_mat3, KW_mat2, KW_load_sequence, KW_load_image, KW_kernel, KW_int, KW_input, KW_initialize, KW_in, KW_image, KW_if, KW_identity, KW_function, KW_foreach, KW_field, KW_false, KW_else, KW_die, KW_create_collection, KW_create_array, KW_continue, KW_const, KW_bool]
+
     fun toString tok =
 (case (tok)
- of (KW_bool) => "bool"
-  | (KW_const) => "const"
-  | (KW_continue) => "continue"
-  | (KW_create_array) => "create_array"
-  | (KW_create_collection) => "create_collection"
-  | (KW_die) => "die"
-  | (KW_else) => "else"
-  | (KW_false) => "false"
-  | (KW_field) => "field"
-  | (KW_foreach) => "foreach"
-  | (KW_function) => "function"
-  | (KW_identity) => "identity"
-  | (KW_if) => "if"
-  | (KW_image) => "image"
-  | (KW_in) => "in"
-  | (KW_initialize) => "initialize"
-  | (KW_input) => "input"
-  | (KW_int) => "int"
-  | (KW_kernel) => "kernel"
-  | (KW_load_image) => "load_image"
-  | (KW_load_sequence) => "load_sequence"
-  | (KW_mat2) => "mat2"
-  | (KW_mat3) => "mat3"
-  | (KW_mat4) => "mat4"
-  | (KW_nan) => "nan"
-  | (KW_new) => "new"
-  | (KW_output) => "output"
-  | (KW_print) => "print"
-  | (KW_real) => "real"
-  | (KW_return) => "return"
-  | (KW_stabilize) => "stabilize"
-  | (KW_start) => "start"
-  | (KW_strand) => "strand"
-  | (KW_string) => "string"
-  | (KW_tensor) => "tensor"
-  | (KW_true) => "true"
-  | (KW_update) => "update"
-  | (KW_vec2) => "vec2"
-  | (KW_vec3) => "vec3"
-  | (KW_vec4) => "vec4"
-  | (KW_zeros) => "zeros"
-  | (KW_OField) => "ofield"
-  | (KW_fem) => "fem"
-  | (KW_mesh) => "mesh"
-  | (KW_element) => "element"
-  | (KW_fnspace) => "fnspace"
-  | (OP_eq) => "="
-  | (OP_pluseq) => "+="
-  | (OP_minuseq) => "-="
-  | (OP_stareq) => "*="
-  | (OP_slasheq) => "/="
-  | (OP_modeq) => "%="
-  | (OP_orelse) => "||"
-  | (OP_andalso) => "&&"
-  | (OP_lt) => "<"
-  | (OP_lte) => "<="
-  | (OP_eqeq) => "=="
-  | (OP_neq) => "!="
-  | (OP_gte) => ">="
-  | (OP_gt) => ">"
-  | (OP_plus) => "+"
-  | (OP_minus) => "-"
-  | (OP_star) => "*"
-  | (OP_convolve) => "\226\138\155"
-  | (OP_dot) => "\226\128\162"
-  | (OP_cross) => "\195\151"
-  | (OP_outer) => "\226\138\151"
-  | (OP_slash) => "/"
-  | (OP_mod) => "%"
-  | (OP_exp) => "^"
-  | (OP_comp) => "\226\136\152"
-  | (OP_at) => "@"
-  | (OP_D) => "\226\136\135"
-  | (OP_Dotimes) => "\226\136\135\226\138\151"
-  | (OP_curl) => "\226\136\135\195\151"
-  | (OP_Ddot) => "\226\136\135\226\128\162"
-  | (LP) => "("
-  | (RP) => ")"
-  | (LB) => "["
-  | (RB) => "]"
-  | (LCB) => "{"
-  | (RCB) => "}"
-  | (COMMA) => ","
-  | (SEMI) => ";"
-  | (COLON) => ":"
-  | (HASH) => "#"
-  | (BANG) => "!"
-  | (BAR) => "|"
-  | (DOT) => "."
-  | (DOTDOT) => ".."
-  | (VERSION(_)) => "VERSION"
-  | (ID(_)) => "ID"
-  | (INT(_)) => "INT"
-  | (REAL(_)) => "REAL"
+ of (EOF) => "EOF"
   | (STRING(_)) => "STRING"
-  | (EOF) => "EOF"
+  | (REAL(_)) => "REAL"
+  | (INT(_)) => "INT"
+  | (ID(_)) => "ID"
+  | (VERSION(_)) => "VERSION"
+  | (DOTDOT) => ".."
+  | (DOT) => "."
+  | (BAR) => "|"
+  | (BANG) => "!"
+  | (HASH) => "#"
+  | (COLON) => ":"
+  | (SEMI) => ";"
+  | (COMMA) => ","
+  | (RCB) => "}"
+  | (LCB) => "{"
+  | (RB) => "]"
+  | (LB) => "["
+  | (RP) => ")"
+  | (LP) => "("
+  | (OP_Ddot) => "\226\136\135\226\128\162"
+  | (OP_curl) => "\226\136\135\195\151"
+  | (OP_Dotimes) => "\226\136\135\226\138\151"
+  | (OP_D) => "\226\136\135"
+  | (OP_at) => "@"
+  | (OP_comp) => "\226\136\152"
+  | (OP_exp) => "^"
+  | (OP_mod) => "%"
+  | (OP_slash) => "/"
+  | (OP_outer) => "\226\138\151"
+  | (OP_cross) => "\195\151"
+  | (OP_dot) => "\226\128\162"
+  | (OP_convolve) => "\226\138\155"
+  | (OP_star) => "*"
+  | (OP_minus) => "-"
+  | (OP_plus) => "+"
+  | (OP_gt) => ">"
+  | (OP_gte) => ">="
+  | (OP_neq) => "!="
+  | (OP_eqeq) => "=="
+  | (OP_lte) => "<="
+  | (OP_lt) => "<"
+  | (OP_andalso) => "&&"
+  | (OP_orelse) => "||"
+  | (OP_modeq) => "%="
+  | (OP_slasheq) => "/="
+  | (OP_stareq) => "*="
+  | (OP_minuseq) => "-="
+  | (OP_pluseq) => "+="
+  | (OP_eq) => "="
+  | (KW_fnspace) => "fnspace"
+  | (KW_element) => "element"
+  | (KW_mesh) => "mesh"
+  | (KW_fem) => "fem"
+  | (KW_OField) => "ofield"
+  | (KW_zeros) => "zeros"
+  | (KW_vec4) => "vec4"
+  | (KW_vec3) => "vec3"
+  | (KW_vec2) => "vec2"
+  | (KW_update) => "update"
+  | (KW_true) => "true"
+  | (KW_tensor) => "tensor"
+  | (KW_string) => "string"
+  | (KW_strand) => "strand"
+  | (KW_start) => "start"
+  | (KW_stabilize) => "stabilize"
+  | (KW_return) => "return"
+  | (KW_real) => "real"
+  | (KW_print) => "print"
+  | (KW_output) => "output"
+  | (KW_new) => "new"
+  | (KW_nan) => "nan"
+  | (KW_mat4) => "mat4"
+  | (KW_mat3) => "mat3"
+  | (KW_mat2) => "mat2"
+  | (KW_load_sequence) => "load_sequence"
+  | (KW_load_image) => "load_image"
+  | (KW_kernel) => "kernel"
+  | (KW_int) => "int"
+  | (KW_input) => "input"
+  | (KW_initialize) => "initialize"
+  | (KW_in) => "in"
+  | (KW_image) => "image"
+  | (KW_if) => "if"
+  | (KW_identity) => "identity"
+  | (KW_function) => "function"
+  | (KW_foreach) => "foreach"
+  | (KW_field) => "field"
+  | (KW_false) => "false"
+  | (KW_else) => "else"
+  | (KW_die) => "die"
+  | (KW_create_collection) => "create_collection"
+  | (KW_create_array) => "create_array"
+  | (KW_continue) => "continue"
+  | (KW_const) => "const"
+  | (KW_bool) => "bool"
 (* end case *))
     fun isKW tok =
 (case (tok)
- of (KW_bool) => true
-  | (KW_const) => true
-  | (KW_continue) => true
-  | (KW_create_array) => true
-  | (KW_create_collection) => true
-  | (KW_die) => true
-  | (KW_else) => true
-  | (KW_false) => true
-  | (KW_field) => true
-  | (KW_foreach) => true
-  | (KW_function) => true
-  | (KW_identity) => true
-  | (KW_if) => true
-  | (KW_image) => true
-  | (KW_in) => true
-  | (KW_initialize) => true
-  | (KW_input) => true
-  | (KW_int) => true
-  | (KW_kernel) => true
-  | (KW_load_image) => true
-  | (KW_load_sequence) => true
-  | (KW_mat2) => true
-  | (KW_mat3) => true
-  | (KW_mat4) => true
-  | (KW_nan) => true
-  | (KW_new) => true
-  | (KW_output) => true
-  | (KW_print) => true
-  | (KW_real) => true
-  | (KW_return) => true
-  | (KW_stabilize) => true
-  | (KW_start) => true
-  | (KW_strand) => true
-  | (KW_string) => true
-  | (KW_tensor) => true
-  | (KW_true) => true
-  | (KW_update) => true
-  | (KW_vec2) => true
-  | (KW_vec3) => true
-  | (KW_vec4) => true
-  | (KW_zeros) => true
-  | (KW_OField) => true
-  | (KW_fem) => true
-  | (KW_mesh) => true
-  | (KW_element) => true
-  | (KW_fnspace) => true
-  | (OP_eq) => false
-  | (OP_pluseq) => false
-  | (OP_minuseq) => false
-  | (OP_stareq) => false
-  | (OP_slasheq) => false
-  | (OP_modeq) => false
-  | (OP_orelse) => false
-  | (OP_andalso) => false
-  | (OP_lt) => false
-  | (OP_lte) => false
-  | (OP_eqeq) => false
-  | (OP_neq) => false
-  | (OP_gte) => false
-  | (OP_gt) => false
-  | (OP_plus) => false
-  | (OP_minus) => false
-  | (OP_star) => false
-  | (OP_convolve) => false
-  | (OP_dot) => false
-  | (OP_cross) => false
-  | (OP_outer) => false
-  | (OP_slash) => false
-  | (OP_mod) => false
-  | (OP_exp) => false
-  | (OP_comp) => false
-  | (OP_at) => false
-  | (OP_D) => false
-  | (OP_Dotimes) => false
-  | (OP_curl) => false
-  | (OP_Ddot) => false
-  | (LP) => false
-  | (RP) => false
-  | (LB) => false
-  | (RB) => false
-  | (LCB) => false
-  | (RCB) => false
-  | (COMMA) => false
-  | (SEMI) => false
-  | (COLON) => false
-  | (HASH) => false
-  | (BANG) => false
-  | (BAR) => false
-  | (DOT) => false
-  | (DOTDOT) => false
-  | (VERSION(_)) => false
-  | (ID(_)) => false
-  | (INT(_)) => false
-  | (REAL(_)) => false
+ of (EOF) => false
   | (STRING(_)) => false
-  | (EOF) => false
+  | (REAL(_)) => false
+  | (INT(_)) => false
+  | (ID(_)) => false
+  | (VERSION(_)) => false
+  | (DOTDOT) => false
+  | (DOT) => false
+  | (BAR) => false
+  | (BANG) => false
+  | (HASH) => false
+  | (COLON) => false
+  | (SEMI) => false
+  | (COMMA) => false
+  | (RCB) => false
+  | (LCB) => false
+  | (RB) => false
+  | (LB) => false
+  | (RP) => false
+  | (LP) => false
+  | (OP_Ddot) => false
+  | (OP_curl) => false
+  | (OP_Dotimes) => false
+  | (OP_D) => false
+  | (OP_at) => false
+  | (OP_comp) => false
+  | (OP_exp) => false
+  | (OP_mod) => false
+  | (OP_slash) => false
+  | (OP_outer) => false
+  | (OP_cross) => false
+  | (OP_dot) => false
+  | (OP_convolve) => false
+  | (OP_star) => false
+  | (OP_minus) => false
+  | (OP_plus) => false
+  | (OP_gt) => false
+  | (OP_gte) => false
+  | (OP_neq) => false
+  | (OP_eqeq) => false
+  | (OP_lte) => false
+  | (OP_lt) => false
+  | (OP_andalso) => false
+  | (OP_orelse) => false
+  | (OP_modeq) => false
+  | (OP_slasheq) => false
+  | (OP_stareq) => false
+  | (OP_minuseq) => false
+  | (OP_pluseq) => false
+  | (OP_eq) => false
+  | (KW_fnspace) => true
+  | (KW_element) => true
+  | (KW_mesh) => true
+  | (KW_fem) => true
+  | (KW_OField) => true
+  | (KW_zeros) => true
+  | (KW_vec4) => true
+  | (KW_vec3) => true
+  | (KW_vec2) => true
+  | (KW_update) => true
+  | (KW_true) => true
+  | (KW_tensor) => true
+  | (KW_string) => true
+  | (KW_strand) => true
+  | (KW_start) => true
+  | (KW_stabilize) => true
+  | (KW_return) => true
+  | (KW_real) => true
+  | (KW_print) => true
+  | (KW_output) => true
+  | (KW_new) => true
+  | (KW_nan) => true
+  | (KW_mat4) => true
+  | (KW_mat3) => true
+  | (KW_mat2) => true
+  | (KW_load_sequence) => true
+  | (KW_load_image) => true
+  | (KW_kernel) => true
+  | (KW_int) => true
+  | (KW_input) => true
+  | (KW_initialize) => true
+  | (KW_in) => true
+  | (KW_image) => true
+  | (KW_if) => true
+  | (KW_identity) => true
+  | (KW_function) => true
+  | (KW_foreach) => true
+  | (KW_field) => true
+  | (KW_false) => true
+  | (KW_else) => true
+  | (KW_die) => true
+  | (KW_create_collection) => true
+  | (KW_create_array) => true
+  | (KW_continue) => true
+  | (KW_const) => true
+  | (KW_bool) => true
 (* end case *))
-    fun isEOF EOF = true
-      | isEOF _ = false
-  end (* DiderotTokens *)
 
-functor DiderotParseFn (Lex : ANTLR_LEXER) = struct
+  fun isEOF EOF = true
+    | isEOF _ = false
+
+end
+
+functor DiderotParseFn(Lex : ANTLR_LEXER) = struct
 
   local
-    structure Tok =
+    structure Tok = 
 DiderotTokens
     structure UserCode =
       struct
@@ -699,17 +701,17 @@ fun BindId_PROD_1_ACT (ID, ID_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos *
 *)
     structure EBNF =
       struct
-	fun optional (pred, parse, strm) =
+	fun optional (pred, parse, strm) = 
 	      if pred strm
 		then let
 		  val (y, span, strm') = parse strm
-		  in
+		  in 
 		    (SOME y, span, strm')
 		  end
 		else (NONE, Err.getSpan strm, strm)
 
 	fun closure (pred, parse, strm) = let
-	      fun iter (strm, (left, right), ys) =
+	      fun iter (strm, (left, right), ys) = 
 		    if pred strm
 		      then let
 			val (y, (_, right'), strm') = parse strm
@@ -736,392 +738,392 @@ fun unwrap (ret, strm, repairs) = (ret, strm, repairs)
 	fun fail() = Err.failure eh
 	fun tryProds (strm, prods) = let
 	  fun try [] = fail()
-	    | try (prod :: prods) =
-	        (Err.whileDisabled eh (fn() => prod strm))
+	    | try (prod :: prods) = 
+	        (Err.whileDisabled eh (fn() => prod strm)) 
 		handle Err.ParseError => try (prods)
           in try prods end
-fun matchKW_bool strm = (case (lex(strm))
- of (Tok.KW_bool, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_const strm = (case (lex(strm))
- of (Tok.KW_const, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_continue strm = (case (lex(strm))
- of (Tok.KW_continue, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_create_array strm = (case (lex(strm))
- of (Tok.KW_create_array, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_create_collection strm = (case (lex(strm))
- of (Tok.KW_create_collection, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_die strm = (case (lex(strm))
- of (Tok.KW_die, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_else strm = (case (lex(strm))
- of (Tok.KW_else, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_false strm = (case (lex(strm))
- of (Tok.KW_false, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_field strm = (case (lex(strm))
- of (Tok.KW_field, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_foreach strm = (case (lex(strm))
- of (Tok.KW_foreach, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_function strm = (case (lex(strm))
- of (Tok.KW_function, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_identity strm = (case (lex(strm))
- of (Tok.KW_identity, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_if strm = (case (lex(strm))
- of (Tok.KW_if, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_image strm = (case (lex(strm))
- of (Tok.KW_image, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_in strm = (case (lex(strm))
- of (Tok.KW_in, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_initialize strm = (case (lex(strm))
- of (Tok.KW_initialize, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_input strm = (case (lex(strm))
- of (Tok.KW_input, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_int strm = (case (lex(strm))
- of (Tok.KW_int, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_kernel strm = (case (lex(strm))
- of (Tok.KW_kernel, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_load_image strm = (case (lex(strm))
- of (Tok.KW_load_image, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_load_sequence strm = (case (lex(strm))
- of (Tok.KW_load_sequence, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_mat2 strm = (case (lex(strm))
- of (Tok.KW_mat2, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_mat3 strm = (case (lex(strm))
- of (Tok.KW_mat3, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_mat4 strm = (case (lex(strm))
- of (Tok.KW_mat4, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_nan strm = (case (lex(strm))
- of (Tok.KW_nan, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_new strm = (case (lex(strm))
- of (Tok.KW_new, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_output strm = (case (lex(strm))
- of (Tok.KW_output, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_print strm = (case (lex(strm))
- of (Tok.KW_print, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_real strm = (case (lex(strm))
- of (Tok.KW_real, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_return strm = (case (lex(strm))
- of (Tok.KW_return, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_stabilize strm = (case (lex(strm))
- of (Tok.KW_stabilize, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_start strm = (case (lex(strm))
- of (Tok.KW_start, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_strand strm = (case (lex(strm))
- of (Tok.KW_strand, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_string strm = (case (lex(strm))
- of (Tok.KW_string, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_tensor strm = (case (lex(strm))
- of (Tok.KW_tensor, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_true strm = (case (lex(strm))
- of (Tok.KW_true, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_update strm = (case (lex(strm))
- of (Tok.KW_update, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_vec2 strm = (case (lex(strm))
- of (Tok.KW_vec2, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_vec3 strm = (case (lex(strm))
- of (Tok.KW_vec3, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_vec4 strm = (case (lex(strm))
- of (Tok.KW_vec4, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_zeros strm = (case (lex(strm))
- of (Tok.KW_zeros, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_OField strm = (case (lex(strm))
- of (Tok.KW_OField, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_fem strm = (case (lex(strm))
- of (Tok.KW_fem, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_mesh strm = (case (lex(strm))
- of (Tok.KW_mesh, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_element strm = (case (lex(strm))
- of (Tok.KW_element, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchKW_fnspace strm = (case (lex(strm))
- of (Tok.KW_fnspace, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_eq strm = (case (lex(strm))
- of (Tok.OP_eq, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_pluseq strm = (case (lex(strm))
- of (Tok.OP_pluseq, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_minuseq strm = (case (lex(strm))
- of (Tok.OP_minuseq, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_stareq strm = (case (lex(strm))
- of (Tok.OP_stareq, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_slasheq strm = (case (lex(strm))
- of (Tok.OP_slasheq, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_modeq strm = (case (lex(strm))
- of (Tok.OP_modeq, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_orelse strm = (case (lex(strm))
- of (Tok.OP_orelse, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_andalso strm = (case (lex(strm))
- of (Tok.OP_andalso, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_lt strm = (case (lex(strm))
- of (Tok.OP_lt, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_lte strm = (case (lex(strm))
- of (Tok.OP_lte, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_eqeq strm = (case (lex(strm))
- of (Tok.OP_eqeq, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_neq strm = (case (lex(strm))
- of (Tok.OP_neq, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_gte strm = (case (lex(strm))
- of (Tok.OP_gte, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_gt strm = (case (lex(strm))
- of (Tok.OP_gt, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_plus strm = (case (lex(strm))
- of (Tok.OP_plus, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_minus strm = (case (lex(strm))
- of (Tok.OP_minus, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_star strm = (case (lex(strm))
- of (Tok.OP_star, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_convolve strm = (case (lex(strm))
- of (Tok.OP_convolve, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_dot strm = (case (lex(strm))
- of (Tok.OP_dot, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_cross strm = (case (lex(strm))
- of (Tok.OP_cross, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_outer strm = (case (lex(strm))
- of (Tok.OP_outer, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_slash strm = (case (lex(strm))
- of (Tok.OP_slash, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_mod strm = (case (lex(strm))
- of (Tok.OP_mod, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_exp strm = (case (lex(strm))
- of (Tok.OP_exp, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_comp strm = (case (lex(strm))
- of (Tok.OP_comp, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_at strm = (case (lex(strm))
- of (Tok.OP_at, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_D strm = (case (lex(strm))
- of (Tok.OP_D, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_Dotimes strm = (case (lex(strm))
- of (Tok.OP_Dotimes, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_curl strm = (case (lex(strm))
- of (Tok.OP_curl, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchOP_Ddot strm = (case (lex(strm))
- of (Tok.OP_Ddot, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchLP strm = (case (lex(strm))
- of (Tok.LP, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchRP strm = (case (lex(strm))
- of (Tok.RP, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchLB strm = (case (lex(strm))
- of (Tok.LB, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchRB strm = (case (lex(strm))
- of (Tok.RB, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchLCB strm = (case (lex(strm))
- of (Tok.LCB, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchRCB strm = (case (lex(strm))
- of (Tok.RCB, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchCOMMA strm = (case (lex(strm))
- of (Tok.COMMA, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchSEMI strm = (case (lex(strm))
- of (Tok.SEMI, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchCOLON strm = (case (lex(strm))
- of (Tok.COLON, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchHASH strm = (case (lex(strm))
- of (Tok.HASH, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchBANG strm = (case (lex(strm))
- of (Tok.BANG, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchBAR strm = (case (lex(strm))
- of (Tok.BAR, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchDOT strm = (case (lex(strm))
- of (Tok.DOT, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchDOTDOT strm = (case (lex(strm))
- of (Tok.DOTDOT, span, strm') => ((), span, strm')
-  | _ => fail()
-(* end case *))
-fun matchVERSION strm = (case (lex(strm))
- of (Tok.VERSION(x), span, strm') => (x, span, strm')
-  | _ => fail()
-(* end case *))
-fun matchID strm = (case (lex(strm))
- of (Tok.ID(x), span, strm') => (x, span, strm')
-  | _ => fail()
-(* end case *))
-fun matchINT strm = (case (lex(strm))
- of (Tok.INT(x), span, strm') => (x, span, strm')
-  | _ => fail()
-(* end case *))
-fun matchREAL strm = (case (lex(strm))
- of (Tok.REAL(x), span, strm') => (x, span, strm')
+fun matchEOF strm = (case (lex(strm))
+ of (Tok.EOF, span, strm') => ((), span, strm')
   | _ => fail()
 (* end case *))
 fun matchSTRING strm = (case (lex(strm))
  of (Tok.STRING(x), span, strm') => (x, span, strm')
   | _ => fail()
 (* end case *))
-fun matchEOF strm = (case (lex(strm))
- of (Tok.EOF, span, strm') => ((), span, strm')
+fun matchREAL strm = (case (lex(strm))
+ of (Tok.REAL(x), span, strm') => (x, span, strm')
+  | _ => fail()
+(* end case *))
+fun matchINT strm = (case (lex(strm))
+ of (Tok.INT(x), span, strm') => (x, span, strm')
+  | _ => fail()
+(* end case *))
+fun matchID strm = (case (lex(strm))
+ of (Tok.ID(x), span, strm') => (x, span, strm')
+  | _ => fail()
+(* end case *))
+fun matchVERSION strm = (case (lex(strm))
+ of (Tok.VERSION(x), span, strm') => (x, span, strm')
+  | _ => fail()
+(* end case *))
+fun matchDOTDOT strm = (case (lex(strm))
+ of (Tok.DOTDOT, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchDOT strm = (case (lex(strm))
+ of (Tok.DOT, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchBAR strm = (case (lex(strm))
+ of (Tok.BAR, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchBANG strm = (case (lex(strm))
+ of (Tok.BANG, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchHASH strm = (case (lex(strm))
+ of (Tok.HASH, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchCOLON strm = (case (lex(strm))
+ of (Tok.COLON, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchSEMI strm = (case (lex(strm))
+ of (Tok.SEMI, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchCOMMA strm = (case (lex(strm))
+ of (Tok.COMMA, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchRCB strm = (case (lex(strm))
+ of (Tok.RCB, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchLCB strm = (case (lex(strm))
+ of (Tok.LCB, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchRB strm = (case (lex(strm))
+ of (Tok.RB, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchLB strm = (case (lex(strm))
+ of (Tok.LB, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchRP strm = (case (lex(strm))
+ of (Tok.RP, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchLP strm = (case (lex(strm))
+ of (Tok.LP, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_Ddot strm = (case (lex(strm))
+ of (Tok.OP_Ddot, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_curl strm = (case (lex(strm))
+ of (Tok.OP_curl, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_Dotimes strm = (case (lex(strm))
+ of (Tok.OP_Dotimes, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_D strm = (case (lex(strm))
+ of (Tok.OP_D, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_at strm = (case (lex(strm))
+ of (Tok.OP_at, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_comp strm = (case (lex(strm))
+ of (Tok.OP_comp, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_exp strm = (case (lex(strm))
+ of (Tok.OP_exp, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_mod strm = (case (lex(strm))
+ of (Tok.OP_mod, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_slash strm = (case (lex(strm))
+ of (Tok.OP_slash, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_outer strm = (case (lex(strm))
+ of (Tok.OP_outer, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_cross strm = (case (lex(strm))
+ of (Tok.OP_cross, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_dot strm = (case (lex(strm))
+ of (Tok.OP_dot, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_convolve strm = (case (lex(strm))
+ of (Tok.OP_convolve, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_star strm = (case (lex(strm))
+ of (Tok.OP_star, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_minus strm = (case (lex(strm))
+ of (Tok.OP_minus, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_plus strm = (case (lex(strm))
+ of (Tok.OP_plus, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_gt strm = (case (lex(strm))
+ of (Tok.OP_gt, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_gte strm = (case (lex(strm))
+ of (Tok.OP_gte, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_neq strm = (case (lex(strm))
+ of (Tok.OP_neq, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_eqeq strm = (case (lex(strm))
+ of (Tok.OP_eqeq, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_lte strm = (case (lex(strm))
+ of (Tok.OP_lte, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_lt strm = (case (lex(strm))
+ of (Tok.OP_lt, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_andalso strm = (case (lex(strm))
+ of (Tok.OP_andalso, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_orelse strm = (case (lex(strm))
+ of (Tok.OP_orelse, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_modeq strm = (case (lex(strm))
+ of (Tok.OP_modeq, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_slasheq strm = (case (lex(strm))
+ of (Tok.OP_slasheq, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_stareq strm = (case (lex(strm))
+ of (Tok.OP_stareq, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_minuseq strm = (case (lex(strm))
+ of (Tok.OP_minuseq, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_pluseq strm = (case (lex(strm))
+ of (Tok.OP_pluseq, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchOP_eq strm = (case (lex(strm))
+ of (Tok.OP_eq, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_fnspace strm = (case (lex(strm))
+ of (Tok.KW_fnspace, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_element strm = (case (lex(strm))
+ of (Tok.KW_element, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_mesh strm = (case (lex(strm))
+ of (Tok.KW_mesh, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_fem strm = (case (lex(strm))
+ of (Tok.KW_fem, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_OField strm = (case (lex(strm))
+ of (Tok.KW_OField, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_zeros strm = (case (lex(strm))
+ of (Tok.KW_zeros, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_vec4 strm = (case (lex(strm))
+ of (Tok.KW_vec4, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_vec3 strm = (case (lex(strm))
+ of (Tok.KW_vec3, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_vec2 strm = (case (lex(strm))
+ of (Tok.KW_vec2, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_update strm = (case (lex(strm))
+ of (Tok.KW_update, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_true strm = (case (lex(strm))
+ of (Tok.KW_true, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_tensor strm = (case (lex(strm))
+ of (Tok.KW_tensor, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_string strm = (case (lex(strm))
+ of (Tok.KW_string, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_strand strm = (case (lex(strm))
+ of (Tok.KW_strand, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_start strm = (case (lex(strm))
+ of (Tok.KW_start, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_stabilize strm = (case (lex(strm))
+ of (Tok.KW_stabilize, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_return strm = (case (lex(strm))
+ of (Tok.KW_return, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_real strm = (case (lex(strm))
+ of (Tok.KW_real, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_print strm = (case (lex(strm))
+ of (Tok.KW_print, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_output strm = (case (lex(strm))
+ of (Tok.KW_output, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_new strm = (case (lex(strm))
+ of (Tok.KW_new, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_nan strm = (case (lex(strm))
+ of (Tok.KW_nan, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_mat4 strm = (case (lex(strm))
+ of (Tok.KW_mat4, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_mat3 strm = (case (lex(strm))
+ of (Tok.KW_mat3, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_mat2 strm = (case (lex(strm))
+ of (Tok.KW_mat2, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_load_sequence strm = (case (lex(strm))
+ of (Tok.KW_load_sequence, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_load_image strm = (case (lex(strm))
+ of (Tok.KW_load_image, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_kernel strm = (case (lex(strm))
+ of (Tok.KW_kernel, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_int strm = (case (lex(strm))
+ of (Tok.KW_int, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_input strm = (case (lex(strm))
+ of (Tok.KW_input, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_initialize strm = (case (lex(strm))
+ of (Tok.KW_initialize, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_in strm = (case (lex(strm))
+ of (Tok.KW_in, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_image strm = (case (lex(strm))
+ of (Tok.KW_image, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_if strm = (case (lex(strm))
+ of (Tok.KW_if, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_identity strm = (case (lex(strm))
+ of (Tok.KW_identity, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_function strm = (case (lex(strm))
+ of (Tok.KW_function, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_foreach strm = (case (lex(strm))
+ of (Tok.KW_foreach, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_field strm = (case (lex(strm))
+ of (Tok.KW_field, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_false strm = (case (lex(strm))
+ of (Tok.KW_false, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_else strm = (case (lex(strm))
+ of (Tok.KW_else, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_die strm = (case (lex(strm))
+ of (Tok.KW_die, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_create_collection strm = (case (lex(strm))
+ of (Tok.KW_create_collection, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_create_array strm = (case (lex(strm))
+ of (Tok.KW_create_array, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_continue strm = (case (lex(strm))
+ of (Tok.KW_continue, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_const strm = (case (lex(strm))
+ of (Tok.KW_const, span, strm') => ((), span, strm')
+  | _ => fail()
+(* end case *))
+fun matchKW_bool strm = (case (lex(strm))
+ of (Tok.KW_bool, span, strm') => ((), span, strm')
   | _ => fail()
 (* end case *))
 

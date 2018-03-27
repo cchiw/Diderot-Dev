@@ -1,5 +1,7 @@
 (* ein-sums.sml
  *
+ * Transformations to push summations down in the expression tree.  Note that normalization
+ * does not rewrite summations (CHECK THIS CLAIM!)
  *
  * This code is part of the Diderot Project (http://diderot-language.cs.uchicago.edu)
  *
@@ -12,8 +14,10 @@ structure EinSums : sig
     val clean :  Ein.ein -> Ein.ein
 
     val distribute : Ein.ein -> Ein.ein
-
     val transform : Ein.ein -> Ein.ein
+    val distribute_body : Ein.ein_exp -> Ein.ein_exp
+    val clean_body : Ein.ein_exp -> Ein.ein_exp
+
 
   end = struct
 
@@ -61,8 +65,8 @@ structure EinSums : sig
                                           => NONE
               | E.Probe(e1, e2)           => sort [e1, e2]
               | E.Comp(e1,_)              => findSx(c,e1)
-              | E.OField(_, e1, alpha)    => sort[E.Partial alpha, e1]
-              | E.Poly (_,_, _,shape)     => findIndex (c, shape)
+              | E.OField(_, e1, _)        => findSx(c,e1)
+              | E.Poly (_,_, _,shape)           => findIndex (c, shape)
               | E.Value _                 => NONE
               | E.Img _                   => raise Fail "Img used pre expansion"
               | E.Krn _                   => raise Fail "Krn used pre expansion"
@@ -147,8 +151,7 @@ structure EinSums : sig
   (* clean : EIN -> EIN
    * Rewrites body by moving summation indices around 
    *)
-    fun clean (Ein.EIN{params, index, body}) = let
-   (* val _ = (String.concat["\n\n input to clean --->\n",EinPP.expToString(body)])*)
+    fun clean_body body = let
           fun rewriteBody body = (case body
                  of E.Lift e1             => E.Lift(rewriteBody e1)
                   | E.Apply(e1, e2)       => E.Apply(rewriteBody e1, rewriteBody e2)
@@ -169,12 +172,15 @@ structure EinSums : sig
                   | E.If(E.GT(e1,e2), e3, e4) => E.If(E.GT(rewriteBody e1,rewriteBody e2), rewriteBody e3, rewriteBody e4)
                   | _                     => body
                 (* end case *))
+        in rewriteBody body end
+
+    fun clean (Ein.EIN{params, index, body}) = let
           in
-            Ein.EIN{params=params, index=index, body=rewriteBody body}
+            Ein.EIN{params=params, index=index, body=clean_body body}
           end
 
   (* Distribute summation if needed *)
-    fun distribute (Ein.EIN{params, index, body}) = let
+    fun distribute_body (body) = let
           val changed = ref false
           fun constant () = raise Fail "sum of constant"
           fun rewrite b = (case b
@@ -187,8 +193,9 @@ structure EinSums : sig
                       case e1
                        of E.Const _ => mkDiv (e1, E.Sum(sx, e2))
                         | E.ConstR _ => mkDiv (e1, E.Sum(sx, e2))
-                        | _ => E.Sum(sx, mkProd [e1, mkDiv(E.Const 1, rewrite e2)])
-                      (* end case *))
+                        | _ =>(* E.Sum(sx, mkProd [e1, mkDiv(E.Const 1, rewrite e2)])*)(*changed here*)
+                             (changed := true; E.Op2(E.Div, rewrite( E.Sum(sx, e1)), rewrite( E.Sum(sx,e2))))
+                        (* end case *))
                   | E.Sum(sx, E.Op2(op2, e1, e2)) => (
                       changed := true; E.Op2(op2, E.Sum(sx, e1), E.Sum(sx, e2)))
                   | E.Sum(sx, E.Opn(E.Prod, es)) => let
@@ -227,9 +234,11 @@ structure EinSums : sig
                 in
                   if !changed then  (changed := false ;loop body') else  body'
                 end
-          val b = loop body
+          in loop body end
+
+        fun distribute (Ein.EIN{params, index, body}) = let
           in
-            Ein.EIN{params=params, index=index, body= rewrite b}
+            Ein.EIN{params=params, index=index, body= distribute_body body}
           end
 
   (* distribute and clean summation *)

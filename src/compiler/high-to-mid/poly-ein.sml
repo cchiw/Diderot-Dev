@@ -70,13 +70,14 @@ structure PolyEin : sig
             | E.Opn(E.Prod, E.Opn(E.Prod, ps)::es) =>  replace(E.Opn(E.Prod, ps@es))
             | E.Opn(E.Prod, E.Opn(E.Add, ps)::es)
                 =>  replace (E.Opn(E.Add, List.map (fn  e1 => replace(E.Opn(E.Prod, e1::es))) ps))
-            |E.Opn(E.Prod, [_])          =>  raise Fail(EinPP.expToString(body))
-            |E.Opn(E.Prod, ps)          =>  iterP( List.map replace ps , [])
+            | E.Opn(E.Prod, [_])          =>  raise Fail(EinPP.expToString(body))
+            | E.Opn(E.Prod, ps)          =>  iterP( List.map replace ps , [])
             | E.Opn(E.Add , ps)         => iterA(List.map replace ps, [])
+            | E.Opn(E.Swap id , ps)         => iterA(List.map replace (E.Tensor(id,[])::ps), [])
             | _                     => raise Fail(EinPP.expToString(body))
             (* end case*))
         val body' = replace body
-        val _ = (String.concat ["\n\nreplaced :", EinPP.expToString(body), "\n\t->:", EinPP.expToString(body')])
+        (*val _ = print(String.concat ["\n\nreplaced :", EinPP.expToString(body), "\n\t->:", EinPP.expToString(body')])*)
         in body' end
 
 
@@ -142,10 +143,11 @@ structure PolyEin : sig
              val _ = (String.concat ["\n\n ->>", EinPP.expToString(body')])
             in body' end
         | E.Opn(E.Add , ps) =>  iterA(List.map merge ps, [])
+        | E.Opn(E.Swap id , ps) =>  iterA(List.map merge ps, [])
         | _                     => raise Fail(EinPP.expToString(body))
         (* end case*))
         val body' = merge body
-        val _ = (String.concat ["\n\n mergenew :", EinPP.expToString(body')])
+        (*val _ = print(String.concat ["\n\n mergenew :", EinPP.expToString(body')])*)
         in body' end
 
     fun cleanup(body) = (case body
@@ -195,14 +197,14 @@ structure PolyEin : sig
                 rewrite(E.Apply(E.Partial [dk], rewrite(E.Apply(E.Partial [dj], rewrite(E.Apply(E.Partial [di], e'))))))
             | _    => raise Fail("unsupported level of differentiation: not yet")
             (*end case*))
-        val _ = (String.concat ["\n\n differentiate :", EinPP.expToString(e')])
+        (*val _ = print(String.concat ["\n\n differentiate :", EinPP.expToString(e')])*)
         in e' end
 
 
     val i2s = Int.toString
     val shp2s = String.concatWithMap " " i2s
     fun paramToString (i, E.TEN(t, shp)) = concat["T", i2s i, "[", shp2s shp, "]"]
-      | paramToString (i, E.FLD (d,_)) = concat["F", i2s i, "[", i2s d, "]"]
+      | paramToString (i, E.FLD (d, shp)) = concat["F", i2s i, "(", i2s d, ")[",shp2s shp , "]"]
       | paramToString (i, E.KRN) = "H" ^ i2s i
       | paramToString (i, E.IMG(d, shp)) = concat["V", i2s i, "(", i2s d, ")[", shp2s shp, "]"]
 
@@ -217,7 +219,7 @@ structure PolyEin : sig
                 val arg_new = List.nth(args, idx)
                 val param_new = List.nth(params, idx)
                 val arg_replaced = List.nth(args, idy)
-                val _ = (String.concat["\n\nreplace :", IR.Var.name  arg_replaced," with new :", IR.Var.name  arg_new])
+                (*val _ = print(String.concat["\n\nreplace :", IR.Var.name  arg_replaced," with new :", IR.Var.name  arg_new])*)
 
                 (*id keeps track of placement and puts it in mapp*)
                 fun findArg(_, [], newargs, _, newparams, mapp) = (List.rev newargs, List.rev newparams, mapp)
@@ -227,15 +229,17 @@ structure PolyEin : sig
                     else findArg(id+1,es, e1::newargs, ps ,p1::newparams, mapp)
 
                 val (args, params, mapp) = findArg(0, args, [], params, [], ISet.empty)
+(*
                 val _ = ("\n\nparams:"^String.concatWith "," (List.mapi paramToString params))
-                val _ = ("\nargs:"^String.concatWith "," (List.map IR.Var.name  args))
+                val _ = print("\nargs:"^String.concatWith "," (List.map IR.Var.name  args))
+*)
             in (args, params, mapp) end
 
     (*iterate over all the poly variable expressions *)
     fun iter([], args, params, _, e) = (args, params,e)
       | iter (E.Tensor(pid, _)::es, args, params, idx,e) =
         let
-            val _ = ("\n replacing param id:"^Int.toString(pid))
+            (*val _ = print("\n replacing param id:"^Int.toString(pid))*)
             val (args, params, mapp) = replaceArg(args, params, idx, pid)
             (* get dimension of vector that is being broken into components*)
             val param_pos = List.nth(params, pid)

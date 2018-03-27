@@ -13,7 +13,8 @@ structure EinPP : sig
     val toString : Ein.ein -> string
 
     val expToString : Ein.ein_exp -> string
-
+ 
+    val HeadexpToString : Ein.ein_exp -> string
   end = struct
 
     structure E = Ein

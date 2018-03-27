@@ -87,12 +87,12 @@ structure ExpandFem =
 
         (*make all the code before find cell*)
         val vTC = V.new ("JIs", Ty.StringTy)
-	val space = meshElem.Space(ME.None, elem, degree)
-	val p10 = (vTC, IR.OP(Op.makeTranslateCoordinates (space, dim, avgPos, gBasisFunctions, gbasisJacobian), []))
+        val space = meshElem.Space(ME.None, elem, degree)
+        val p10 = (vTC, IR.OP(Op.makeTranslateCoordinates (space, dim, avgPos, gBasisFunctions, gbasisJacobian), []))
 
         val vfindcell = V.new ("fc", fcTy)
         val isAffine = if(isAffineTF) then 1 else 0
-	val space = meshElem.Space(mesh, elem, degree)
+	     val space = meshElem.Space(mesh, elem, degree)
         val p11 = (vfindcell, IR.OP(Op.makeFindCellExpand(space,  testString, isAffine,dim,Int.fromLarge gdim), [vp, vL,mN,mP, vTC,lC]))
         val Pcell = [p10, p11]
     in
@@ -101,62 +101,33 @@ structure ExpandFem =
 
 
 
-(*
-(*parameter list, id list and args lists must match*)
-val args = [basisrelevant, coordsrelevant, newpos]
-val idn = 2 (*newpos*)
-val idc = 1 (*coordsrelevant*)
-val idb = 0 (*basisrelevant*)
-val pos = E.Tensor(idn, [])b
-val fld = E.BigF(space, idc, [])               (*F*)
-val inv = E.Inverse(space, fld)                (*F^-1*)
-val phi = E.Basis(space, idb,[])               (*Phi*)
-val body = E.EvalFem(space, [phi, inv, pos])    (*Phi[inv[pos]]*)
-val params = [E.TEN(true,[]), E.TEN(true,[]), E.TEN(true,[])]
-val ein = E.EIN{body=body, index=index, params=params}
-val p19 = (y, IR.EINAPP(ein,args))
-(* differentiate
-(*
-val _ =  ("\n\n*** before deriving:\n\t"^EinPP.expToString(body))
-val body = DE.differentiate ([E.V 0], body)
-val _ =  ("\n\n*** frist derivative:\n\t"^EinPP.expToString(body))
-val body = DE.differentiate ([E.V 1], body)
-val _ =  ("\n\n*** second derivative:\n\t"^EinPP.expToString(body))
-val body = DE.differentiate ([E.V 2], body)
-val _ =  ("\n\n*** third derivative:\n\t"^EinPP.expToString(body))
-*)
-*)
-*)
-
     (*post find cell*)
     fun eval(level,shape, y, index, space, sdim, dim, sBasisFunctions, vp, vL, mN, mP, vTC, vfindcell, mC, vX, vB,sBasisDervs) =
         let
             val _ = "\n\nbefore expand-fem eval"
 	    val newposTy = Ty.TensorTy[dim] (*Should be dim!*)
             (* creating new mid-ir variables*)
-    val _ = "\n\nstart a "
+
             val basisEval = V.new ("makeBasisEvaluation", Ty.StringTy)
             val cell = V.new ("cell", cellTy)
             val newpos = V.new ("newpos", newposTy)
             val node = V.new ("node", nodeTy)
             (* val coordsrelevant = V.new ("coordsrel", crevTy) *)
             (* val basisrelevant = V.new ("basisrel", brevTy) *)
-	    val _ = "\n\nstart d "
+
             val p12 = if level = 0
 		      then (basisEval, IR.OP(Op.makeBasisEvaluation(space, sBasisFunctions,level,[""]), [vp, vL,mN,mP, vTC, vfindcell]))
 		      else (basisEval, IR.OP(Op.makeBasisEvaluation(space, sBasisFunctions,level,List.nth(sBasisDervs,level-1)), [vp, vL,mN,mP, vTC, vfindcell]))
-    val _ = "\n\nstart e "
+
             val p14 = (cell, IR.OP(Op.GetCell, [vfindcell,basisEval])) (*not temp here*)
             val p15 = (newpos, IR.OP(Op.GetPos, [vfindcell,basisEval]))
             val p16 = (node, IR.OP(Op.GetNode, [cell, mN, mC]))
             (* val p17 = (basisrelevant, IR.OP(Op.ProbeNodeC, [node, vX])) *)
             (* val p18 = (coordsrelevant, IR.OP(Op.ProbeNodeB, [node, vB])) *)
 
-    val _ = "\n\nstart g "
             val p19 = if level = 0
 		      then (y , IR.OP(Op.EvalFem(space, sdim,level,shape),[node,newpos,vX]))
 		      else (y , IR.OP(Op.EvalFem(space, sdim,level,shape),[node,newpos,vX,cell, mN, mP]))
-    val _ = "\n\nstart h "
 
             val Peval =  [p12,p14,p15,p16,p19]
 
