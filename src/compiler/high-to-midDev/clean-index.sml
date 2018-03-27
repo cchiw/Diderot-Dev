@@ -108,9 +108,9 @@ structure CleanIndex : sig
                   | E.OField(_,e2,alpha) => shape (e2, addMus(ixs, alpha))
                   | E.Poly (_,_,_, alpha) => addMus(ixs, alpha)
                   | E.If(E.GT(e1, e2), e3, e4) =>
-                  shape (e1,shape (e1, shape (e3, shape(e4, ixs))))
+                    shape (e1,shape (e1, shape (e3, shape(e4, ixs))))
                   | E.If(E.LT(e1, e2), e3, e4) =>
-                  shape (e1,shape (e1, shape (e3, shape(e4, ixs))))
+                    shape (e1,shape (e1, shape (e3, shape(e4, ixs))))
                   | _ => raise Fail "impossible"
                 (* end case *))
           in
@@ -141,12 +141,14 @@ structure CleanIndex : sig
                   | E.Delta(i, j) => i :: j :: ixs
                   | E.Epsilon(i, j, k) => i :: j :: k :: ixs
                   | E.Eps2(i, j) => i :: j :: ixs
-                  | E.Field(_, alpha) => (*alpha @ ixs*)
+                  | E.Field(_, alpha) =>
+                    (*alpha @ ixs*)
                      List.revAppend(iter2 (alpha), ixs)
                   | E.Lift e => shape (e, ixs)
-                  | E.Conv(_, alpha, _, dx) => (*alpha @ dx @ ixs*)
+                  | E.Conv(_, alpha, _, dx) =>
+                    (*alpha @ dx @ ixs*)
                     List.revAppend(iter2 (alpha@dx), ixs)
-                
+
                   | E.Partial alpha => alpha @ ixs
                   | E.Apply(E.Partial dx, e) => shape (e, dx@ixs)
                   | E.Probe(e, _) => shape (e, ixs)
@@ -158,13 +160,14 @@ structure CleanIndex : sig
                   | E.Op2(_, e1, e2) => shape' ([e1, e2], ixs)
                   | E.Opn(E.Add, e::_) => shape(e, ixs)
                   | E.Opn(E.Prod, es) => shape' (es, ixs)
+                   | E.Opn(E.Swap _, e::_) => shape(e, ixs)
                   | E.Comp(e1, _) => shape(e1, ixs)
                   | E.OField(_,e2,alpha) => shape(e2, alpha@ ixs)
                   | E.Poly(_,_,_,alpha) => alpha@ ixs
                   | E.If(E.GT(e1, e2), e3, e4) =>
-                  shape' ([e1, e2, e3, e4], ixs)
+                    shape' ([e1, e2, e3, e4], ixs)
                   | E.If(E.LT(e1, e2), e3, e4) =>
-                  shape' ([e1, e2, e3, e4], ixs)
+                    shape' ([e1, e2, e3, e4], ixs)
                   | _ => raise Fail ("impossible"^EinPP.expToString(b))
             (* end case *))
             and  iter2(alpha) = let
@@ -262,7 +265,7 @@ structure CleanIndex : sig
 
     (* rewriteIndices: rewrites indices in e using mapp *)
     fun rewriteIx (mapp, e) = let
-
+          val _ = "rewrite IX"
           fun getAlpha alpha = List.map (fn e=> lkupVx (e, mapp)) alpha
           fun getIx ix = lookupId (ix, mapp)
           fun getVx ix = lkupVx (ix, mapp)
@@ -291,7 +294,7 @@ structure CleanIndex : sig
                   | E.Op2(op2, e1, e2) => E.Op2(op2, rewrite e1, rewrite e2)
                   | E.Opn(opn, es) => E.Opn(opn, List.map rewrite es)
                   | E.Comp(e1, es) => E.Comp(rewrite e1, es)
-                  | E.OField (opn, e2, dx) =>  E.OField (opn, rewrite e2, getAlpha  dx)
+                  | E.OField (opn, e1,  dx) =>  E.OField (opn, rewrite e1,  getAlpha  dx)
                   | E.Poly(id,alpha,n,dx) => E.Poly(id,getAlpha alpha, n, getAlpha dx)
                   | E.If(E.GT(e1, e2), e3, e4) =>
                     E.If(E.GT(rewrite e1, rewrite e2), rewrite e3, rewrite e4)
@@ -327,30 +330,26 @@ structure CleanIndex : sig
           * ashape ISet.set  : all the indices mentioned in body
           * tshape (mu list) : shape of tensor replacement
           *)
-(* DEBUG*)
-val _ ="\n--------------------------------------------------\n"
-val _ =  (String.concat["\n\n clean: ",EinPP.expToString(e)])
-val _  = "\n \t sx: "
-val _ = List.map (fn (e1, _,_) => (" v"^Int.toString(e1))) sx
-val _ = ("\t index: "^Int.toString(length(index)))
+          val isPrint = false
 
+           val _ = if(isPrint) then  print(String.concat["\n\n clean: ",EinPP.expToString(e)]) else print ""
            val ashape = aShape e
-
+           (*val _ = (shapeToString ("ashape",ashape))*)
            val tshape = tShape(index, sx, e)
-           val _ = (shapeToString ("\n results:  tshape",  tshape))
+
+          val _ = if(isPrint) then  print(shapeToString (" tshape",  tshape)) else print ""
          (* Create sizeMapp: index_id to dimension index_id is bound to*)
            val sizeMapp = mkSizeMapp (index, sx)
          (* Find size of e by looking up tshape in the sizeMapp.
           * sizes (int list) : TensorType of tensor replacement
           *)
            val sizes = List.map (fn E.V e1 => lookupId (e1, sizeMapp))  tshape
-(* DEBUG*) val _ =   (nToString(" sizes ",sizes ))
+          (* DEBUG val _ =   (nToString("sizes ",sizes ))*)
          (* Create indexMapp: Mapps the index variables e  => e'*)
            val indexMapp = mkIndexMapp (index, sx, ashape, tshape)
          (* Rewrite subexpression: e  =>e' *)
            val e' = rewriteIx (indexMapp, e)
-val _ =  (String.concat["\n===> ",EinPP.expToString(e')])
-val _ ="\n--------------------------------------------------\n"
+           val _ = if(isPrint) then  print (String.concat["\n===> ",EinPP.expToString(e')])  else print ""
            in
              (tshape, sizes, e')
            end
