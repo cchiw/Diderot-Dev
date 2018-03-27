@@ -117,7 +117,8 @@ structure TreeTypeOf : sig
             | Op.Inside _ => Ty.BoolTy
             | Op.ImageDim _ => Ty.IntTy
             | Op.MathFn f => Ty.realTy
-            | Op.EvalFem (space, dim, level, shape) => Ty.TensorTy (shape@(List.tabulate(level, fn _ => dim))) 
+            | Op.EvalFem (space, dim, level, shape) => Ty.TensorTy (shape@(List.tabulate(level, fn _ => dim)))
+            | Op.Sgn => Ty.realTy
             | _ => raise Fail("invalid operator " ^ Op.toString rator)
           (* end case *))
 

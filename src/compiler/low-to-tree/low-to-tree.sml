@@ -590,6 +590,12 @@ structure LowToTree : sig
               | Op.checkCell =>  FEMbindTREE(TOp.checkCell)
               | Op.IfWrap => FEMbindTREE(TOp.IfWrap )
               | Op.sp_getCell => FEMbindTREE(TOp.sp_getCell)
+              | Op.swap2 => FEMbindTREE(TOp.swap2)
+              | Op.swap3 => FEMbindTREE(TOp.swap3)
+              | Op.swap4 => FEMbindTREE(TOp.swap4)
+              | Op.swap5 => FEMbindTREE(TOp.swap5)
+              | Op.swap6 => FEMbindTREE(TOp.swap6)
+              | Op.Sgn => bindTREE TOp.Sgn
               | rator => raise Fail("bogus operator " ^ Op.toString srcRator)
             (* end case *)
           end

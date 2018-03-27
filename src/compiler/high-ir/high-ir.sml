@@ -19,6 +19,17 @@ structure HighOps =
     val hashty = HighTypes.hash
     val tyToString = HighTypes.toString
 
+    type mesh = meshElem.mesh
+    val samemesh = meshElem.sameMesh
+    val hashmesh = meshElem.hashMesh
+    val meshToString = meshElem.toStringMesh
+
+    type element = meshElem.element
+    val sameelement = meshElem.sameElement
+    val hashelement = meshElem.hashElement
+    val elementToString = meshElem.toStringElement
+
+
   (* required helper functions for type lists *)
     type tys = ty list
     fun sametys (tys1, tys2) = ListPair.allEq samety (tys1, tys2)

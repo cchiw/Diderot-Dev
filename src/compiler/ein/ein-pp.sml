@@ -220,11 +220,6 @@ structure EinPP : sig
         | E.Op2(E.Min, e1, e2) => concat ["Min"]
         | E.Opn(E.Add, el) => concat["Add"]
         | E.Opn(E.Prod, el) => concat["Prod"]
-        | E.BigF  (id, alpha) => concat [deriv alpha, "ϝ"(*,i2s id*)]
-        | E.Basis (id, alpha) => concat [deriv alpha,"ϕ"(*,i2s id,*)]
-        | E.Inverse (e) => concat ["(", expToString e, ")","¯¹"]
-        | E.EvalFem [e1,e2] => concat [expToString e1,"[",expToString e2,"]" ]
-        | E.EvalFem [e1,e2,e3] =>  concat [expToString e1,"[",expToString e2,"[",expToString e3,"]","]" ]
         | E.If (comp, e3, e4) => let
             val c = (case comp
             of E.GT(e1, e2) => ">"

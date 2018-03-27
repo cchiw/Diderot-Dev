@@ -93,6 +93,7 @@ structure CheckTree : sig
             | Op.VNeg d => (vecTy d, [vecTy d])
             | Op.VSum d => (Ty.realTy, [vecTy d])
             | Op.VDot d => (Ty.realTy, [vecTy d, vecTy d])
+            | Op.Sgn => (Ty.realTy, [Ty.realTy])
             | Op.VIndex(d, pw, idx) =>
                 if chkIndex (idx, d)
                   then (Ty.realTy, [vecTy(d, pw)])

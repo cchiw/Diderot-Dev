@@ -88,7 +88,7 @@ fun rewriteEin (changed, params, place, newEinOp, newArgs, done, arg, orig, lhs)
     case List.nth(params, place)
             of Ein.TEN(false, _) => (
                 (changed, orig, place+1, done@[arg]))
-	    | _ => (case Apply.apply (orig, place, newEinOp)
+	    | _ => (case Apply.apply (orig, place, newEinOp,newArgs,done)
                     of SOME einOp => let
                         val _ = ("\n\n*************************post  app:"^EinPP.toString(einOp));
                          (* einOp is the result of the beta-reduction *)

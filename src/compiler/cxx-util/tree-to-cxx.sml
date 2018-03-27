@@ -145,6 +145,7 @@ structure TreeToCxx : sig
             | (Op.RMul, [a, b]) => CL.mkBinOp(a, CL.#*, b)
             | (Op.RDiv, [a, b]) => CL.mkBinOp(a, CL.#/, b)
             | (Op.RNeg, [a]) => CL.mkUnOp(CL.%-, a)
+            | (Op.Sgn, [a]) =>  CL.mkApply("sgn", [a])
             | (Op.RClamp, [a, b, c]) => CL.mkApply("clamp", [a, b, c])
             | (Op.RLerp, [a, b, c]) => CL.mkApply("lerp", [a, b, c])
             | (Op.RCeiling, [a]) => mkStdApply("ceil", [a])
@@ -251,6 +252,11 @@ structure TreeToCxx : sig
             | (Op.ArcTan, [a]) => mkStdApply("atan", [a])
             | (Op.Exp, [a]) => mkStdApply("exp", [a])
             | (Op.IntToReal, [a]) => CL.mkStaticCast(Env.realTy env, a)
+            | (Op.swap2, args)    => CL.mkApply("Swap2", args)
+            | (Op.swap3, args)    => CL.mkApply("Swap3", args)
+            | (Op.swap4, args)    => CL.mkApply("Swap4", args)
+            | (Op.swap5, args)    => CL.mkApply("Swap5", args)
+            | (Op.swap6, args)    => CL.mkApply("Swap6", args)
             | (Op.NumStrands StrandSets.ACTIVE, []) =>
                 CL.mkDispatch(RN.strandArray env, "num_active", [])
             | (Op.NumStrands StrandSets.ALL, []) =>
@@ -276,7 +282,7 @@ structure TreeToCxx : sig
             | (Op.MathFn f, args) => mkStdApply(MathFns.toString f, args)
             | (Op.Dimension, [a])  =>  CL.mkApply("Dimension1", [a])
             | (Op.NumCells, [a])  => CL.mkApply("NumCells1", [a])
-	    | (Op.GetTracker, [a])  => CL.mkApply("GetTracker", [a])
+	       | (Op.GetTracker, [a])  => CL.mkApply("GetTracker", [a])
             | (Op.BasisData, [a])  =>  CL.mkApply("BasisData1", [a])
             | (Op.CellToNode, [a])  =>  CL.mkApply("CellToNode1", [a])
             | (Op.NodeToPoint, [a])  =>  CL.mkApply("NodeToPoint1", [a])

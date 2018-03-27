@@ -229,7 +229,7 @@ structure EinSums : sig
                 end
           val b = loop body
           in
-            Ein.EIN{params=params, index=index, body= distribute b}
+            Ein.EIN{params=params, index=index, body= rewrite b}
           end
 
   (* distribute and clean summation *)

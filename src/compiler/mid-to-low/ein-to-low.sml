@@ -31,8 +31,10 @@ structure EinToLow : sig
     structure Mk = MkLowIR
     structure ToVec = EinToVector
     structure IMap = IntRedBlackMap
+    
+    val scaFlag = Controls.get Ctl.scaFlag
 
-  (* `dropIndex alpha` returns the (len, i, alpha') where
+    (* `dropIndex alpha` returns the (len, i, alpha') where
    * len = length(alpha') and alpha = alpha'@[i].
    *)
     fun dropIndex alpha = let

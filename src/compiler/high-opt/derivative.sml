@@ -145,6 +145,7 @@ structure Derivative : sig
                       | _ => iterDn (filterProd (pre @ [prodAppPartial (post, p0)]))
                     (* end case *)
                   end
+            |  E.Swap id => E.Opn(E.Swap id,  (List.map (fn a => E.Apply(E.Partial dx, a)) es))
             (* end case *)
           end
 

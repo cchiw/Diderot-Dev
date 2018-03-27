@@ -26,9 +26,10 @@ structure MidTypes =
       | MappTy of ty * ty (*Mapp of one type to another*)
       | arrTy of ty (* list of types*)
       | listTy of ty
-
-
-
+      (*| PtrTy of int 
+        | doubleTy of ty (*force to use doubleTy*)
+        | FEMSrcTy  (*PDE solution *)
+    *)
 
 
     val intTy = IntTy

@@ -97,20 +97,26 @@ val _ = print(String.concat["\nin direction i:",Int.toString(i),"-",Int.toString
                             | E.Tangent => Mk.realTan (avail, arg)
                             | E.ArcTangent => Mk.realArcTan (avail, arg)
                             | E.Exp => Mk.realExp (avail, arg)
+                            | E.PowInt 0 => Mk.intToRealLit (avail, 1)
                             | E.PowInt n => Mk.intPow (avail, arg, n)
+                            | E.Abs => Mk.realAbs(avail, arg)
+                            | E.Sgn => Mk.realSgn(avail, arg)
                             | E.Abs => Mk.realAbs(avail, arg)
                           (* end case *)
                         end
+
+                    | E.Op2(E.Sub, e1, e2) => Mk.realSub (avail, gen (mapp, e1), gen (mapp, e2))
                     | E.Op2(E.Max, e1, e2) => Mk.realMax (avail, gen (mapp, e1), gen (mapp, e2))
                     | E.Op2(E.Min, e1, e2) => Mk.realMin (avail, gen (mapp, e1), gen (mapp, e2))
-                    | E.Op2(E.Sub, e1, e2) => Mk.realSub (avail, gen (mapp, e1), gen (mapp, e2))
+                    | E.Op2(E.Div, e1 as E.Tensor (_, [_]), e2 as E.Tensor (_, [])) =>
+                        gen (mapp, E.Opn(E.Prod, [E.Op2 (E.Div, E.Const 1, e2), e1]))
+                    | E.Op2(E.Div, e1, e2) => Mk.realDiv (avail, gen (mapp, e1), gen (mapp, e2))
                     | E.Opn(E.Add, es) =>
                         Mk.reduce (avail, Mk.realAdd, List.map (fn e => gen(mapp, e)) es)
                     | E.Opn(E.Prod, es) =>
                         Mk.reduce (avail, Mk.realMul, List.map (fn e => gen(mapp, e)) es)
-                    | E.Op2(E.Div, e1 as E.Tensor (_, [_]), e2 as E.Tensor (_, [])) =>
-                        gen (mapp, E.Opn(E.Prod, [E.Op2 (E.Div, E.Const 1, e2), e1]))
-                    | E.Op2(E.Div, e1, e2) => Mk.realDiv (avail, gen (mapp, e1), gen (mapp, e2))
+                    | E.Opn(E.Swap id, [e1,e2,e3,e4]) =>
+                        Mk.swap4 (avail, List.nth(lowArgs, id), gen (mapp, e1), gen (mapp, e2), gen (mapp, e3), gen (mapp, e4))
                     | E.Sum(sx, E.Opn(E.Prod, (img as E.Img _) :: (kargs as (E.Krn _ :: _)))) =>
                         FieldToLow.expand {
                             avail = avail, mapp = mapp,
@@ -228,10 +234,10 @@ val _ = print(String.concat["\nin direction i:",Int.toString(i),"-",Int.toString
                         let
                         val vC = (case comp
                         of E.GT(e1,e2) => Mk.boolGT(avail, gen (mapp, e1), gen (mapp, e2))
-                        | E.LT(e1,e2) => Mk.boolLT(avail, gen (mapp, e1), gen (mapp, e2))
+                         | E.LT(e1,e2) => Mk.boolLT(avail, gen (mapp, e1), gen (mapp, e2))
                         (* end case*))
                         in
-                        Mk.realIf(avail, vC, gen (mapp, e3), gen (mapp, e4))
+                            Mk.realIf(avail, vC, gen (mapp, e3), gen (mapp, e4))
                         end
 (*                    | _ => raise Fail("unsupported ein-exp: " ^ EinPP.expToString body)*)
                   (*end case*)

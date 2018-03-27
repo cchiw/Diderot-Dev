@@ -29,10 +29,10 @@ structure LowOps =
     val hashelement = meshElem.hashElement
     val elementToString = meshElem.toStringElement
 
-    type fnspace = meshElem.fnspace
-    val samefnspace = meshElem.samefnspace
-    val hashfnspace= meshElem.hashfnspace
-    val fnspaceToString = meshElem.toStringfnspace
+   type fnspace = meshElem.fnspace
+   val samefnspace = meshElem.samefnspace
+   val hashfnspace= meshElem.hashfnspace
+   val fnspaceToString = meshElem.toStringfnspace
 
 
   (* required helper functions for type lists *)

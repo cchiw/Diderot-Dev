@@ -15,8 +15,11 @@ Library
   structure EinUtil
   structure MkOperators
   structure DerivativeEin
-
-is
+  structure ScanRewrite
+  structure ScanPP
+  structure ReadTy
+  
+  is
 
   $/basis.cm
   $/smlnj-lib.cm
@@ -31,3 +34,6 @@ is
   ein-util.sml
   mk-operators.sml
   deriv_ein.sml
+  scan_rewrite.sml
+  scan_print.sml
+  readTy.sml

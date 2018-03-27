@@ -29,10 +29,10 @@ structure TreeOps =
     val hashelement = meshElem.hashElement
     val elementToString = meshElem.toStringElement
 
-    type fnspace = meshElem.fnspace
-    val samefnspace = meshElem.samefnspace
-    val hashfnspace= meshElem.hashfnspace
-    val fnspaceToString = meshElem.toStringfnspace
+type fnspace = meshElem.fnspace
+val samefnspace = meshElem.samefnspace
+val hashfnspace= meshElem.hashfnspace
+val fnspaceToString = meshElem.toStringfnspace
 
 
 
@@ -76,27 +76,27 @@ structure TreeOps =
     val idxctlToString = IndexCtl.toString
 
 
-    type intList = int list
-    fun sameintList(tys1, tys2) = ListPair.allEq sameint (tys1, tys2)
-    fun hashintList tys =  List.foldl (fn (ty, s) => hashint ty + 0w3 * s) 0w0 tys
-    fun intListToString  e = "int list"
+type intList = int list
+fun sameintList(tys1, tys2) = ListPair.allEq sameint (tys1, tys2)
+fun hashintList tys =  List.foldl (fn (ty, s) => hashint ty + 0w3 * s) 0w0 tys
+fun intListToString  e = "int list"
 
 
-    type realList = real list
-    fun samereal(e1:real,e2:real)=  (abs(e1-e2)<0.001)
-    fun samerealList(tys1, tys2) = ListPair.allEq samereal (tys1, tys2)
-    fun hashrealList tys =  List.foldl (fn (ty, s) =>   0w3 * s) 0w0 tys
-    fun realListToString  e = "real list"
+type realList = real list
+fun samereal(e1:real,e2:real)=  (abs(e1-e2)<0.001)
+fun samerealList(tys1, tys2) = ListPair.allEq samereal (tys1, tys2)
+fun hashrealList tys =  List.foldl (fn (ty, s) =>   0w3 * s) 0w0 tys
+fun realListToString  e = "real list"
 
-    type stringList = string list
-    fun samestringList(tys1, tys2) = ListPair.allEq samestring (tys1, tys2)
-    fun hashstringList tys =  List.foldl (fn (ty, s) => hashstring ty + 0w3 * s) 0w0 tys
-    fun stringListToString e = "string list"
+type stringList = string list
+fun samestringList(tys1, tys2) = ListPair.allEq samestring (tys1, tys2)
+fun hashstringList tys =  List.foldl (fn (ty, s) => hashstring ty + 0w3 * s) 0w0 tys
+fun stringListToString e = "string list"
 
-    type stringLists = string list list
-    fun samestringLists(tys1, tys2) = ListPair.allEq samestringList (tys1, tys2)
-    fun hashstringLists tys = List.foldl (fn (ty, s) => hashstringList ty + 0w3 * s) 0w0 tys
-    fun stringListsToString e = "string list list "
+type stringLists = string list list
+fun samestringLists(tys1, tys2) = ListPair.allEq samestringList (tys1, tys2)
+fun hashstringLists tys = List.foldl (fn (ty, s) => hashstringList ty + 0w3 * s) 0w0 tys
+fun stringListsToString e = "string list list "
 
 @BODY@
 

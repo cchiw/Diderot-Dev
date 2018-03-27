@@ -54,8 +54,9 @@ structure MkLowIR : sig
     val realArcTan : AvailRHS.t * LowIR.var -> LowIR.var
     val realExp   : AvailRHS.t * LowIR.var -> LowIR.var
     val intPow   : AvailRHS.t * LowIR.var * int -> LowIR.var
-
-  (* vector arithmetic *)
+    val realSgn : AvailRHS.t * LowIR.var -> LowIR.var
+ 
+ (* vector arithmetic *)
     val vecAdd   : AvailRHS.t * int * LowIR.var * LowIR.var -> LowIR.var
     val vecSub   : AvailRHS.t * int * LowIR.var * LowIR.var -> LowIR.var
     val vecScale : AvailRHS.t * int * LowIR.var * LowIR.var -> LowIR.var
@@ -63,6 +64,12 @@ structure MkLowIR : sig
     val vecNeg   : AvailRHS.t * int * LowIR.var -> LowIR.var
     val vecSum   : AvailRHS.t * int * LowIR.var -> LowIR.var
     val vecDot   : AvailRHS.t * int * LowIR.var * LowIR.var -> LowIR.var
+
+    val swap2 : AvailRHS.t * LowIR.var* LowIR.var * LowIR.var -> LowIR.var
+    val swap3 : AvailRHS.t * LowIR.var* LowIR.var * LowIR.var* LowIR.var -> LowIR.var
+    val swap4 : AvailRHS.t * LowIR.var* LowIR.var * LowIR.var * LowIR.var * LowIR.var-> LowIR.var
+    val swap5 : AvailRHS.t * LowIR.var* LowIR.var * LowIR.var * LowIR.var * LowIR.var * LowIR.var-> LowIR.var
+    val swap6 : AvailRHS.t * LowIR.var* LowIR.var * LowIR.var * LowIR.var * LowIR.var * LowIR.var * LowIR.var -> LowIR.var
 
 
     (* FEM arithmetic *)
@@ -136,17 +143,19 @@ structure MkLowIR : sig
 
   (* scalar arithmetic *)
     local
+      
       fun scalarOp1 rator (avail, x) = add (avail, "r", Ty.realTy, IR.OP(rator, [x]))
-      fun scalarOp2 rator (avail, x, y) = add (avail, "r", Ty.realTy, IR.OP(rator, [x, y]))
       fun scalarOp1R rator (avail, x) = add (avail, "r", Ty.realTy, IR.OP(rator(Ty.realTy), [x]))
+      fun scalarOp2 rator (avail, x, y) = add (avail, "r", Ty.realTy, IR.OP(rator, [x, y]))
       fun scalarOp2R rator (avail, x, y) = add (avail, "r", Ty.realTy, IR.OP(rator(Ty.realTy), [x, y]))
       fun scalarOp2B rator (avail, x, y) = add (avail, "r", Ty.BoolTy, IR.OP(rator(Ty.BoolTy), [x, y]))
       fun scalarOp3 rator (avail, x, y, z) = add(avail, "t", Ty.realTy, IR.OP(rator, [x, y, z]))
+      fun scalarOp4 rator (avail, w, x, y, z) = add(avail, "t", Ty.realTy, IR.OP(rator, [w, x, y, z]))
+      fun scalarOp5 rator (avail, v, w, x, y, z) = add(avail, "t", Ty.realTy, IR.OP(rator, [v,w, x, y, z]))
+      fun scalarOp6 rator (avail, u,v, w, x, y, z) = add(avail, "t", Ty.realTy, IR.OP(rator, [u, v,w, x, y, z]))
+      fun scalarOp7 rator (avail, t, u,v, w, x, y, z) = add(avail, "t", Ty.realTy, IR.OP(rator, [t, u, v,w, x, y, z]))
+      
     in
-    val realAdd = scalarOp2 Op.RAdd
-    val realSub = scalarOp2 Op.RSub
-    val realMul = scalarOp2 Op.RMul
-    val realDiv = scalarOp2 Op.RDiv
     val realNeg = scalarOp1 Op.RNeg
     val realSqrt = scalarOp1 Op.Sqrt
     val realExp = scalarOp1 Op.Exp
@@ -156,12 +165,27 @@ structure MkLowIR : sig
     val realArcSin = scalarOp1 Op.ArcSin
     val realTan = scalarOp1 Op.Tan
     val realArcTan = scalarOp1 Op.ArcTan
+    val realSgn = scalarOp1 Op.Sgn
     val realAbs = scalarOp1R Op.Abs
+    
+    val realSub = scalarOp2 Op.RSub
+    val realDiv = scalarOp2 Op.RDiv
+    val realAdd = scalarOp2 Op.RAdd
+    val realMul = scalarOp2 Op.RMul
     val realMax = scalarOp2R Op.Max
     val realMin = scalarOp2R Op.Min
     val boolGT = scalarOp2B Op.GT
     val boolLT = scalarOp2B Op.LT
+    
+    val realClamp = scalarOp3 Op.RClamp
     val realIf = scalarOp3 Op.IfWrap
+    
+    
+    val swap2 = scalarOp3 Op.swap2
+    val swap3 = scalarOp4 Op.swap3
+    val swap4 = scalarOp5 Op.swap4
+    val swap5 = scalarOp6 Op.swap5
+    val swap6 = scalarOp7 Op.swap6
     end (* local *)
 
   (* vector arithmetic *)

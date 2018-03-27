@@ -10,7 +10,7 @@
 
 structure Apply : sig
 
-    val apply : Ein.ein * int * Ein.ein -> Ein.ein option
+    val apply : Ein.ein * int * Ein.ein *  HighIR.var list*  HighIR.var list -> Ein.ein option
 
   end = struct
 
@@ -36,7 +36,13 @@ structure Apply : sig
          (* end case *))
     fun ixT(E.V V) = "V"^Int.toString(V)
       | ixT(E.C C) = "C"^Int.toString(C)
-    fun rewriteSubst (e, subId, mx, paramShift, sumShift) = let
+    fun rewriteSubst (e, subId, mx, paramShift, sumShift,newArgs,done) = let
+            (*
+            val aa= String.concatWith"," (List.map (fn e1=>(HighIR.Var.name(e1))) done)
+            val bb= String.concatWith"," (List.map (fn e1=>(HighIR.Var.name(e1))) newArgs)
+            val _ = print(concat["\n\n inside rewritesub \ndone:",aa, "\n newargs:",bb])
+            *)
+
           fun insertIndex ([], _, dict, shift) = (dict, shift)
             | insertIndex (e::es, n, dict, _) = let
                 val shift = (case e of E.V ix => ix - n | E.C i => i - n)
@@ -61,7 +67,18 @@ structure Apply : sig
                   v
                 end
           fun mapSum l = List.map (fn (a, b, c) => (mapSingle a, b, c)) l
-          fun mapParam id = mapId2(id, subId, 0)
+        (*  fun mapParam id = mapId2(id, subId, 0)*)
+        fun mapParam id = let
+            val vA=List.nth(newArgs ,id)
+            val  _ = ("\nlooking for :"^HighIR.Var.name(vA))
+            fun iter([],_)=mapId2(id, subId, 0)
+              | iter(e1::es,n)=
+                (("\n"^Int.toString(n)^" -looking at:"^HighIR.Var.name(e1));
+                if(HighIR.Var.same(e1, vA))
+                then ( "->found it";n)
+                else iter(es,n+1))
+            in iter(done@newArgs,0) end
+
          fun p()=if(!insideComp) then "insideCompT" else "insideCompF"
          fun apply e = ( (*("\n\neinexp \t:"^EinPP.expToString(e)^"-"^p());*)case e
                  of E.Const _ => e
@@ -92,6 +109,7 @@ structure Apply : sig
                   | E.Sum(c, esum) => E.Sum(mapSum c, apply esum)
                   | E.Op1(op1, e1) => E.Op1(op1, apply e1)
                   | E.Op2(op2, e1, e2) => E.Op2(op2, apply e1, apply e2)
+                  | E.Opn(E.Swap id, e1) => E.Opn(E.Swap (mapParam id), List.map apply e1)
                   | E.Opn(opn, e1) => E.Opn(opn, List.map apply e1)
                   | E.If(E.LT(e1,e2), e3, e4) =>  E.If(E.LT(apply e1, apply e2), apply e3, apply e4)
                   | E.If(E.GT(e1,e2), e3, e4) =>  E.If(E.GT(apply e1, apply e2), apply e3, apply e4)
@@ -119,7 +137,7 @@ structure Apply : sig
           end
 
   (* Looks for params id that match substitution *)
-    fun apply (e1 as E.EIN{params, index, body}, place, e2) = let
+   fun apply (e1 as E.EIN{params, index, body}, place, e2,newArgs,done) = let
 (*
           val _ = print(String.concat["\n*******************\n Apply:",EinPP.toString(e1)])
            val _ = print(String.concat["\nwith:",EinPP.toString(e2), " \nat:",Int.toString(place),"\n"])
@@ -143,7 +161,7 @@ val _ = print(String.concat["mx:",Int.toString(length mx)," shape:",Int.toString
                     then if (length mx = length shape)
                       then (
                         changed := true;
-                        rewriteSubst (body2, substId, mx, paramShift, x))
+                        rewriteSubst (body2, substId, mx, paramShift, x,newArgs,done))
                       else raise Fail "argument/parameter mismatch"
                     else (case e
                        of E.Tensor(id, mx) => E.Tensor(mapId(id, origId, 0), mx)

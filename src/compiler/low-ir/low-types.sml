@@ -28,6 +28,8 @@ structure LowTypes =
       | MappTy of ty * ty (*Mapp of one type to another*)
       | arrTy of ty (* list of types*)
       | optStruct
+    (*| MeshTy |  FieldTy | PtrTy of int | doubleTy of ty *)
+
 
 
     val intTy = IntTy

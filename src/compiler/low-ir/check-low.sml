@@ -134,6 +134,7 @@ structure CheckOps : OPERATOR_TY = struct
             | Op.LoadSeq(ty, _) => (ty, [])
             | Op.LoadImage(ty, _) => (ty, [])
             | Op.MathFn f => MathFns.sigOf (Ty.realTy, f)
+            | Op.Sgn => (Ty.realTy, [Ty.realTy])
             | _ => raise Fail("sigOf: invalid operator " ^ Op.toString rator)
           (* end case *))
 
