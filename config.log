@@ -2431,3 +2431,177 @@ with_mlton='no'
 #define DIDEROT_INCLUDE_PATH "/Users/chariseechiw/diderot/Diderot-Dev/src/lib/include"
 
 configure: exit 0
+
+## ---------------- ##
+## Cache variables. ##
+## ---------------- ##
+
+ac_cv_build=x86_64-apple-darwin14.5.0
+ac_cv_c_compiler_gnu=yes
+ac_cv_cxx_compiler_gnu=yes
+ac_cv_env_CCC_set=
+ac_cv_env_CCC_value=
+ac_cv_env_CC_set=
+ac_cv_env_CC_value=
+ac_cv_env_CFLAGS_set=
+ac_cv_env_CFLAGS_value=
+ac_cv_env_CPPFLAGS_set=
+ac_cv_env_CPPFLAGS_value=
+ac_cv_env_CPP_set=
+ac_cv_env_CPP_value=
+ac_cv_env_CXXFLAGS_set=
+ac_cv_env_CXXFLAGS_value=
+ac_cv_env_CXX_set=
+ac_cv_env_CXX_value=
+ac_cv_env_LDFLAGS_set=
+ac_cv_env_LDFLAGS_value=
+ac_cv_env_LIBS_set=
+ac_cv_env_LIBS_value=
+ac_cv_env_build_alias_set=
+ac_cv_env_build_alias_value=
+ac_cv_env_host_alias_set=
+ac_cv_env_host_alias_value=
+ac_cv_env_target_alias_set=
+ac_cv_env_target_alias_value=
+ac_cv_host=x86_64-apple-darwin14.5.0
+ac_cv_objext=o
+ac_cv_path_LD=/usr/bin/ld
+ac_cv_path_install='/usr/bin/install -c'
+ac_cv_prog_CPP='gcc -E'
+ac_cv_prog_ac_ct_CC=gcc
+ac_cv_prog_ac_ct_CXX=clang++
+ac_cv_prog_cc_c89=
+ac_cv_prog_cc_g=yes
+ac_cv_prog_cxx_g=yes
+ac_cv_prog_make_make_set=yes
+ax_cv_cxx_compile_cxx11=no
+ax_cv_cxx_compile_cxx11__std_gnupp11=yes
+
+## ----------------- ##
+## Output variables. ##
+## ----------------- ##
+
+A2X=''
+ASCIIDOC=''
+ASCIIDOC_CONF_DIR=''
+BOOLTY=''
+BRANCH='vis15'
+CC='gcc'
+CFLAGS='-g -O2'
+CL_ENABLED=''
+CL_VERSION=''
+CPP='gcc -E'
+CPPFLAGS=''
+CPPFLAGS_CL=''
+CPUEXT_FLAGS=''
+CUDA_ENABLED=''
+CXX='clang++ -std=gnu++11'
+CXXFLAGS='-g -O2'
+CXXFLAGS_BASE='-Wreturn-type -Wuninitialized -fPIC'
+CXXFLAG_Mxx=''
+DBLATEX=''
+DEFS=''
+DIDEROT_BINDIR='/Users/chariseechiw/diderot/Diderot-Dev/bin'
+DIDEROT_DOCDIR='/Users/chariseechiw/diderot/Diderot-Dev/doc'
+DIDEROT_LIBDIR='/Users/chariseechiw/diderot/Diderot-Dev/lib'
+DIDEROT_MKDIR='/Users/chariseechiw/diderot/Diderot-Dev/mk'
+DIDEROT_ROOT='/Users/chariseechiw/diderot/Diderot-Dev'
+DIDEROT_SRCDIR='/Users/chariseechiw/diderot/Diderot-Dev/src'
+DOXYGEN=''
+ECHO_C='\c'
+ECHO_N=''
+ECHO_T=''
+EGREP=''
+EXEEXT=''
+GREP=''
+HAVE_CXX11='1'
+HEAP_IMAGE_DIR=''
+HIGHLIGHTER=''
+INSTALL_DATA='${INSTALL} -m 644'
+INSTALL_PROGRAM='${INSTALL}'
+INSTALL_SCRIPT='${INSTALL}'
+INSTALL_SMLNJ_WRAPPER=''
+LD='/usr/bin/ld'
+LDFLAGS=''
+LDPATHS=''
+LD_NEEDS_RPATH=''
+LIBM=''
+LIBOBJS=''
+LIBS=''
+LIBS_CL=''
+LOGGING_ENABLED=''
+LTLIBOBJS=''
+MLTON=''
+ML_BUILD=''
+ML_MAKEDEPEND=''
+NVCC=''
+OBJEXT='o'
+PACKAGE_BUGREPORT=''
+PACKAGE_NAME='diderot'
+PACKAGE_STRING='diderot 2.0'
+PACKAGE_TARNAME='diderot'
+PACKAGE_URL=''
+PACKAGE_VERSION='2.0'
+PATH_SEPARATOR=':'
+PTHREAD_CC=''
+PTHREAD_CFLAGS=''
+PTHREAD_LIBS=''
+SET_MAKE=''
+SHELL='/bin/sh'
+SIMD_FLAGS=''
+SIZEOF_CL_DOUBLE=''
+SIZEOF_CL_FLOAT=''
+SIZEOF_CL_INT=''
+SIZEOF_CL_LONG=''
+SIZEOF_C_DOUBLE=''
+SIZEOF_C_FLOAT=''
+SIZEOF_C_INT=''
+SIZEOF_C_LONG=''
+SML=''
+SMLNJ_ARCH=''
+SMLNJ_CMD=''
+SMLNJ_HEAP_SUFFIX=''
+SMLNJ_OPSYS=''
+SMLNJ_PATH=''
+SML_CMD=''
+TEEM_DIR=''
+ac_ct_CC='gcc'
+ac_ct_CXX='clang++'
+acx_pthread_config=''
+bindir='${exec_prefix}/bin'
+build='x86_64-apple-darwin14.5.0'
+build_alias=''
+build_cpu='x86_64'
+build_os='darwin14.5.0'
+build_vendor='apple'
+datadir='${datarootdir}'
+datarootdir='${prefix}/share'
+docdir='${datarootdir}/doc/${PACKAGE_TARNAME}'
+dvidir='${docdir}'
+exec_prefix='NONE'
+host='x86_64-apple-darwin14.5.0'
+host_alias=''
+host_cpu='x86_64'
+host_os='darwin14.5.0'
+host_vendor='apple'
+htmldir='${docdir}'
+includedir='${prefix}/include'
+infodir='${datarootdir}/info'
+libdir='${exec_prefix}/lib'
+libexecdir='${exec_prefix}/libexec'
+localedir='${datarootdir}/locale'
+localstatedir='${prefix}/var'
+mandir='${datarootdir}/man'
+oldincludedir='/usr/include'
+pdfdir='${docdir}'
+prefix='NONE'
+program_transform_name='s,x,x,'
+psdir='${docdir}'
+sbindir='${exec_prefix}/sbin'
+sharedstatedir='${prefix}/com'
+sysconfdir='${prefix}/etc'
+target_alias=''
+with_mlton=''
+
+configure: caught signal 1
+configure: exit 1

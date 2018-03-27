@@ -14,7 +14,8 @@ is
 
   $/basis.cm
   $/smlnj-lib.cm
-
+  $/controls-lib.cm
+  
   ../common/sources.cm
   ../fields/sources.cm
   ../cfg-ir/sources.cm
@@ -22,6 +23,7 @@ is
   ../mid-ir/sources.cm
   ../ein/sources.cm
   ../fem/sources.cm
+ ../options/sources.cm
 
   avail-rhs.sml
   ein-to-low.sml

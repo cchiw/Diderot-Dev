@@ -284,12 +284,17 @@ structure CollectInfo : sig
                       insert (Ty.TensorTy shp);
                       insert (Ty.TensorRefTy shp))
                     | insertTensorTy (shp as [i,j,k]) = (
-                      insert (Ty.TensorTy shp);
-                      insert (Ty.TensorRefTy shp);
+                    insert (Ty.TensorTy shp);
+                    insert (Ty.TensorRefTy shp);
                       insert (Ty.TensorTy[i]);
                       insert (Ty.TensorRefTy[i]);
+                      insert (Ty.TensorTy[k]);
+                      insert (Ty.TensorRefTy[k]);
                       insert (Ty.TensorTy[i,j]);
-                      insert (Ty.TensorRefTy[i,j]))
+                      insert (Ty.TensorRefTy[i,j])
+                      
+                      
+                      )
                       
                   | insertTensorTy (shp as _::dd) = let
 

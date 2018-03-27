@@ -29,10 +29,10 @@
 #define DIDEROT_INCLUDE_PATH "/Users/chariseechiw/diderot/Diderot-Dev/src/lib/include"
 
 /* Define to 1 to support Advanced Bit Manipulation */
-/* #undef HAVE_ABM */
+#define HAVE_ABM 1
 
 /* Define to 1 to support Multi-Precision Add-Carry Instruction Extensions */
-#define HAVE_ADX 1
+/* #undef HAVE_ADX */
 
 /* Define to 1 to support Advanced Encryption Standard New Instruction Set
    (AES-NI) */

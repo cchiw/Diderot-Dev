@@ -110,7 +110,7 @@ structure HandleEin : sig
         (* ************** ProbeEIN *********** *)
         (*   val _ = "about to call probe ein"*)
         val avail = AvailRHS.new()
-        val _ = List.app (fn n1 => ProbeEin.expand(avail,  n1)) newbies;
+        val _ = List.app  (ProbeEin.expand avail) newbies;
         val stmts = List.rev (AvailRHS.getAssignments avail)
         val asgn = List.map DstIR.ASSGN stmts
         val _  = "exit"
