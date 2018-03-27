@@ -14,7 +14,8 @@ is
 
   $/basis.cm
   $/smlnj-lib.cm
-
+  $/controls-lib.cm
+  
   ../basis/sources.cm (* for MathFns *)
   ../cfg-ir/sources.cm
   ../common/sources.cm
@@ -23,6 +24,8 @@ is
   ../high-ir/sources.cm
   ../mid-ir/sources.cm
   ../fem/sources.cm
+  ../options/sources.cm
+  
   avail-rhs.sml
   clean-index.sml
   clean-params.sml

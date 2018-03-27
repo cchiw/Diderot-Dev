@@ -1,0 +1,31 @@
+# fragments.gmk
+#
+# This code is part of the Diderot Project (http://diderot-language.cs.uchicago.edu)
+#
+# COPYRIGHT (c) 2016 The University of Chicago
+# All rights reserved.
+#
+# !!! THIS FILE WAS GENERATED; DO NOT EDIT !!!
+#
+
+target-cpu/fragments.sml: \
+    target-cpu/fragments/CATALOG \
+    target-cpu/fragments/c-wrappers.in \
+    target-cpu/fragments/par-main.in \
+    target-cpu/fragments/par-run.in \
+    target-cpu/fragments/par-run-start.in \
+    target-cpu/fragments/par-worker-nobsp.in \
+    target-cpu/fragments/par-worker.in \
+    target-cpu/fragments/par-sarr-dual-indirect.in \
+    target-cpu/fragments/par-sarr-dual.in \
+    target-cpu/fragments/par-sarr-indirect.in \
+    target-cpu/fragments/par-sarr.in \
+    target-cpu/fragments/seq-main.in \
+    target-cpu/fragments/seq-run-nobsp.in \
+    target-cpu/fragments/seq-run.in \
+    target-cpu/fragments/seq-run-start.in \
+    target-cpu/fragments/seq-sarr-dual-indirect.in \
+    target-cpu/fragments/seq-sarr-dual.in \
+    target-cpu/fragments/seq-sarr-indirect.in \
+    target-cpu/fragments/seq-sarr.in \
+    target-cpu/fragments/world-methods.in
