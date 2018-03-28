@@ -1,2 +1,0 @@
-Skeleton 5
-d2aгўTRANSLATE_PARAMS"h2egp1c"TRANSLATE_ENV"f2дўDstIR"дўSrcIR"ae"TranslateFn"i2aдўParams"gp1яf6d"List"Cd"Option"яЃd"Create"d"Inputs"d"ExitKind"Njh6aя6gp2яЃя6Cad"SrcNd"gp2я6дўNode"ad"VTbl"gp3я6d"Var"d"Tbl"aя.gp2яЃя.ad"DstNd"gp2я.я‚/ad"DstCFG"gp2я.d"CFG"Nh2aя6зр±гўSSA"aя.я„
