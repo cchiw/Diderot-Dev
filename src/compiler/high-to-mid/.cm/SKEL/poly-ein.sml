@@ -1,0 +1,2 @@
+Skeleton 5
+d2f7ä¢Ein"d"Int"Cd"List"d"String"d"EinPP"ä¢MidIR"d"DerivativeEin"Nad"PolyEin"jh6aä¢IR"gp1ÿ)Cad"V"gp2ÿd"Var"ad"Ty"gp1d"MidTypes"ad"E"gp1ÿad"IMap"gp1d"IntRedBlackMap"ad"ISet"gp1d"IntRedBlackSet"Nh0

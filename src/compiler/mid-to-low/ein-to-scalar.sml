@@ -114,8 +114,17 @@ val _ = print(String.concat["\nin direction i:",Int.toString(i),"-",Int.toString
                         Mk.reduce (avail, Mk.realAdd, List.map (fn e => gen(mapp, e)) es)
                     | E.Opn(E.Prod, es) =>
                         Mk.reduce (avail, Mk.realMul, List.map (fn e => gen(mapp, e)) es)
-                    | E.Opn(E.Swap id, [e1,e2,e3,e4]) =>
-                        Mk.swap4 (avail, List.nth(lowArgs, id), gen (mapp, e1), gen (mapp, e2), gen (mapp, e3), gen (mapp, e4))
+                    | E.Opn(E.Swap id, args) =>  let
+                        val id' = List.nth(lowArgs, id)
+                        val args' = List.map (fn e=> gen (mapp, e)) args
+                        in (case args'
+                            of [a,b] =>  Mk.swap2(avail,id',a,b)
+                            | [a,b,c] =>  Mk.swap3(avail,id',a,b,c)
+                            | [a,b,c,d] =>  Mk.swap4(avail,id',a,b,c,d)
+                            | [a,b,c,d,e] =>  Mk.swap5(avail,id',a,b,c,d,e)
+                            | [a,b,c,d,e,f] =>  Mk.swap6(avail,id',a,b,c,d,e,f)
+                            (*end case*))
+                        end
                     | E.Sum(sx, E.Opn(E.Prod, (img as E.Img _) :: (kargs as (E.Krn _ :: _)))) =>
                         FieldToLow.expand {
                             avail = avail, mapp = mapp,

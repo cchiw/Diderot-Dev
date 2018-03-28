@@ -11,8 +11,7 @@ structure HandleEin : sig
     val expand : MidIR.var * Ein.ein * MidIR.var list -> MidIR.assignment list
 
   end = struct
-
-
+   
     structure E = Ein
     structure SrcIR = HighIR
     structure DstIR = MidIR
@@ -34,15 +33,14 @@ structure HandleEin : sig
 
     fun expand (lhs, ein, args) = let
         val _ = ("\n\n   ***********\n")
-         val _ = print(String.concat["\n\n   expand ***********\n:",MidIR.Var.name(lhs),"=", EinPP.toString(ein),"-",ll(args,0)])
+         val _ = (String.concat["\n\n   expand ***********\n:",MidIR.Var.name(lhs),"=", EinPP.toString(ein),"-",ll(args,0)])
         val sliceFlag = Controls.get Ctl.sliceFlag
         val fullSplitFlag = Controls.get Ctl.fullSplitFlag
         val replaceFlag =  Controls.get Ctl.replaceFlag
 
-        val  _ = print("\n mark A")
 
-        (* ************** read and scan *********** *)
         (*reading ein controls*)
+        (*what do we read?*)
         val readEinRewrite = Controls.get Ctl.readEinRewrite
         val readEinSplit = Controls.get Ctl.readEinSplit
         val readEin1 = Controls.get Ctl.readEin1
@@ -56,7 +54,7 @@ structure HandleEin : sig
         val readEinWord = Controls.get Ctl.readEinWord
         (*use latex by default*)
         val op_n = if readEinUni then R.op_u  else if readEinWord then  R.op_w else R.op_l
-        val  _ = print("\n mark B")
+
         fun scan_multiplePasses (lhs,DstIR.EINAPP(e,a)) = let
             val e = ScanR.scan_multiplePasses (op_n,readEinLatex, DstIR.Var.name  lhs, e, List.map (fn v=> DstIR.Var.name(v)) a)
             in (lhs,DstIR.EINAPP(e,a)) end
@@ -70,17 +68,17 @@ structure HandleEin : sig
             in (lhs,DstIR.EINAPP(e,a)) end
         | scan_pieces  e = e
 
-        val  _ = print("\n mark C")
+
+
         (* ************** distribute and push Summation*********** *)
           val ein' = EinSums.transform ein
-        val  _ = print("\n mark D")
         (*clean parametes*)
         val Ein.EIN{body, params,index} = ein'
-(*
-        DEBUG - cleaning here causes composition tests to fail, but maybe it was needed for reading and scanning?
+
+        (* potential causes composition error
         val DstIR.EINAPP(ein', args) = CleanParams.clean (body, params, index, args)
-        val  _ = print("\n mark E")
-*)
+        *)
+
         (* ************** Scan and rewrite *********** *)
         val newbie = (lhs, DstIR.EINAPP(ein', args))
         val newbie = if(readEinRewrite) then scan_multiplePasses (newbie) else newbie
@@ -91,7 +89,6 @@ structure HandleEin : sig
         val newbie = if(readEin5)  then scan_single (5, newbie) else newbie
         val newbie = if(readEinSplit)  then  scan_pieces (newbie) else newbie
 
-        val  _ = print("\n mark F")
         (* **************** split phase ************* *)
           fun iter([], ys) = ys
             | iter(e1::es, ys) = let
@@ -101,26 +98,22 @@ structure HandleEin : sig
                 iter(es, ys@y1)
             end
         val _ =  "about to split"
-        val  _ = print("\n mark G")
         val newbies =iter([newbie], [])
         (* val _ = print(concat["\n -----> Pieces: ",Int.toString(length(newbies)),"\n"])*)
         (*val _ = prntNewbies(newbies, "\n\n\npost floatx1")*)
         val newbies =iter(newbies, [])
         (*val _ = prntNewbies(newbies, "\n\n\npost floatx2")*)
-        val  _ = print("\n mark H")
         val _ =  if(readEinSplit) then List.map scan_pieces  newbies else newbies
         val _ = (String.concat["Number of pieces:",Int.toString(length(newbies))])
+
         (* **************** expand-fem ************* *)
         (*val _ =  "\n\n\nbefore translating fields"*)
         val newbies  = List.foldr (fn (e,acc)=>  translateField.transform(e)@acc ) []  newbies
-        val  _ = print("\n mark I")
         (*val _ = prntNewbies(newbies, "\n\n\npost transform fields")*)
         (* ************** ProbeEIN *********** *)
         (*   val _ = "about to call probe ein"*)
         val avail = AvailRHS.new()
-        val  _ = print("\n mark J")
         val _ = List.app  (ProbeEin.expand avail) newbies;
-        val  _ = print("\n mark K")
         val stmts = List.rev (AvailRHS.getAssignments avail)
         val asgn = List.map DstIR.ASSGN stmts
         val _  = "exit"

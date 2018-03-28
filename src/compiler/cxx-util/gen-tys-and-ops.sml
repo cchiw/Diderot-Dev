@@ -791,50 +791,50 @@ structure GenTysAndOps : sig
             | swap2 =>  let
                 val t1 = "float Swap2 (int selection, float e1,float e2)"
                 val t2 = "\n\t{"
-                val t3 = " \n\t\t if(selection==2){return e2;}"
-                val t4 = " \n\t\t else{return e1;}"
+                val t3 = " \n\t\t if(selection<=1){return e1;}"
+                val t4 = " \n\t\t else{return e2;}"
                 val t5 = "\n\t}"
                 val es = [t1,t2,t3,t4,t5]
                 in CL.D_Verbatim es end
             | swap3 =>  let
                 val t1 = "float Swap3 (int selection, float e1,float e2, float e3)"
                 val t2 = "\n\t{"
-                val t3 = " \n\t\t if(selection==2){return e2;}"
-                val t4 = " \n\t\t if(selection==3){return e3;}"
-                val t5 = "\n\t\t    else{return e1;}"
+                val t3 = " \n\t\t if(selection<=1){return e1;}"
+                val t4 = " \n\t\t if(selection==2){return e2;}"
+                val t5 = " \n\t\t else{return e3;}"
                 val t6 = "\n\t}"
                 val es = [t1,t2,t3,t4,t5,t6]
                 in CL.D_Verbatim es end
             | swap4 =>  let
                 val t1 = "float Swap4 (int selection, float e1,float e2, float e3, float e4)"
                 val t2 = "\n\t{"
-                val t3 = " \n\t\t if(selection==2){return e2;}"
-                val t4 = " \n\t\t if(selection==3){return e3;}"
-                val t5 = " \n\t\t if(selection==4){return e4;}"
-                val t6 = "\n\t\t    else{return e1;}"
+                val t3 = " \n\t\t if(selection<=1){return e1;}"
+                val t4 = " \n\t\t if(selection==2){return e2;}"
+                val t5 = " \n\t\t if(selection==3){return e3;}"
+                val t6 = " \n\t\t else{return e4;}"
                 val t7 = "\n\t}"
                 val es = [t1,t2,t3,t4,t5,t6,t7]
                 in CL.D_Verbatim es end
             | swap5 =>  let
                 val t1 = "float Swap5 (int selection, float e1,float e2, float e3, float e4, float e5)"
                 val t2 = "\n\t{"
-                val t3 = " \n\t\t if(selection==2){return e2;}"
-                val t4 = " \n\t\t if(selection==3){return e3;}"
-                val t5 = " \n\t\t if(selection==4){return e4;}"
-                val t6 = " \n\t\t if(selection==5){return e5;}"
-                val t7 = "\n\t\t    else{return e1;}"
+                val t3 = " \n\t\t if(selection<=1){return e1;}"
+                val t4 = " \n\t\t if(selection==2){return e2;}"
+                val t5 = " \n\t\t if(selection==3){return e3;}"
+                val t6 = " \n\t\t if(selection==4){return e4;}"
+                val t7 = " \n\t\t else{return e5;}"
                 val t8 = "\n\t}"
                 val es = [t1,t2,t3, t4,t5,t6,t7,t8]
                 in CL.D_Verbatim es end
             | swap6 =>  let
                 val t1 = "float Swap6 (int selection, float e1,float e2, float e3, float e4, float e5, float e6)"
                 val t2 = "\n\t{"
-                val t3 = " \n\t\t if(selection==2){return e2;}"
-                val t4 = " \n\t\t if(selection==3){return e3;}"
-                val t5 = " \n\t\t if(selection==4){return e4;}"
-                val t6 = " \n\t\t if(selection==5){return e5;}"
-                val t7 = " \n\t\t if(selection==6){return e6;}"
-                val t8 = "\n\t\t    else{return e1;}"
+                val t3 = " \n\t\t if(selection<=1){return e1;}"
+                val t4 = " \n\t\t if(selection==2){return e2;}"
+                val t5 = " \n\t\t if(selection==3){return e3;}"
+                val t6 = " \n\t\t if(selection==4){return e4;}"
+                val t7 = " \n\t\t if(selection==5){return e5;}"
+                val t8 = " \n\t\t else{return e6;}"
                 val t9 = "\n\t}"
                 val es = [t1,t2,t3,t4,t5,t6,t7,t8,t9]
                 in CL.D_Verbatim es end

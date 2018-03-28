@@ -45,6 +45,7 @@ structure CleanParams : sig
                   | E.Sum(_, e1) => walk (e1, mapp)
                   | E.Op1(_, e1) => walk (e1, mapp)
                   | E.Op2(_, e1, e2) => walk (e2, walk (e1, mapp))
+                  | E.Opn(E.Swap id, es) => List.foldl walk (ISet.add(mapp, id)) es
                   | E.Opn(_, es) => List.foldl walk mapp es
                   | E.OField(E.PolyWrap es, e2, _) =>  walk (e2, (List.foldl walk mapp es))
                   | E.OField(E.DataFem id, e2, _) => walk (e2, ISet.add(mapp, id))
@@ -53,9 +54,9 @@ structure CleanParams : sig
                   | E.OField(E.ManyPointerBuildFem (mid, sid, nid, pid), e2, _)
                     => walk (e2, ISet.add(ISet.add(ISet.add(ISet.add(mapp, mid), sid), nid), pid))
                   | E.Poly(id, _, _,_) =>  ISet.add(mapp, id)
-                | E.If(E.GT(e1, e2), e3, e4) =>
+                  | E.If(E.GT(e1, e2), e3, e4) =>
                     walk (e4, walk (e3, walk (e2, walk (e1, mapp))))
-                | E.If(E.LT(e1, e2), e3, e4) =>
+                  | E.If(E.LT(e1, e2), e3, e4) =>
                     walk (e4, walk (e3, walk (e2, walk (e1, mapp))))
                   | _ => mapp
                 (* end case *))
@@ -94,6 +95,7 @@ structure CleanParams : sig
                   | E.Sum(sx ,e1) => E.Sum(sx, rewrite e1)
                   | E.Op1(op1, e1) => E.Op1(op1, rewrite e1)
                   | E.Op2(op2, e1,e2) => E.Op2(op2, rewrite e1, rewrite e2)
+                  | E.Opn(E.Swap id, es) => E.Opn(E.Swap (getId id), List.map rewrite es)
                   | E.Opn(opn, es) => E.Opn(opn, List.map rewrite es)
                   | E.Poly(id, ix, n, alpha) => E.Poly(getId id, ix, n, alpha)
                   | E.OField(E.PolyWrap es, e2, dx)
@@ -102,13 +104,13 @@ structure CleanParams : sig
                     => E.OField(E.DataFem (getId id), rewrite e2, dx)
                   | E.OField(E.BuildFem (id,s), e2, dx)
                     => E.OField(E.BuildFem (getId id, getId s), rewrite e2, dx)
-| E.OField(E.ManyPointerBuildFem(mid, sid, nid, pid), e2, dx)
-=> E.OField(E.ManyPointerBuildFem (getId mid, getId sid, getId nid, getId pid), rewrite e2, dx)
+                  | E.OField(E.ManyPointerBuildFem(mid, sid, nid, pid), e2, dx)
+                    => E.OField(E.ManyPointerBuildFem (getId mid, getId sid, getId nid, getId pid), rewrite e2, dx)
                   | E.Probe(e1, e2) => E.Probe(rewrite e1, rewrite e2)
-| E.If(E.GT(e1, e2), e3, e4) =>
-E.If(E.GT(rewrite e1, rewrite e2), rewrite e3, rewrite e4)
-| E.If(E.LT(e1, e2), e3, e4) =>
-E.If(E.LT(rewrite e1, rewrite e2), rewrite e3, rewrite e4)
+                  | E.If(E.GT(e1, e2), e3, e4)
+                    => E.If(E.GT(rewrite e1, rewrite e2), rewrite e3, rewrite e4)
+                  | E.If(E.LT(e1, e2), e3, e4)
+                    => E.If(E.LT(rewrite e1, rewrite e2), rewrite e3, rewrite e4)
                   | _ => b
                 (* end case *))
           in

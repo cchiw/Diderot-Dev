@@ -1,0 +1,2 @@
+Skeleton 5
+d2f8d"Int"d"Var"d"Atom"Cd"List"d"Option"d"BorderCtl"ä¢Simple"d"String"Cd"TextIO"d"SimpleFunc"d"Literal"d"StrandSets"d"Reductions"Cd"Create"d"Properties"d"Inputs"d"APITypes"d"Kernel"Nad"SimplePP"jh4ad"PP"gp1d"TextIOPP"ad"Ty"gp1d"SimpleTypes"ad"S"gp1ÿ4ad"V"gp1d"SimpleVar"h0
