@@ -1,4 +1,6 @@
 make clean
+
+export PATH=/usr/local/smlnj/bin:/usr/local:/usr/bin:$PATH
 cp src/compiler/backup/codegen/fragments.gmk src/compiler/codegen/fragments.gmk
 cp src/compiler/backup/codegen/fragments.sml src/compiler/codegen/fragments.sml
 cp src/compiler/backup/cxx-util/fragments.gmk src/compiler/cxx-util/fragments.gmk
