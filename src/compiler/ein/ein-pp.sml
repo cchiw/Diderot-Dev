@@ -30,11 +30,6 @@ structure EinPP : sig
 
     fun delta (a, b) = concat["δ_{", index2s a, ",", index2s b,"}"]
     fun deltaKrn (a, b) = concat["δ_{", index2s a, ",", index2s b,"}"]
-    fun border E.Default = "Default"
-      | border E.Clamp = "Clamp"
-      | border E.Mirror =" Mirror"
-      | border E.Wrap = "Wrap"
-      | border E.None = raise Fail "unexpected"
     fun deriv [] = ""
       | deriv alpha = concat["∇",multiIndex2s alpha]
     fun expToString e = (case e
@@ -79,13 +74,9 @@ structure EinPP : sig
             | E.Poly(tid, cx, 1, dx) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")",deriv dx]
             | E.Poly(tid, cx, n, dx) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")^",  i2s n, deriv  dx]
             | E.Value ix => "i" ^ i2s ix
-            | E.Img(fid, alpha, pos, s, E.None) => concat [
+            | E.Img(fid, alpha, pos, s) => concat [
                   "V", i2s fid, multiIndex2s alpha, "(", i2s s, ")[",
                   String.concatWithMap "," expToString pos, "]"
-                ]
-            | E.Img(fid, alpha, pos, s, b) => concat [
-                  "V", i2s fid, multiIndex2s alpha, "(", i2s s, ")[",
-                  String.concatWithMap "," expToString pos, "]#", border b
                 ]
             | E.Krn(tid, [], dim) => concat["H", i2s tid, "(", Int.toString dim, ")"]
             | E.Krn(tid, betas, dim) => concat[
@@ -120,6 +111,7 @@ structure EinPP : sig
            | E.Op2(E.Min, e1, e2) => concat ["Min(", expToString e1, ") , ( ", expToString e2, ")"]
            | E.Op2(E.Sub, e1, e2) => concat ["(", expToString e1, ") - (", expToString e2, ")"]
            | E.Op2(E.Div, e1, e2) => concat ["(", expToString e1, ") / ( ", expToString e2, ")"]
+           | E.Op3(E.Clamp, e1, e2, e3) => concat["Clamp <", expToString e1, ",", expToString e2, ",", expToString e3,">"]
            | E.Opn(E.Add, el) => concat["(", String.concatWithMap " + " expToString el,")"]
            | E.Opn(E.Prod, el) => concat["(", String.concatWithMap " * " expToString el, ")"]
            | E.Opn(E.Swap (id), es) => concat["SWAP[",i2s id,"](", String.concatWithMap ", " expToString es,")"]
@@ -179,11 +171,8 @@ structure EinPP : sig
         | E.Poly(tid, cx, n, []) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")^",  i2s n]
         | E.Poly(tid, cx, n, dx) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")^",  i2s n, " dx", multiIndex2s  dx]
         | E.Value ix => "i" ^ i2s ix
-        | E.Img(fid, alpha, pos, s, E.None) => concat [
-            "V", i2s fid, multiIndex2s alpha, "(", i2s s, ")[-]"
-            ]
-        | E.Img(fid, alpha, pos, s, b) => concat [
-            "V", i2s fid, multiIndex2s alpha, "(", i2s s, ")[-]#", border b
+        | E.Img(fid, alpha, pos, s) => concat [
+            "V", i2s fid, multiIndex2s alpha, "(", i2s s, ")[-]#"
             ]
         | E.Krn(tid, [], dim) => concat["H", i2s tid, "(", Int.toString dim, ")"]
         | E.Krn(tid, betas, dim) => concat[
@@ -219,6 +208,7 @@ structure EinPP : sig
         | E.Op2(E.Div, e1, e2) => concat ["Division"]
         | E.Op2(E.Max, e1, e2) => concat ["Max"]
         | E.Op2(E.Min, e1, e2) => concat ["Min"]
+        | E.Op3(E.Clamp, e1, e2, e3) => concat["Clamp <", expToString e1, ",", expToString e2, ",", expToString e3,">"]
         | E.Opn(E.Add, el) => concat["Add"]
         | E.Opn(E.Prod, el) => concat["Prod"]
         | E.If (comp, e3, e4) => let

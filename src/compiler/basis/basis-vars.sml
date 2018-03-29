@@ -474,8 +474,16 @@ end))
           in
             [t, t, Ty.realTy, Ty.realTy, Ty.realTy] --> t
           end))
-
-(* FIXME: add clerp3 and clerp5 *)
+    val clerp3 = polyVar(N.fn_clerp, all([SK], fn [Ty.SHAPE dd] => let
+        val t = Ty.T_Tensor(Ty.ShapeVar dd)
+        in
+          [t, t, Ty.realTy] --> t
+        end))
+    val clerp5 = polyVar(N.fn_clerp, all([SK], fn [Ty.SHAPE dd] => let
+        val t = Ty.T_Tensor(Ty.ShapeVar dd)
+        in
+          [t, t, Ty.realTy, Ty.realTy, Ty.realTy] --> t
+        end))
 
   (* Eigenvalues/vectors of a matrix; we only support this operation on 2x2 and 3x3 matrices, so
    * we overload the function.

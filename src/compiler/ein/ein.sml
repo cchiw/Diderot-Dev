@@ -57,11 +57,12 @@ structure Ein =
 
     and binary = Sub | Div | Max | Min
 
+    and ternary = Clamp
+
     and opn = Add | Prod | Swap of param_id
 
     and compare = GT of ein_exp * ein_exp| LT of ein_exp * ein_exp
 
-    and border = Default | Clamp | Mirror | Wrap | None
     (*other field types *)
     and ofield
         = PolyWrap of ein_exp list     (* input variables *)
@@ -91,13 +92,14 @@ structure Ein =
       | Poly of param_id*alpha * int* alpha  (*  T_[alpha]^n dx*)
     (* Mid-IL Terms *)
       | Value of index_id (* Lift index *)
-      | Img of param_id * alpha * pos list * int * border
+      | Img of param_id * alpha * pos list * int
       | Krn of param_id * (mu * mu) list * int
       | If of compare * ein_exp * ein_exp
     (* Ops *)
       | Sum of sumrange list * ein_exp
       | Op1 of unary * ein_exp
       | Op2 of binary * ein_exp * ein_exp
+      | Op3 of ternary * ein_exp * ein_exp * ein_exp
       | Opn of opn * ein_exp list
     (* FEM operators*)
       | BigF of  ME.fnspace* param_id * alpha  (*id, dx, probed position*)

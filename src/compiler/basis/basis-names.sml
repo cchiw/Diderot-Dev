@@ -35,6 +35,7 @@ structure BasisNames =
     val fn_inv = Atom.atom "inv"
     val fn_length = Atom.atom "length"
     val fn_lerp = Atom.atom "lerp"
+    val fn_clerp = Atom.atom "clerp"
     val fn_max = Atom.atom "max"
     val fn_min = Atom.atom "min"
     val fn_mirror = Atom.atom "mirror"

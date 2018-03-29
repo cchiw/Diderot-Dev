@@ -198,7 +198,7 @@ structure ProbeEin : sig
           val vs = List.tabulate (dim, fn i => (i +sx))
           val esum = List.map (fn i => (i, 1-s, s)) vs
         (* represent image in ein expression with tensor *)
-          val imgexp = E.Img(Vidnew, alpha, List.map (fn i=> E.Value i)  vs, s, E.None)
+          val imgexp = E.Img(Vidnew, alpha, List.map (fn i=> E.Value i)  vs, s)
         (* create load voxel operator for image *)
           val vLd = mkLdVoxel (avail, vI, vN, info, alpha, shape, dim, s, border)
 (* DEBUG

@@ -48,7 +48,7 @@ structure HandleEin : sig
         val readEin3 = Controls.get Ctl.readEin3
         val readEin4 = Controls.get Ctl.readEin4
         val readEin5 = Controls.get Ctl.readEin5
-        (*what format do we use to print htings out*)
+        (*what format do we use to  htings out*)
         val readEinUni = Controls.get Ctl.readEinUni
         val readEinLatex = Controls.get Ctl.readEinLatex
         val readEinWord = Controls.get Ctl.readEinWord
@@ -74,7 +74,6 @@ structure HandleEin : sig
           val ein' = EinSums.transform ein
         (*clean parametes*)
         val Ein.EIN{body, params,index} = ein'
-
         (* potential causes composition error
         val DstIR.EINAPP(ein', args) = CleanParams.clean (body, params, index, args)
         *)
@@ -99,8 +98,8 @@ structure HandleEin : sig
             end
         val _ =  "about to split"
         val newbies =iter([newbie], [])
-        (* val _ = print(concat["\n -----> Pieces: ",Int.toString(length(newbies)),"\n"])*)
-        (*val _ = prntNewbies(newbies, "\n\n\npost floatx1")*)
+        (* val _ = (concat["\n -----> Pieces: ",Int.toString(length(newbies)),"\n"])*)
+        val _ = prntNewbies(newbies, "\n\n\npost floatx1")
         val newbies =iter(newbies, [])
         (*val _ = prntNewbies(newbies, "\n\n\npost floatx2")*)
         val _ =  if(readEinSplit) then List.map scan_pieces  newbies else newbies

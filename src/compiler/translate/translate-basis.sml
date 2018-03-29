@@ -617,25 +617,21 @@ else [assignEin(y, Mk.gradConstant [d], xs)]),
                                             [assignEin(y, Mk.maxF d1, xs)]),
                 (BV.fn_minF_l,           fn (y, [_, Ty.DIM d1], xs) =>
                                             [assignEin(y, Mk.minF d1, xs)]),
-                (BV.clamp_rrt,          fn (y, [sv, dv], [lo, hi, x]) => let
-                                          val Ty.SHAPE shp = sv
-                                          val d = dimVarToInt dv
-                                          val ty = DstTy.tensorTy(shp @ [d])
-                                          in
-                                            assign (y, Op.Clamp ty, [lo, hi, x])
-                                          end),
-                (BV.clamp_ttt,          tensorOp Op.MapClamp),
-                (BV.lerp3,              tensorOp Op.Lerp),
-                (BV.lerp5,              fn (y, [sv], [a, b, x0, x, x1]) => let
-                                          val t1 = IR.Var.new("t1", DstTy.realTy)
-                                          val t2 = IR.Var.new("t2", DstTy.realTy)
-                                          val t3 = IR.Var.new("t3", DstTy.realTy)
-                                          in [
-                                            assignEin(t1, Mk.subRR, [x, x0]),
-                                            assignEin(t2, Mk.subRR, [x1, x0]),
-                                            assignEin(t3, Mk.divRR, [t1, t2]),
-                                            IR.ASSGN(y, IR.OP(Op.Lerp(shapeVarToTensor sv), [a, b, t3]))
-                                          ] end),
+                (BV.clamp_rrt,          fn (y, [sv, dv], xs) => let
+                                        val Ty.SHAPE shp = sv
+                                        val d = dimVarToInt dv
+                                        val alpha =  shp @ [d]
+                                        in [assignEin(y, Mk.clampRRT alpha, xs)] end),
+                (BV.clamp_ttt,          fn (y, [Ty.SHAPE shp], xs) =>
+                                        [assignEin(y, Mk.clampTTT shp, xs)]),
+                (BV.lerp3,              fn (y, [Ty.SHAPE sv], xs) =>
+                                        [assignEin(y, Mk.lerp3 sv, xs)]),
+                (BV.lerp5,              fn (y, [Ty.SHAPE sv], xs) =>
+                                        [assignEin(y, Mk.lerp5 sv, xs)]),
+                (BV.clerp3,              fn (y, [Ty.SHAPE sv], xs) =>
+                                        [assignEin(y, Mk.clerp3 sv, xs)]),
+                (BV.clerp5,              fn (y, [Ty.SHAPE sv], xs) =>
+                                        [assignEin(y, Mk.clerp5 sv, xs)]),
                 (BV.evals2x2,           eigenVal (Op.Eigen2x2, 2)),
                 (BV.evals3x3,           eigenVal (Op.Eigen3x3, 3)),
                 (BV.evecs2x2,           eigenVec (Op.Eigen2x2, 2)),

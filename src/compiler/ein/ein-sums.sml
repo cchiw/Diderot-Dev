@@ -73,6 +73,7 @@ structure EinSums : sig
               | E.Sum(_, e1)              => findSx (c, e1)
               | E.Op1(_, e1)              => findSx (c, e1)
               | E.Op2(_, e1, e2)          => sort [e1, e2]
+              | E.Op3(_, e1, e2, e3)      => sort [e1, e2, e3]
               | E.Opn(_, es)              => sort es
               | E.If(E.LT(e1,e2), e3, e4) => sort [e1, e2, e3, e4]
               | E.If(E.GT(e1,e2), e3, e4) => sort [e1, e2, e3, e4]
@@ -167,6 +168,8 @@ structure EinSums : sig
                   | E.Sum(sx, e1)         => (merge (shiftSum(sx, [rewriteBody e1])))
                   | E.Op1(op1, e1)        => E.Op1(op1, rewriteBody e1)
                   | E.Op2(op2, e1, e2)    => E.Op2(op2, rewriteBody e1, rewriteBody e2)
+                  | E.Op3(op3, e1, e2, e3)=>
+                        E.Op3(op3, rewriteBody e1, rewriteBody e2, rewriteBody e3)
                   | E.Opn(opn, es)        => E.Opn(opn, List.map rewriteBody es)
                   | E.If(E.LT(e1,e2), e3, e4) => E.If(E.LT(rewriteBody e1,rewriteBody e2), rewriteBody e3, rewriteBody e4)
                   | E.If(E.GT(e1,e2), e3, e4) => E.If(E.GT(rewriteBody e1,rewriteBody e2), rewriteBody e3, rewriteBody e4)
@@ -198,6 +201,8 @@ structure EinSums : sig
                         (* end case *))
                   | E.Sum(sx, E.Op2(op2, e1, e2)) => (
                       changed := true; E.Op2(op2, E.Sum(sx, e1), E.Sum(sx, e2)))
+                  | E.Sum(sx, E.Op3(op3, e1, e2, e3)) => (
+                        changed := true; E.Op3(op3, E.Sum(sx, e1), E.Sum(sx, e2), E.Sum(sx, e3)))
                   | E.Sum(sx, E.Opn(E.Prod, es)) => let
                       val p' = List.map rewrite es
                       val (c, e) = EinFilter.filterSca(sx, p')

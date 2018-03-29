@@ -129,6 +129,15 @@ structure MkOperators : sig
     val concatField: int * shape *int -> Ein.ein
     val composition: shape * shape * int -> Ein.ein
  
+ 
+     val lerp3 : shape -> Ein.ein
+     val lerp5 : shape -> Ein.ein
+     val clampRRT: shape -> Ein.ein
+     val clampTTT: shape -> Ein.ein
+     val clerp3 : shape -> Ein.ein
+     val clerp5 : shape -> Ein.ein
+ 
+ 
     val conv : dim * shape -> Ein.ein
     val probe : shape * dim -> Ein.ein
 
@@ -909,11 +918,11 @@ structure MkOperators : sig
             params = [E.FLD (dim, [])],
             index = [], body = E.Op1(E.PowInt n, E.Field(0, []))
           }
-        val _ = print(String.concat["pow FI", EinPP.toString(e)])
+
          in e end
     fun powTI (n) = let
          val e =  E.EIN{ params = [mkTEN []],index = [], body = E.Op1(E.PowInt n, E.Tensor(0, []))}
-         val _ = print(String.concat["pow TI", EinPP.toString(e)])
+
          in e end
     val sqrtR = tensorFn E.Sqrt
     val sqrtF = liftFn E.Sqrt
@@ -1008,11 +1017,112 @@ structure MkOperators : sig
                 body = E.Comp (E.Field(0, expindex0), [(E.Field(1, expindex1),  shape1)])
                 }
           end
+          
+          (* Lerp<ty>(a, b, t) -- computes a + t*(b-a), where a and b have type ty
+              * and t has type real
+              *)
+        fun lerp3 alpha = let
+              val expindex = specialize(alpha, 0)
+              val a = E.Tensor(0, expindex)
+              val b = E.Tensor(1, expindex)
+              val c = E.Tensor(2, [])
+              val e3 = E.Op2(E.Sub, b, a)
+              val e5 = E.Opn(E.Prod, [c, e3])
+            in
+              E.EIN{
+              params = [mkTEN alpha, mkTEN alpha, mkTEN []],
+              index = alpha,
+              body = E.Opn(E.Add, [a, e5])
+              }
+            end
+              
+        fun lerp5 alpha = let
+              val expindex = specialize(alpha, 0)
+              val a = E.Tensor(0, expindex)
+              val b = E.Tensor(1, expindex)
+              val c = E.Tensor(2, [])
+              val d = E.Tensor(3, [])
+              val e = E.Tensor(4, [])
+              val e1 = E.Op2(E.Sub, d, c)
+              val e2 = E.Op2(E.Sub, e, c)
+              val e3 = E.Op2(E.Sub, b, a)
+              val e4 = E.Op2(E.Div, e1, e2)
+              val e5 = E.Opn(E.Prod, [e4, e3])
+            in
+              E.EIN{
+              params = [mkTEN alpha, mkTEN alpha, mkTEN [], mkTEN [], mkTEN []],
+              index = alpha,
+              body = E.Opn(E.Add, [a, e5])
+              }
+            end
+              
+        (* clamps x to the range lo..hi, where lo and hi are scalars and x *)
+        fun clampRRT alpha = let
+              val expindex = specialize(alpha, 0)
+              val a = E.Tensor(0, [])
+              val b = E.Tensor(1, [])
+              val c = E.Tensor(2, expindex)
+            in
+              E.EIN{
+              params = [mkTEN [], mkTEN [], mkTEN alpha],
+              index = alpha,
+              body = E.Op3(E.Clamp, a, b, c)
+              }
+            end
+              
+        (* clamps x[alpha] to the range lo[alpha]..hi[alpha] *)
+        fun clampTTT alpha = let
+              val expindex = specialize(alpha, 0)
+              val a = E.Tensor(0, expindex)
+              val b = E.Tensor(1, expindex)
+              val c = E.Tensor(2, expindex)
+
+              
+            in
+              E.EIN{
+              params = [mkTEN alpha, mkTEN alpha, mkTEN alpha],
+              index = alpha,
+              body = E.Op3(E.Clamp, a, b, c)
+              }
+            end
+              
+        fun clerp3 alpha = let
+              val expindex = specialize(alpha, 0)
+              val a = E.Tensor(0, expindex)
+              val b = E.Tensor(1, expindex)
+              val c = E.Tensor(2, [])
+              val e3 = E.Op2(E.Sub, b, a)
+              val e5 = E.Opn(E.Prod, [c, e3])
+              val elerp = E.Opn(E.Add, [a, e5])
+            in
+              E.EIN{
+              params = [mkTEN alpha, mkTEN alpha, mkTEN []],
+              index = alpha,
+              body = E.Op3(E.Clamp, a, b, elerp)
+              }
+            end
+              
+        fun clerp5 alpha = let
+              val expindex = specialize(alpha, 0)
+              val a = E.Tensor(0, expindex)
+              val b = E.Tensor(1, expindex)
+              val c = E.Tensor(2, [])
+              val d = E.Tensor(3, [])
+              val e = E.Tensor(4, [])
+              val e1 = E.Op2(E.Sub, d, c)
+              val e2 = E.Op2(E.Sub, e, c)
+              val e3 = E.Op2(E.Sub, b, a)
+              val e4 = E.Op2(E.Div, e1, e2)
+              val e5 = E.Opn(E.Prod, [e4, e3])
+              val elerp = E.Opn(E.Add, [a, e5])
+            in
+              E.EIN{
+              params = [mkTEN alpha, mkTEN alpha, mkTEN [], mkTEN [], mkTEN []],
+              index = alpha,
+              body =  E.Op3(E.Clamp, a, b, elerp)
+              }
+            end
   (************************* slices and cons *************************)
-  (* QUESTION: why do we need the const list?  The indices are implicit in the position of
- * of the mask element!  Likewise, the result type can be determined from the argTy and
- * mask.
- *)
     fun sliceT (mask, const, rstTy, argTy) = let
           fun iter ([], _, cnt) = []
             | iter (true::es, c::cs, cnt) = (E.C c)::iter(es, cs, cnt)
@@ -1042,7 +1152,7 @@ structure MkOperators : sig
                 index = nflds::shape,
                 body = E.Opn(E.Add, exps)
                 }
-        (*val _ = print (EinPP.toString(einop))*)
+
         in einop end
         
 

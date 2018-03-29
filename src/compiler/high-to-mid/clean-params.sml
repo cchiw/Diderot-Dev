@@ -45,6 +45,7 @@ structure CleanParams : sig
                   | E.Sum(_, e1) => walk (e1, mapp)
                   | E.Op1(_, e1) => walk (e1, mapp)
                   | E.Op2(_, e1, e2) => walk (e2, walk (e1, mapp))
+                  | E.Op3(_, e1, e2, e3) => walk(e3, walk(e2, walk(e1, mapp)))
                   | E.Opn(E.Swap id, es) => List.foldl walk (ISet.add(mapp, id)) es
                   | E.Opn(_, es) => List.foldl walk mapp es
                   | E.OField(E.PolyWrap es, e2, _) =>  walk (e2, (List.foldl walk mapp es))
@@ -95,6 +96,7 @@ structure CleanParams : sig
                   | E.Sum(sx ,e1) => E.Sum(sx, rewrite e1)
                   | E.Op1(op1, e1) => E.Op1(op1, rewrite e1)
                   | E.Op2(op2, e1,e2) => E.Op2(op2, rewrite e1, rewrite e2)
+                  | E.Op3(op3, e1, e2, e3) => E.Op3(op3, rewrite e1, rewrite e2, rewrite e3)
                   | E.Opn(E.Swap id, es) => E.Opn(E.Swap (getId id), List.map rewrite es)
                   | E.Opn(opn, es) => E.Opn(opn, List.map rewrite es)
                   | E.Poly(id, ix, n, alpha) => E.Poly(getId id, ix, n, alpha)
@@ -117,13 +119,22 @@ structure CleanParams : sig
             rewrite e
           end
 
+fun ll ([],cnt) = ""
+| ll (a1::args,cnt) = String.concat[Int.toString(cnt),"-",MidIR.Var.name(a1),",", ll(args,cnt+1)]
+
     (* cleanParams:var*ein_exp*param*index* var list ->code
     *cleans params
     *)
     fun clean (body, params, index, args) = let
+           val orig = Ein.EIN{body=body, params=params,index=index}
+
           val freeParams = getFreeParams body
           val (mapp, Nparams, Nargs) = mkMapp (freeParams, params, args)
           val Nbody = rewriteParam (mapp, body)
+        val newbie = Ein.EIN{body=Nbody, params=Nparams,index=index}
+(*
+val _ = print(String.concat["\ncleaning:",EinPP.toString(orig),ll(args,0),"\n->",EinPP.toString(newbie),ll(Nargs,0)])
+*)
           in
             DstIR.EINAPP(Ein.EIN{params=Nparams, index=index, body=Nbody}, Nargs)
           end

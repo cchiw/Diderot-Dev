@@ -109,6 +109,7 @@ structure Apply : sig
                   | E.Sum(c, esum) => E.Sum(mapSum c, apply esum)
                   | E.Op1(op1, e1) => E.Op1(op1, apply e1)
                   | E.Op2(op2, e1, e2) => E.Op2(op2, apply e1, apply e2)
+                  | E.Op3(op3, e1, e2, e3) => E.Op3(op3, apply e1, apply e2, apply e3)
                   | E.Opn(E.Swap id, e1) => E.Opn(E.Swap (mapParam id), List.map apply e1)
                   | E.Opn(opn, e1) => E.Opn(opn, List.map apply e1)
                   | E.If(E.LT(e1,e2), e3, e4) =>  E.If(E.LT(apply e1, apply e2), apply e3, apply e4)
@@ -196,6 +197,7 @@ val _ = print(String.concat["mx:",Int.toString(length mx)," shape:",Int.toString
                       end
                   | E.Op1(op1, e1) => E.Op1(op1, apply(e1, shape))
                   | E.Op2(op2, e1, e2) => E.Op2(op2, apply(e1, shape), apply(e2, shape))
+                  | E.Op3(op3, e1, e2, e3) => E.Op3(op3, apply (e1, shape), apply (e2, shape), apply (e3, shape))
                   | E.Opn(opn, es) => E.Opn(opn, List.map (fn e1=> apply(e1,shape)) es)
                   | E.If(comp, e3, e4) => let
                     val  c= (case comp

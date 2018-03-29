@@ -84,7 +84,8 @@ structure NormalizeEin : sig
               | E.Sum(sx1, e)      => return (E.Sum(sx1, E.Probe(e, x)))
               | E.Op1(op1, e)      => return (E.Op1(op1, E.Probe(e, x)))
               | E.Op2(op2, e1, e2) => return (E.Op2(op2, E.Probe(e1, x), E.Probe(e2, x)))
-
+              | E.Op3(op3, e1, e2, e3) =>
+return (E.Op3(op3, E.Probe(e1, x), E.Probe(e2, x), E.Probe(e3, x)))
               | E.Opn(opn, [])     => err "Probe of empty operator"
               | E.Opn(opn, es)     => return (E.Opn(opn, List.map (fn e => E.Probe(e, x)) es))
               | E.If(comp, e3, e4)
@@ -202,7 +203,7 @@ in (ST.tick cntProbe; (E.If(comp2, E.Probe(e3, x), E.Probe(e4, x)))) end
                         val comp = E.GT(e1, e2)
                         val exp  = E.If(comp, e1, e2)
                     in (ST.tick cntProbe; exp) end
-
+                  | E.Op3(op3, e1, e2, e3)=> E.Op3(op3, rewrite e1, rewrite e2, rewrite e3)
                     (************** composition **************)
                  | E.OField(ofld, e, alpha)      => E.OField(ofld, rewrite e, alpha)
                  | E.Comp(E.If(comp, e3, e4), es)     =>

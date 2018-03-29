@@ -130,6 +130,7 @@ structure Basis : sig
           (N.fn_exp, [BV.fn_exp_r, BV.fn_exp_s, BV.fn_exp_p]),
           (N.fn_inv, [BV.fn_inv2_t, BV.fn_inv3_t, BV.fn_inv2_f, BV.fn_inv3_f, BV.fn_inv2_p, BV.fn_inv3_p]),
           (N.fn_lerp, [BV.lerp5, BV.lerp3]),
+          (N.fn_clerp, [BV.clerp5, BV.clerp3]),
           (N.fn_max, [BV.fn_max_i, BV.fn_max_r, BV.red_max_i, BV.red_max_r]),
           (N.fn_min, [BV.fn_min_i, BV.fn_min_r, BV.red_min_i, BV.red_min_r]),
           (N.fn_maxF, [BV.fn_maxF_s, BV.fn_maxF_l]),

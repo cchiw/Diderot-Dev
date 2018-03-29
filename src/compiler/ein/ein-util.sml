@@ -78,14 +78,16 @@ andalso (id14 = id24)
                 | (E.Poly(id1, ix1, n1,alpha1), E.Poly(id2, ix2, n2, alpha2)) =>
                     (id1=id2)andalso  sameIndex(ix1,ix2) andalso  (n1=n2) andalso sameIndex(alpha1,alpha2)
                 | (E.Value i, E.Value j) => (i = j)
-                | (E.Img(id1, ix1, pos1, s1, bord1), E.Img(id2, ix2, pos2, s2, bord2)) =>
-                    (id1 = id2) andalso sameList(pos1, pos2) andalso sameIndex(ix1, ix2) andalso (bord1 = bord2) andalso (s1 = s2)
+                | (E.Img(id1, ix1, pos1, s1), E.Img(id2, ix2, pos2, s2)) =>
+                    (id1 = id2) andalso sameList(pos1, pos2) andalso sameIndex(ix1, ix2) andalso (s1 = s2)
                 | (E.Krn(id1, ix1, dim1), E.Krn(id2, ix2, dim2)) =>
                     (id1 = id2) andalso sameKx(ix1, ix2) andalso (dim1 =  dim2)
                 | (E.Sum(c1, e1), E.Sum(c2, e2)) => sameSx(c1, c2) andalso same(e1, e2)
                 | (E.Op1(op1, e1), E.Op1(op2, e2)) => sameOp1(op1, op2) andalso same(e1, e2)
                 | (E.Op2(op1, e11, e12), E.Op2(op2, e21, e22)) =>
                     (op1 = op2) andalso same(e11, e21) andalso same(e12, e22)
+                | (E.Op3(op1, e11, e12, e13), E.Op3(op2, e21, e22, e23)) =>
+(op1 = op2) andalso same(e11, e21) andalso same(e12, e22) andalso same(e13, e23)
                 | (E.Opn(op1, es1), E.Opn(op2, es2)) =>
                     (op1 = op2) andalso sameList(es1, es2)
                 | _ => false
@@ -149,7 +151,7 @@ andalso (id14 = id24)
                 | E.OField(ofld, e2, alpha) =>    0w141 +hash' e2  + hashAlpha alpha
                 | E.Poly(id, alpha1, n1, alpha2) =>    0w143 + hashInt id+ hashAlpha alpha1+ hashInt n1 + hashAlpha alpha2
                 | E.Value _ => 0w11
-                | E.Img (_, alpha, es, _,  _) => 0w43 + hashAlpha alpha + iter es
+                | E.Img (_, alpha, es, _) => 0w43 + hashAlpha alpha + iter es
                 | E.Krn (_, dels, dim) => 0w41 + hashDels dels + hashInt dim
                 | E.Sum(c,e1) => 0w53 + hash' e1
                 | E.Op1(e1,e2) => (case e1
@@ -170,6 +172,7 @@ andalso (id14 = id24)
                 | E.Op2(E.Min, e1, e2) => 0w167 + hash' e1 + hash' e2
                 | E.Op2(E.Sub, e1, e2) => 0w79 + hash' e1 + hash' e2
                 | E.Op2(E.Div, e1, e2) => 0w83 + hash' e1 + hash' e2
+                | E.Op3(E.Clamp, e1, e2, e3) => 0w163 + hash' e1 + hash' e2 + hash' e3
                 | E.Opn(E.Add, es) => 0w71 + iter es
                 | E.Opn(E.Prod, es) => 0w103 + iter es
                 | E.Opn(E.Swap id, es) => 0w177 + iter es

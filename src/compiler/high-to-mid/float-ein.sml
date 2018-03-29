@@ -191,6 +191,7 @@ structure FloatEin : sig
     fun isOp e = (case e
           of E.Op1 _    => true
            | E.Op2 _    => true
+           | E.Op3 _    => true
            | E.Opn _    => true
            | E.Sum _    => true
            | E.Probe _  => true
@@ -284,6 +285,15 @@ structure FloatEin : sig
                             filterOps ([e1', e2'], params', args', index, sx)
                       in
                         (E.Op2(op2, e1', e2'), params', args')
+                      end
+                   | E.Op3(op3, e1, e2, e3) => let
+                      val (e1', params', args') = rewrite (sx, e1, params, args)
+                      val (e2', params', args') = rewrite (sx, e2, params', args')
+                      val (e3', params', args') = rewrite (sx, e3, params', args')
+                      val ([e1', e2', e3'], params', args') =
+                        filterOps ([e1', e2', e3'], params', args', index, sx)
+                      in
+                        (E.Op3(op3, e1', e2', e3'), params', args')
                       end
                   | E.Opn(opn, es) => let
                       fun iter ([], es, params, args) = (List.rev es, params, args)

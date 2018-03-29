@@ -49,6 +49,7 @@ structure Reorder : sig
                   | E.Sum(c, e1) => E.Sum(c, order e1)
                   | E.Op1(op1, e1) => E.Op1(op1,order e1)
                   | E.Op2(op2, e1,e2) => E.Op2(op2,order e1,order e2)
+                  | E.Op3(op3, e1, e2, e3) => E.Op3(op3, order e1, order e2, order e3)
                   | E.Opn(E.Prod, es) => let
                       val (s, eps, dels, p) = EinFilter.partitionGreek es
                       val p' = List.map order p

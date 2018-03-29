@@ -103,6 +103,7 @@ structure CleanIndex : sig
                   | E.Sum(sx, e) => shape (e, addSingle (ixs, List.map #1 sx))
                   | E.Op1 (_, e) => shape (e, ixs)
                   | E.Op2(_, e1, e2) => shape (e1, shape(e2, ixs))
+                  | E.Op3(_, e1, e2, e3) => shape (e1, shape(e2, shape(e3, ixs)))
                   | E.Opn(_, es) => List.foldl shape ixs es
                   | E.Comp(e1, _) => shape(e1, ixs)
                   | E.OField(_,e2,alpha) => shape (e2, addMus(ixs, alpha))
@@ -158,6 +159,7 @@ structure CleanIndex : sig
                   | E.Sum(_ , e) => shape (e, ixs)
                   | E.Op1(_, e) => shape (e, ixs)
                   | E.Op2(_, e1, e2) => shape' ([e1, e2], ixs)
+                  | E.Op3(_, e1, e2, e3) => shape' ([e1, e2, e3], ixs)
                   | E.Opn(E.Add, e::_) => shape(e, ixs)
                   | E.Opn(E.Prod, es) => shape' (es, ixs)
                    | E.Opn(E.Swap _, e::_) => shape(e, ixs)
@@ -292,6 +294,7 @@ structure CleanIndex : sig
                   | E.Sum(sx, e1) => E.Sum(getSx sx, rewrite e1)
                   | E.Op1(op1, e1) => E.Op1(op1, rewrite e1)
                   | E.Op2(op2, e1, e2) => E.Op2(op2, rewrite e1, rewrite e2)
+                  | E.Op3(op3, e1, e2, e3) => E.Op3(op3, rewrite e1, rewrite e2, rewrite e3)
                   | E.Opn(opn, es) => E.Opn(opn, List.map rewrite es)
                   | E.Comp(e1, es) => E.Comp(rewrite e1, es)
                   | E.OField (opn, e1,  dx) =>  E.OField (opn, rewrite e1,  getAlpha  dx)
