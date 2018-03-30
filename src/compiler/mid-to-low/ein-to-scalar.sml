@@ -110,6 +110,8 @@ val _ = print(String.concat["\nin direction i:",Int.toString(i),"-",Int.toString
                     | E.Op2(E.Div, e1 as E.Tensor (_, [_]), e2 as E.Tensor (_, [])) =>
                         gen (mapp, E.Opn(E.Prod, [E.Op2 (E.Div, E.Const 1, e2), e1]))
                     | E.Op2(E.Div, e1, e2) => Mk.realDiv (avail, gen (mapp, e1), gen (mapp, e2))
+                    | E.Op3(E.Clamp, e1, e2, e3) =>
+                        Mk.realClamp(avail, gen(mapp, e1), gen(mapp, e2), gen(mapp, e3))
                     | E.Opn(E.Add, es) =>
                         Mk.reduce (avail, Mk.realAdd, List.map (fn e => gen(mapp, e)) es)
                     | E.Opn(E.Prod, es) =>

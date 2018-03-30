@@ -43,6 +43,8 @@ structure MkLowIR : sig
     val boolLT  : AvailRHS.t * LowIR.var * LowIR.var -> LowIR.var
     val realNeg : AvailRHS.t * LowIR.var -> LowIR.var
     val realAbs : AvailRHS.t * LowIR.var -> LowIR.var
+    val realClamp : AvailRHS.t * LowIR.var * LowIR.var * LowIR.var -> LowIR.var
+    val realSgn : AvailRHS.t * LowIR.var -> LowIR.var
     val realIf : AvailRHS.t * LowIR.var * LowIR.var * LowIR.var -> LowIR.var
   (* scalar math functions *)
     val realSqrt   : AvailRHS.t * LowIR.var -> LowIR.var
@@ -54,7 +56,7 @@ structure MkLowIR : sig
     val realArcTan : AvailRHS.t * LowIR.var -> LowIR.var
     val realExp   : AvailRHS.t * LowIR.var -> LowIR.var
     val intPow   : AvailRHS.t * LowIR.var * int -> LowIR.var
-    val realSgn : AvailRHS.t * LowIR.var -> LowIR.var
+
  
  (* vector arithmetic *)
     val vecAdd   : AvailRHS.t * int * LowIR.var * LowIR.var -> LowIR.var
@@ -119,7 +121,7 @@ structure MkLowIR : sig
     fun intLit (avail, n) = add (avail, "intLit", Ty.intTy, IR.LIT(Literal.Int n))
     fun realLit (avail, r) =
         let
-        val _  = print(String.concat["\n\t Literal: ", (Literal.toString (Literal.Real r))])
+        (*val _  = print(String.concat["\n\t Literal: ", (Literal.toString (Literal.Real r))])*)
         in add (avail, "realLit", Ty.realTy, IR.LIT(Literal.Real r)) end
     fun intToRealLit (avail, n) = realLit (avail, RealLit.fromInt(IntInf.fromInt n))
 
@@ -167,7 +169,8 @@ structure MkLowIR : sig
     val realArcTan = scalarOp1 Op.ArcTan
     val realSgn = scalarOp1 Op.Sgn
     val realAbs = scalarOp1R Op.Abs
-    
+    val realClamp = scalarOp3 Op.RClamp
+        
     val realSub = scalarOp2 Op.RSub
     val realDiv = scalarOp2 Op.RDiv
     val realAdd = scalarOp2 Op.RAdd

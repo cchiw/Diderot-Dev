@@ -63,7 +63,7 @@ structure FieldToLow : sig
     *)
  
   (* evaluate image Ein expression *)
-    fun imgToArgs (avail, mapp, sx, (Vid, alpha, vs, s, _), args) = let
+    fun imgToArgs (avail, mapp, sx, (Vid, alpha, vs, s), args) = let
           val vI = List.nth(args, Vid)
           val beta = List.map (fn id => Mk.lookupMu(mapp, id)) alpha
           val range = 2*s

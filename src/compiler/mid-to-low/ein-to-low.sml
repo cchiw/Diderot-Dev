@@ -283,10 +283,11 @@ structure EinToLow : sig
    * scans body  for vectorization potential
    *)
     fun expand (y, ein as Ein.EIN{params, index, body}, args) = let
-          (* DEBUG
+    (*
+              val _ = print("\n\n"^EinPP.toString(ein))
           val _ = print( String.concat["\n\n expand ",LowTypes.toString(Var.ty(y))," ", Var.name(y),"=",EinPP.toString(ein)])
-              val _ = List.map (fn e1 => print(LowTypes.toString(Var.ty(e1)))) args
-              *)
+              val _ = List.map (fn e1 => print(LowTypes.toString(Var.ty(e1))^Var.name(e1))) args
+        *)
 (* DEBUG
           val _ = (case Var.ty y
                  of LowTypes.TensorTy alpha => if (alpha = index)
