@@ -213,7 +213,7 @@ structure ScanPP : sig
                     end
 
 
-(* get name of expression and list of indices*)
+        (* get name of expression and list of indices*)
         fun getAlpha e =
         let
         
@@ -736,6 +736,18 @@ structure ScanPP : sig
                 | E.Sum([(vid1, _,_),(vid2, _,_)], E.Opn(E.Prod, [_,_,_,_])) => unhandled ("34",e)
                 | E.Sum(_, _) => unhandled ("31",e)
                 | E.Opn(_, _) => unhandled ("32",e)
+                | E.If(comp, e2, e3) => let
+                    val (s2, alpha2) = getAlpha (e2)
+                    val (s3, alpha3) = getAlpha (e3)
+                    val (cop, e4, e5) = (case comp
+                        of E.GT(e4,e5) =>   (">",e4,e5)
+                        | E.LT(e4,e5)  =>   ("<",e4,e5)
+                    (* end case *))
+                    val (s4, _) = getAlpha (e4)
+                    val (s5, _) = getAlpha (e5)
+                    val cname = concat["(",s4,cop,s5,")"]
+                    val name =  concat(["\nIf ",cname,"\n\t then ", s2, "\n\t else ",s3])
+                    in (name, alpha2) end
                 | _ => unhandled ("8",e)
                 (*end case*))
             val (name, beta) =  if(!complex) then ("?",[E.V ~1]) else run(e)
@@ -773,6 +785,7 @@ structure ScanPP : sig
     (* ------------------------------------------------------------------ *)
     fun scanEin(op_n, args,lhs, e as Ein.EIN{params, index, body}, flag_pulldiv,flag_shiftAdd) =
         let
+
             val shift = 0 (*expected index shift *)
             val (name, beta) = scan(op_n,args,body, flag_pulldiv,flag_shiftAdd)
         in

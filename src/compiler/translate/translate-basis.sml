@@ -782,7 +782,14 @@ structure TranslateBasis : sig
                 (BV.fn_swap6,               fn (y, [_,Ty.DIM d, Ty.SHAPE dd], xs) =>
                                             [assignEin(y, Mk.swap(d, dd, 6), xs)]),
                 (BV.sp_getCell,  fn (y, _, xs) =>
-                                            assign(y, Op.sp_getCell, xs))
+                                            assign(y, Op.sp_getCell, xs)),
+                (BV.fn_printIR_ts , fn (y, _, [t,s]) =>
+                                            assign(y, Op.printIR, [s,t])),
+                (BV.fn_printIR_st , fn (y, _, xs) =>
+                                            assign(y, Op.printIR, xs)),
+                (BV.fn_printIR_t , fn (y, _, xs) =>
+                                            assign(y, Op.printIR, xs))
+
               ];
             tbl
           end

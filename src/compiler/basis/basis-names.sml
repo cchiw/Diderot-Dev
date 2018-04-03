@@ -57,7 +57,7 @@ structure BasisNames =
     val fn_convert = Atom.atom "convert"
     val fn_convertTracker = Atom.atom "convertTracker"
     val fn_insideO = Atom.atom "insideF"
-
+    val fn_printIR = Atom.atom "printIR"
 
 (* standard math functions *)
     val fn_abs = Atom.atom "abs"

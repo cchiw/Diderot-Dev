@@ -179,6 +179,7 @@ fun stringListsToString e = "string list list "
       | EvalFem of fnspace * int * int * intList
       | checkCell
       | sp_getCell
+      | printIR
 
     fun resultArity IAdd = 1
       | resultArity ISub = 1
@@ -271,6 +272,7 @@ fun stringListsToString e = "string list list "
       | resultArity (EvalFem _) = 1
       | resultArity checkCell = 1
       | resultArity sp_getCell = 1
+      | resultArity printIR = 1
 
     fun arity IAdd = 2
       | arity ISub = 2
@@ -363,6 +365,7 @@ fun stringListsToString e = "string list list "
       | arity (EvalFem _) = 2
       | arity checkCell = 1
       | arity sp_getCell = 2
+      | arity printIR = 0
 
     fun isPure (MkDynamic _) = false
       | isPure (Append _) = false
@@ -464,6 +467,7 @@ fun stringListsToString e = "string list list "
       | same (EvalFem(a0,a1,a2,a3), EvalFem(b0,b1,b2,b3)) = samefnspace(a0, b0) andalso sameint(a1, b1) andalso sameint(a2, b2) andalso sameintList(a3, b3)
       | same (checkCell, checkCell) = true
       | same (sp_getCell, sp_getCell) = true
+      | same (printIR, printIR) = true
       | same _ = false
 
     fun hash IAdd = 0w3
@@ -557,6 +561,7 @@ fun stringListsToString e = "string list list "
       | hash (EvalFem(a0,a1,a2,a3)) = 0w463 + hashfnspace a0 + hashint a1 + hashint a2 + hashintList a3
       | hash checkCell = 0w467
       | hash sp_getCell = 0w479
+      | hash printIR = 0w487
 
     fun toString IAdd = "IAdd"
       | toString ISub = "ISub"
@@ -649,6 +654,7 @@ fun stringListsToString e = "string list list "
       | toString (EvalFem(a0,a1,a2,a3)) = concat["EvalFem<", fnspaceToString a0, ",", intToString a1, ",", intToString a2, ",", intListToString a3, ">"]
       | toString checkCell = "checkCell"
       | toString sp_getCell = "sp_getCell"
+      | toString printIR = "printIR"
 
   end
 

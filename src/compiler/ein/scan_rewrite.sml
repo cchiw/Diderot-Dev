@@ -5,12 +5,9 @@ structure ScanRewrite : sig
     val rewriteE : Ein.ein* bool  ->  Ein.ein
     (*last step refactoring*)
     val rewriteL : Ein.ein  ->  Ein.ein
-
-    (*does multiple rewriting passes*)
-    val scan_multiplePasses : ReadTy.readein*bool*string * Ein.ein * string list -> Ein.ein
     (*does single pass*)
-    val scan_single :int *ReadTy.readein* bool*string * Ein.ein * string list -> Ein.ein
-    val scan_pieces :ReadTy.readein* bool*string * Ein.ein * string list -> Ein.ein
+    val cvt_single : int *ReadTy.readein* bool*string * Ein.ein * string list -> Ein.ein*string
+
   end = struct
 
 
@@ -18,8 +15,10 @@ structure ScanRewrite : sig
     structure Scan = ScanPP
     structure R = ReadTy
 
-fun mkProd exps = E.Opn(E.Prod, exps)
-fun mkDiv (e1, e2) = E.Op2(E.Div, e1, e2)
+
+
+    fun mkProd exps = E.Opn(E.Prod, exps)
+    fun mkDiv (e1, e2) = E.Op2(E.Div, e1, e2)
     fun getTops (name, es) = let
         fun f e = e
             val _ =  f(concat["\n", name,"-",Int.toString(length(es)),":"])
@@ -369,25 +368,25 @@ fun mkDiv (e1, e2) = E.Op2(E.Div, e1, e2)
 
 val reader = Scan.scanEin
 
-(*name of rewriting pass*)
-fun rewriteName 1 = "flat"
-| rewriteName 2 =  "match"
-| rewriteName 3 = "refactor"
-| rewriteName 4 = "pull-division"
-| rewriteName 5 = "tab addition"
-(*apply just once*)
-fun apply (1,e) = EinSums.transform (rewriteE (e,false))  (*flatten*)
-  | apply (2,e) = EinSums.transform (rewriteE (e,true))   (*look for matching terms*)
-  | apply (3,e) = rewriteL e (*does some refactoring*)
-  | apply (_,e) = e
+    (*name of rewriting pass*)
+    fun rewriteName 1 = "flat"
+    | rewriteName 2 =  "match"
+    | rewriteName 3 = "refactor"
+    | rewriteName 4 = "pull-division"
+    | rewriteName 5 = "tab addition"
+    (*apply just once*)
+    fun apply (1,e) = EinSums.transform (rewriteE (e,false))  (*flatten*)
+    | apply (2,e) = EinSums.transform (rewriteE (e,true))   (*look for matching terms*)
+    | apply (3,e) = rewriteL e (*does some refactoring*)
+    | apply (_,e) = e
 
-(*do multiple rewriting passes*)
+    (*do multiple rewriting passes*)
     fun build(0,e) = e
     | build (n,e) = apply(n, build(n-1,e))
 
-fun makesurface(5, op_n, anames,lname, exp) = reader(op_n,anames,lname, exp, true,true)
-| makesurface(4, op_n, anames,lname, exp) = reader(op_n,anames,lname, exp, true,false)
-| makesurface(_, op_n, anames,lname, exp) = reader(op_n,anames,lname, exp, false,false)
+    fun makesurface(5, op_n, anames,lname, exp) = reader(op_n,anames,lname, exp, true,true)
+    | makesurface(4, op_n, anames,lname, exp) = reader(op_n,anames,lname, exp, true,false)
+    | makesurface(_, op_n, anames,lname, exp) = reader(op_n,anames,lname, exp, false,false)
 
 fun psurface(level, readEinLatex, surface) = let
     val name = rewriteName level
@@ -405,37 +404,5 @@ fun cvt_single  (level, op_n,readEinLatex,lname, e, anames) =
         val nsurface = psurface (level, readEinLatex, surface)
     in (exp,nsurface) end
 
-(*prints out pieces*)
-fun scan_single  (level, op_n,readEinLatex,lname, e, anames) =
-    let
-        val (exp, nsurface) = cvt_single  (level, op_n,readEinLatex,lname, e, anames)
-        val _ = print (concat[lname, nsurface, "\n"])
-    in exp end
-(*for spllit*)
-fun scan_pieces  (op_n,readEinLatex,lname, e, anames) =
-    let
-        val level = 3
-        val (exp, nsurface) = cvt_single  (level, op_n,readEinLatex,lname, e, anames)
-        (*
-        val lnamel = String.size(lname)
-        val lA = StringCvt.padLeft #" " (15-lnamel)  "= "
-        val tmp = if readEinLatex then concat["\\newline ",lname, lA, "$",surface,"$"]
-                    else concat[lname, lA, surface]
-        val lC = StringCvt.padLeft #" " (45-size(tmp))  " "
-        val _ = print(concat[tmp,lC,"\n"])*)
-        val _ = print (concat[lname, nsurface, "\n"])
-    in  exp end
-(*does multiple rewriting passes*)
-fun scan_multiplePasses (op_n,readEinLatex,lname, e, anames) =
-    let
-        fun iter (5,exp, es) = (exp, List.rev es) (*stop at last step*)
-          | iter (level,exp,es) = let
-            val (exp, nsurface) = cvt_single  (level, op_n,readEinLatex,lname, e, anames)
-            in iter(level+1,exp, nsurface::es) end
-
-        val (exp, es) = iter(1,e, [])
-        val _ = print (concat[lname, concat(es),"\n"])
-
-    in  exp end
 
 end

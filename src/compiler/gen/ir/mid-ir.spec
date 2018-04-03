@@ -190,4 +190,5 @@ EvalFem : fnspace * int * int * intList: 1 : 2 : # the final evaluation steps
 checkCell: : 1: 1 : #check if result of findcell is TF
 # surface code. (F,pos)->cell
 sp_getCell: : 1: 2:
-
+#printIR
+printIR  :  : 1 : 0 : output EIN IR in highToMid to text file

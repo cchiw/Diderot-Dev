@@ -116,6 +116,7 @@ structure HighOps =
       | BuildSpace
       | InsideFEM of int
       | sp_getCell
+      | printIR
 
     fun resultArity IAdd = 1
       | resultArity ISub = 1
@@ -180,6 +181,7 @@ structure HighOps =
       | resultArity BuildSpace = 1
       | resultArity (InsideFEM _) = 1
       | resultArity sp_getCell = 1
+      | resultArity printIR = 1
 
     fun arity IAdd = 2
       | arity ISub = 2
@@ -244,6 +246,7 @@ structure HighOps =
       | arity BuildSpace = 3
       | arity (InsideFEM _) = 2
       | arity sp_getCell = 2
+      | arity printIR = 0
 
     fun isPure (MkDynamic _) = false
       | isPure (Append _) = false
@@ -317,6 +320,7 @@ structure HighOps =
       | same (BuildSpace, BuildSpace) = true
       | same (InsideFEM(a0), InsideFEM(b0)) = sameint(a0, b0)
       | same (sp_getCell, sp_getCell) = true
+      | same (printIR, printIR) = true
       | same _ = false
 
     fun hash IAdd = 0w3
@@ -382,6 +386,7 @@ structure HighOps =
       | hash BuildSpace = 0w293
       | hash (InsideFEM(a0)) = 0w307 + hashint a0
       | hash sp_getCell = 0w311
+      | hash printIR = 0w313
 
     fun toString IAdd = "IAdd"
       | toString ISub = "ISub"
@@ -446,6 +451,7 @@ structure HighOps =
       | toString BuildSpace = "BuildSpace"
       | toString (InsideFEM(a0)) = concat["InsideFEM<", intToString a0, ">"]
       | toString sp_getCell = "sp_getCell"
+      | toString printIR = "printIR"
 
   end
 

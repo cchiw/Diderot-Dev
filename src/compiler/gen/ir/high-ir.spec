@@ -129,3 +129,5 @@ BuildSpace : : 1 : 3:
 InsideFEM: int : 1 : 2:
 # surface code. (F,pos)->cell
 sp_getCell: : 1: 2:
+#printIR
+printIR  :  : 1 : 0 : output EIN IR in highToMid to text file

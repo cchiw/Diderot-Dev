@@ -39,3 +39,4 @@ is
   build-fem.sml
   translate-field.sml
   data-fem.sml
+  scan-ein.sml

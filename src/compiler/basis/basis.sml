@@ -163,6 +163,7 @@ structure Basis : sig
 	  (N.fn_convertTracker, [BV.fn_convert_Tracker_rm]),
           (N.fn_inside, [BV.fn_inside]),
           (N.fn_insideO, [BV.fn_insideO]),
+          (N.fn_printIR, [BV.fn_printIR_ts,BV.fn_printIR_st,BV.fn_printIR_t]),
           (N.op_dot, [BV.op_inner_pp, BV.op_inner_pt, BV.op_inner_tp]),
           (N.op_colon, [BV.op_colon_pp, BV.op_colon_pt,BV.op_colon_tp]),
           (N.fn_swap, [BV.fn_swap2, BV.fn_swap3, BV.fn_swap4, BV.fn_swap5, BV.fn_swap6]),

@@ -1670,6 +1670,29 @@ end))
         end
         ))
 
+    val fn_printIR_ts = polyVar (Atom.atom "$printIR", all([SK],
+        fn [Ty.SHAPE ddT] => let
+            val t1 = Ty.T_Tensor(Ty.ShapeVar ddT)
+            in
+            [t1, Ty.T_String] --> Ty.T_Int
+        end))
+
+    val fn_printIR_st = polyVar (Atom.atom "$printIR", all([SK],
+        fn [Ty.SHAPE ddT] => let
+        val t1 = Ty.T_Tensor(Ty.ShapeVar ddT)
+        in
+        [ Ty.T_String,t1] --> Ty.T_Int
+        end))
+
+    val fn_printIR_t = polyVar (Atom.atom "$printIR", all([SK],
+        fn [Ty.SHAPE ddT] => let
+            val t1 = Ty.T_Tensor(Ty.ShapeVar ddT)
+            in
+            [t1] --> Ty.T_Int
+        end))
+
+
+
 
 
 (* ************************************* FEM FIELD ************************************* *)

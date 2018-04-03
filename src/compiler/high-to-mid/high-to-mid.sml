@@ -198,6 +198,7 @@ structure HighToMid : sig
               | SrcOp.BuildElement e => assign (DstOp.BuildElement (e))
               | SrcOp.BuildSpace => assign (DstOp.BuildSpace)
               | SrcOp.sp_getCell => BuildFem.getCell(y, Env.renameList(env, args))
+              | SrcOp.printIR =>  (ScanEin.expand(y, List.map getRHS args);dummy())
               | rator => raise Fail("bogus operator " ^ SrcOp.toString rator)
             (* end case *)
           end

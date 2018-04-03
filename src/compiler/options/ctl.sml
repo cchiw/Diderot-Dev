@@ -173,6 +173,13 @@ structure Ctl =
             default = false
         }
 
+    val readEinPDF = C.genControl {
+            name = "readEinPDF",
+            pri = [2, 2, 0],
+            obscurity = 5,
+            help = "output to a txt file",
+            default = false
+    }
 
     val readEinUni = C.genControl {
             name = "readEinUni",
@@ -201,7 +208,7 @@ structure Ctl =
 
 
 val optimizeControls = [
-inline, highVN, midVN, midContract, lowVN, lowContract, treeContract,sliceFlag, fullSplitFlag, scaFlag ,replaceFlag,readEin1, readEin2, readEin3, readEin4,readEin5, readEinRewrite,readEinSplit,readEinUni,readEinLatex,readEinWord]
+inline, highVN, midVN, midContract, lowVN, lowContract, treeContract,sliceFlag, fullSplitFlag, scaFlag ,replaceFlag,readEin1, readEin2, readEin3, readEin4,readEin5, readEinRewrite,readEinSplit,readEinUni,readEinLatex,readEinWord,readEinPDF]
 
 
     val dumpPT = C.genControl {
