@@ -37,13 +37,13 @@ structure EinToScalar : sig
           (* end case *))
 
     fun expand {avail, mapp, body, lowArgs} = let
-            (*val _ = print(String.concat["\nin expand:", EinPP.expToString(body)])*)
+            (*val _ = (String.concat["\nin expand:", EinPP.expToString(body)])*)
 (*
             val i = Mk.lookupMu (mapp, E.V 0)
-val _ = print(String.concat["\nin direction i:",Int.toString(i)])*)
+val _ = (String.concat["\nin direction i:",Int.toString(i)])*)
 (*
               val j = Mk.lookupMu (mapp, E.V 1)
-val _ = print(String.concat["\nin direction i:",Int.toString(i),"-",Int.toString(j)])
+val _ = (String.concat["\nin direction i:",Int.toString(i),"-",Int.toString(j)])
 *)
           fun gen (mapp, body) = let
               (*********sumexpression ********)
@@ -175,7 +175,7 @@ val _ = print(String.concat["\nin direction i:",Int.toString(i),"-",Int.toString
                         in gen(mapp,e) end
                      | E.Poly(id, [E.C c], n, [vx]) =>   let
                         val dx = Mk.lookupMu (mapp, vx)
-                        val _ = print(String.concat["\n\t Poly1_", Int.toString(c),"^",Int.toString(n),"-dx",Int.toString(dx)])
+                        val _ = (String.concat["\n\t Poly1_", Int.toString(c),"^",Int.toString(n),"-dx",Int.toString(dx)])
                         val zero = E.Const 0
                         val one = E.Const 1
                         val ec = E.Const n
@@ -190,7 +190,7 @@ val _ = print(String.concat["\nin direction i:",Int.toString(i),"-",Int.toString
                         (* here need to implement partial derivative in respect to an axis *)
                         in gen(mapp, e) end
                     | E.Poly(id, [E.C c], n, dx as [_, _]) =>   let
-                        val _ = print(String.concat["\n\t Poly1_", Int.toString(c),"^",Int.toString(n)])
+                        val _ = (String.concat["\n\t Poly1_", Int.toString(c),"^",Int.toString(n)])
                         val ec = E.Const n
                         val ecc = E.Const (n-1)
                         val t = E.Tensor(id, [E.C c])
@@ -207,7 +207,7 @@ val _ = print(String.concat["\nin direction i:",Int.toString(i),"-",Int.toString
                             end
                             in gen(mapp, iter dx) end
                     | E.Poly(id, [E.C c], n, dx as [_,_,_]) =>   let
-                        val _ = print(String.concat["\n\t Poly1_", Int.toString(c),"^",Int.toString(n)])
+                        val _ = (String.concat["\n\t Poly1_", Int.toString(c),"^",Int.toString(n)])
                         val zero = E.Const 0
                         val ec = E.Const n
                         val ecc = E.Const (n-1)

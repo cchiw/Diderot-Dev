@@ -99,23 +99,26 @@ structure HandleEin : sig
         val _ =  "about to split"
         val newbies =iter([newbie], [])
         (* val _ = (concat["\n -----> Pieces: ",Int.toString(length(newbies)),"\n"])*)
-        val _ = prntNewbies(newbies, "\n\n\npost floatx1")
+        (*val _ = prntNewbies(newbies, "\n\n\npost floatx1")*)
         val newbies =iter(newbies, [])
-        (*val _ = prntNewbies(newbies, "\n\n\npost floatx2")*)
+        val _ = prntNewbies(newbies, "\n\n\npost floatx2")
         val _ =  if(readEinSplit) then List.map scan_pieces  newbies else newbies
         val _ = (String.concat["Number of pieces:",Int.toString(length(newbies))])
 
         (* **************** expand-fem ************* *)
-        (*val _ =  "\n\n\nbefore translating fields"*)
+        val _ =   "\n\n\nbefore translating fields"
         val newbies  = List.foldr (fn (e,acc)=>  translateField.transform(e)@acc ) []  newbies
         (*val _ = prntNewbies(newbies, "\n\n\npost transform fields")*)
         (* ************** ProbeEIN *********** *)
+      val _ = ("****about to call probe ein")
         (*   val _ = "about to call probe ein"*)
         val avail = AvailRHS.new()
         val _ = List.app  (ProbeEin.expand avail) newbies;
         val stmts = List.rev (AvailRHS.getAssignments avail)
+        val _ = prntNewbies(stmts, "\n\n\npost probe ein ")
         val asgn = List.map DstIR.ASSGN stmts
         val _  = "exit"
+        val _ = ("\n\n   ***********\n")
           in
             asgn
           end

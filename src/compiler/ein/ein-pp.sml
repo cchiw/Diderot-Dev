@@ -53,14 +53,14 @@ structure EinPP : sig
                 end
             | E.Partial alpha => "∂/∂x" ^ multiIndex2s alpha
             | E.Apply(e1, e2) => concat [ expToString e1, "@(", expToString e2, ")"]
-            | E.Probe(e1, e2) => concat ["Probe(", expToString e1, ",", expToString e2, ")"]
+            | E.Probe(e1, e2) => concat ["Probe(fld:", expToString e1, ",pos:", expToString e2, ")"]
             | E.Comp(e1,es) => let
                 fun iter ([]) = ""
                 | iter ((e2, n1)::es) =
                 concat ["[", expToString e2 , concat ["{", shp2s n1, "}"],  "]", iter(es)]
                 in concat ["Cmp(", expToString e1,")", (iter(es))] end
             | E.OField(E.PolyWrap(es), e1, [])
-                => concat ["PolyWrap[", String.concatWithMap " ," expToString  es,  "](",expToString e1,")"]
+ => concat ["PolyWrap[v:", String.concatWithMap " ," expToString  es,  "](exp:",expToString e1,")"]
             | E.OField(E.PolyWrap(es), e1, alpha)
                 => concat [  expToString(E.OField(E.PolyWrap(es), e1, [])) ,"dx",multiIndex2s alpha, ")"]
  

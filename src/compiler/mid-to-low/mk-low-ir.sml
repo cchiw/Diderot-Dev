@@ -239,7 +239,7 @@ structure MkLowIR : sig
             of Ty.TensorTy[] =>
                 (* are all the indices constant 0? *)
                 (*if(allConst ixs) then arg
-                else*) raise Fail "indexing a real arg"
+                else*) raise Fail (concat["indexing a real arg:",EinPP.expToString(E.Tensor(1,ixs))])
             | _ =>
                 add (
                     avail, "r", Ty.realTy,

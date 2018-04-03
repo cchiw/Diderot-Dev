@@ -5,7 +5,6 @@
  * COPYRIGHT (c) 2015 The University of Chicago
  * All rights reserved.
  *
- * FIXME: this file needs documentation
  *)
 
 structure DerivativeEin : sig
@@ -39,12 +38,13 @@ val differentiate: Ein.mu list * Ein.ein_exp -> Ein.ein_exp
 
     fun iterPP es = let
         fun iterP([], [r]) = r
-        | iterP ([], rest) = E.Opn(E.Prod, rest)
+        | iterP ([], rest) = rewriteProd rest
         | iterP (E.Const 0::es, rest) = E.Const(0)
         | iterP (E.Const 1::es, rest) = iterP(es, rest)
         | iterP (E.Delta(E.C c1, E.V v1)::E.Delta(E.C c2, E.V v2)::es, rest) =
             (* variable can't be 0 and 1 '*)
-            if(c1=c2) then iterP (es, E.Delta(E.C c1, E.V v1)::E.Delta(E.C c2, E.V v2)::rest)
+            if(c1=c2)
+            then iterP (es, E.Delta(E.C c1, E.V v1)::E.Delta(E.C c2, E.V v2)::rest)
             else E.Const(0)
         | iterP(E.Opn(E.Prod, ys)::es, rest) = iterP(ys@es, rest)
         | iterP (e1::es, rest)   = iterP(es, e1::rest)
@@ -133,6 +133,7 @@ val differentiate: Ein.mu list * Ein.ein_exp -> Ein.ein_exp
     (*note would need to keep track of change*)
     fun differentiate (px, body) =
         let
+        val _ = (String.concat["\n\ndiff:",EinPP.expToString(body)])
         val body' =(case body
             of E.Const _            => E.Const 0
             | E.ConstR _            => E.Const 0
@@ -186,7 +187,7 @@ val differentiate: Ein.mu list * Ein.ein_exp -> Ein.ein_exp
                 in  E.EvalFem (fnspace, [inv,f]) end
             | _    => raise Fail(EinPP.expToString(body))
         (* end case*))
-        val _ = print(String.concat["\n\ndiff:",EinPP.expToString(body),"\n\t-->",EinPP.expToString(body')])
+        val _ = (String.concat["\n\ndiff:",EinPP.expToString(body),"\n\t-->",EinPP.expToString(body')])
         in body' end
 
    end

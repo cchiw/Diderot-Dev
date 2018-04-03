@@ -1304,38 +1304,38 @@ structure MkOperators : sig
               
 
     fun ofieldfem (dim, alpha) = let
-	val _ = print(Int.toString dim)
+	val _ = (Int.toString dim)
         val expindex = specialize(alpha, 0)
         val e1 =
             E.EIN {
             params = [E.FLD (dim, alpha), E.DATA], index = alpha,
             body = E.OField(E.DataFem (1), E.Tensor(0, expindex), [])
             }
-        (*val _ = print(String.concat["\n created fem term: ",EinPP.toString(e1)])*)
+        (*val _ = (String.concat["\n created fem term: ",EinPP.toString(e1)])*)
         in e1
         end
         
         
     fun ofieldfemBuild (dim, alpha) = let
-	val _ = print(Int.toString dim)
+	val _ = (Int.toString dim)
         val expindex = specialize(alpha, 0)
         val e1 =
         E.EIN {
         params = [E.FLD (dim, alpha), E.FNCSPACE, E.FNCSPACE], index = alpha,
         body = E.OField(E.BuildFem(1, 2), E.Tensor(0, expindex), [])
         }
-       (* val _ = print(String.concat["\n created fem term: ",EinPP.toString(e1)])*)
+       (* val _ = (String.concat["\n created fem term: ",EinPP.toString(e1)])*)
         in e1
     end
     fun ofieldfemBuildMany (dim, alpha) = let
-	val _ = print(Int.toString dim)
+	val _ = (Int.toString dim)
         val expindex = specialize(alpha, 0)
         val e1 =
         E.EIN {
         params = [E.FLD (dim, alpha), E.FNCSPACE,E.FNCSPACE,E.FNCSPACE, E.FNCSPACE], index = alpha,
         body = E.OField(E.ManyPointerBuildFem(1, 2,3,4), E.Tensor(0, expindex), [])
         }
-        val _ = print(String.concat["\n created fem term: ",EinPP.toString(e1)])
+        val _ = (String.concat["\n created fem term: ",EinPP.toString(e1)])
         in e1
         end
         
