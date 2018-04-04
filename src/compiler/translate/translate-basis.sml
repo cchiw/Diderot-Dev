@@ -788,6 +788,12 @@ structure TranslateBasis : sig
                 (BV.fn_printIR_st , fn (y, _, xs) =>
                                             assign(y, Op.printIR, xs)),
                 (BV.fn_printIR_t , fn (y, _, xs) =>
+                                            assign(y, Op.printIR, xs)),
+                (BV.fn_printIR_fs , fn (y, _, [t,s]) =>
+                                            assign(y, Op.printIR, [s,t])),
+                (BV.fn_printIR_sf , fn (y, _, xs) =>
+                                            assign(y, Op.printIR, xs)),
+                (BV.fn_printIR_f , fn (y, _, xs) =>
                                             assign(y, Op.printIR, xs))
 
               ];

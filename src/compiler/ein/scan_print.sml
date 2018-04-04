@@ -735,7 +735,15 @@ structure ScanPP : sig
                 | E.Sum([(vid1, _,_),(vid2, _,_)], E.Opn(E.Prod, [_,_,_])) => unhandled ("33",e)
                 | E.Sum([(vid1, _,_),(vid2, _,_)], E.Opn(E.Prod, [_,_,_,_])) => unhandled ("34",e)
                 | E.Sum(_, _) => unhandled ("31",e)
-                | E.Opn(_, _) => unhandled ("32",e)
+                | E.Opn(E.Swap(param_id), ps) => let
+                    fun iter (_, [],rest,beta) = (rest,beta)
+                      | iter(cnt, e2::es,rest,beta) = let
+                        val (s2, beta) = getAlpha (e2)
+                        val st  = concat[rest," ",Int.toString(cnt),".",s2]
+                        in iter(cnt+1,es,st,beta) end
+                    val (ns,beta) = iter(1,ps,"",[])
+                    val n = Int.toString(length(ps))
+                    in (concat["Swap(",cvtId(args,param_id),",",n,")<",ns,">"],beta) end
                 | E.If(comp, e2, e3) => let
                     val (s2, alpha2) = getAlpha (e2)
                     val (s3, alpha3) = getAlpha (e3)
