@@ -2,8 +2,9 @@
 structure ScanEin : sig
 
     val readEinSingle: MidIR.var * MidIR.rhs -> int
-    val readEinSplit : MidIR.var * MidIR.rhs -> int
+    val readEinSplit : (MidIR.var * MidIR.rhs) list -> int
     val expand : MidIR.var * HighIR.rhs list -> int
+    val readEinPoly: MidIR.var * MidIR.rhs -> int
 
   end = struct
    
@@ -25,7 +26,9 @@ structure ScanEin : sig
         fun scan_single_formatted  (level,op_n ,tf) =
             let
                 val (_, nsurface) = cvt_single  (level, op_n,tf,lname, e, anames)
-            in concat[lname, nsurface, "\n"]
+                val exp = concat[lname, nsurface, "\n"]
+                val _  = print(exp)
+            in exp
             end
 
         (*does multiple rewriting passes*)
@@ -80,7 +83,7 @@ structure ScanEin : sig
 
         (*what format do we use*)
         val readEinUni = Controls.get Ctl.readEinUni
-        val readEinLatex = Controls.get Ctl.readEinLatex        (*use latex by default*)
+        val readEinLatex = Controls.get Ctl.readEinLatex
         val readEinWord = Controls.get Ctl.readEinWord
         val readEinPDF = Controls.get Ctl.readEinPDF
 
@@ -102,15 +105,36 @@ structure ScanEin : sig
             else 1
         in 1
         end
-
-    (* ************************************************************* *)
-    fun readEinSplit (newbie) = let
-        (*reading ein controls*)
-        val readEinSplit = Controls.get Ctl.readEinSplit
+    (*print out poly term*)
+    fun readEinPoly (newbie) = let
         (*what format do we use*)
         val readEinUni = Controls.get Ctl.readEinUni
         val readEinLatex = Controls.get Ctl.readEinLatex
         val readEinWord = Controls.get Ctl.readEinWord
+        val readEinPDF = Controls.get Ctl.readEinPDF
+        val readEinRewrite = false
+        val filename = "output_tmp_poly"
+
+        val (lhs,DstIR.EINAPP(e,a)) = newbie
+        val lname = DstIR.Var.name  lhs
+        val anames = List.map (fn v=> DstIR.Var.name(v)) a
+        val level = 3
+
+        val _  =  if(level>=0) then
+                readEinSingleT (lname,anames,e,level, filename, readEinPDF, readEinUni,readEinLatex, readEinRewrite)
+                else 1
+        in 1 end
+
+    (* ************************************************************* *)
+    fun readEinSplit (newbies) = let
+        val _ = print"\n\nreadEinSplit()"
+        (*reading ein controls*)
+        val readEinSplit = Controls.get Ctl.readEinSplit
+        val readEinUni = Controls.get Ctl.readEinUni
+        val readEinLatex = Controls.get Ctl.readEinLatex
+        val readEinWord = Controls.get Ctl.readEinWord
+        val readEinPDF = Controls.get Ctl.readEinPDF
+        val readEinRewrite = (*Controls.get Ctl.readEinRewrite*) false
         (*use latex by default*)
         val op_n = if readEinUni then R.op_u  else if readEinWord then  R.op_w else R.op_l
 
@@ -119,16 +143,20 @@ structure ScanEin : sig
             val anames = List.map (fn v=> DstIR.Var.name(v)) a
             val level = 3
             val (exp, nsurface) = ScanR.cvt_single  (level, op_n,readEinLatex,lname, e, anames)
-            val _ = print (concat[lname, nsurface, "\n"])
-            in 1 end
-        | scan_pieces  _ =  1
+            val ss = (concat[lname, nsurface, "\n"])
+
+            in ss end
+        | scan_pieces  _ =  ""
 
 
-        val _ = if(readEinSplit)  then  scan_pieces (newbie) else 1
+        val es = if(readEinSplit)  then  List.map scan_pieces (newbies) else []
+        val _ = List.map (fn e1 => print(e1)) es
         in
             1
         end
 
+    (* ************************************************************* *)
+    (*call with direct-style operator printIR() *)
     fun expand (lhs, [SrcIR.LIT(Literal.String s), SrcIR.EINAPP(ein, args)]) = let
         val readEinUni = Controls.get Ctl.readEinUni
         val readEinLatex = Controls.get Ctl.readEinLatex

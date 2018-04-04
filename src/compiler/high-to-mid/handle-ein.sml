@@ -57,7 +57,7 @@ structure HandleEin : sig
         (*val _ = prntNewbies(newbies, "\n\n\npost floatx1")*)
         val newbies =iter(newbies, [])
         val _ = prntNewbies(newbies, "\n\n\npost floatx2")
-        val _ = ScanE.readEinSplit(newbie)
+        (*val _ = ScanE.readEinSplit(newbies)*)
         val _ = (String.concat["Number of pieces:",Int.toString(length(newbies))])
 
         (* **************** expand-fem ************* *)
@@ -65,7 +65,7 @@ structure HandleEin : sig
         val _ =   "\n\n\nbefore translating fields"
         val newbies  = List.foldr (fn (e,acc)=>  translateField.transform(e)@acc ) []  newbies
         (*val _ = prntNewbies(newbies, "\n\n\npost transform fields")*)
-
+        val _ = ScanE.readEinSplit(newbies)
         (* ************** ProbeEIN *********** *)
       val _ = ("****about to call probe ein")
         (*   val _ = "about to call probe ein"*)

@@ -60,13 +60,9 @@ structure EinPP : sig
                 concat ["[", expToString e2 , concat ["{", shp2s n1, "}"],  "]", iter(es)]
                 in concat ["Cmp(", expToString e1,")", (iter(es))] end
             | E.OField(E.PolyWrap(es), e1, [])
- => concat ["PolyWrap[v:", String.concatWithMap " ," expToString  es,  "](exp:",expToString e1,")"]
+                => concat ["CFExp[v:", String.concatWithMap " ," i2s  es,  "](exp:",expToString e1,")"]
             | E.OField(E.PolyWrap(es), e1, alpha)
                 => concat [  expToString(E.OField(E.PolyWrap(es), e1, [])) ,"dx",multiIndex2s alpha, ")"]
- 
-            (* | E.OField(E.PolyWrap _, e1, []) => concat ["PolyWrap(", expToString e1  ,")"]
-            | E.OField(E.PolyWrap _, e1, alpha) => concat ["PolyWrap(", expToString e1, "dx^", multiIndex2s alpha, ")"]
-            *)
             | E.OField(E.DataFem id, e1, alpha) => concat ["DataFEM(",expToString e1,")_",i2s id, deriv alpha, ")"]
             | E.OField(E.BuildFem (id,id2), e1, alpha) => concat ["BuildFEM(",expToString e1,")_", i2s id, "[",i2s id2,"]",deriv alpha, ")"]
             | E.OField(E.ManyPointerBuildFem(id,id2, id3, id4), e1, alpha) => concat ["ManyPtr(",expToString e1,")_", i2s id, "[",i2s id2,"|",i2s id3,"|",i2s id4,"]",deriv alpha, ")"]

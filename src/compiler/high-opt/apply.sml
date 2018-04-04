@@ -103,7 +103,7 @@ structure Apply : sig
                   | E.OField(E.BuildFem (id,s), e2, alpha)
                         => E.OField(E.BuildFem(mapParam id, mapParam s), apply e2, mapAlpha alpha)
                   | E.OField(E.PolyWrap inputV, e2, alpha)
-                    => E.OField(E.PolyWrap(List.map apply inputV), apply e2, mapAlpha alpha)
+                    => E.OField(E.PolyWrap(List.map mapParam inputV), apply e2, mapAlpha alpha)
                   | E.OField(ofld, e2, alpha) => E.OField(ofld, apply e2, mapAlpha alpha)
                   | E.Value _ => raise Fail "expression before expand"
                   | E.Img _ => raise Fail "expression before expand"
@@ -188,7 +188,7 @@ val _ = print(String.concat["mx:",Int.toString(length mx)," shape:",Int.toString
                         (insideComp := true;E.Comp(fouter, es'))
                         end
                   | E.OField(E.PolyWrap es, e2, alpha) => let
-                        val ps =List.map (fn E.Tensor(id,mx) => E.Tensor(mapId(id, origId, 0), mx)) es
+                        val ps =List.map (fn id => mapId(id, origId, 0)) es
                         in E.OField(E.PolyWrap ps, apply(e2,shape), alpha) end 
                   | E.OField(ofld, e2, alpha)
                     => E.OField(ofld, apply(e2,shape), alpha)

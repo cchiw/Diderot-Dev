@@ -67,14 +67,14 @@ structure EinUtil : sig
                 | (E.Comp(e11, es1), E.Comp(e21, es2)) =>
                     same(e11,e21) andalso sameSubEin(es1, es2)
                 | (E.OField(E.PolyWrap es1, e1, ix1), E.OField(E.PolyWrap es2, e2, ix2)) =>
-                    same(e1,e2) andalso sameIndex(ix1, ix2) andalso sameList(es1, es2)
+                    same(e1,e2) andalso sameIndex(ix1, ix2) andalso ListPair.allEq (op =)  (es1,es2)
                 | (E.OField(E.DataFem id1, e1, ix1), E.OField(E.DataFem id2, e2, ix2)) =>
                     same(e1,e2) andalso sameIndex(ix1, ix2) andalso (id1 = id2)
                 | (E.OField(E.BuildFem (id1,s1), e1, ix1), E.OField(E.BuildFem (id2,s2), e2, ix2)) =>
                     same(e1,e2) andalso (s1=s2) andalso sameIndex(ix1, ix2) andalso (id1 = id2)
-| (E.OField(E.ManyPointerBuildFem (id1,s1, id13, id14), e1, ix1), E.OField(E.ManyPointerBuildFem (id2,s2, id23, id24), e2, ix2)) =>
-same(e1,e2) andalso (s1=s2) andalso sameIndex(ix1, ix2) andalso (id1 = id2)andalso (id13 = id23)
-andalso (id14 = id24)
+                | (E.OField(E.ManyPointerBuildFem (id1,s1, id13, id14), e1, ix1), E.OField(E.ManyPointerBuildFem (id2,s2, id23, id24), e2, ix2)) =>
+                    same(e1,e2) andalso (s1=s2) andalso sameIndex(ix1, ix2) andalso (id1 = id2)andalso (id13 = id23)
+                    andalso (id14 = id24)
                 | (E.Poly(id1, ix1, n1,alpha1), E.Poly(id2, ix2, n2, alpha2)) =>
                     (id1=id2)andalso  sameIndex(ix1,ix2) andalso  (n1=n2) andalso sameIndex(alpha1,alpha2)
                 | (E.Value i, E.Value j) => (i = j)
@@ -87,7 +87,7 @@ andalso (id14 = id24)
                 | (E.Op2(op1, e11, e12), E.Op2(op2, e21, e22)) =>
                     (op1 = op2) andalso same(e11, e21) andalso same(e12, e22)
                 | (E.Op3(op1, e11, e12, e13), E.Op3(op2, e21, e22, e23)) =>
-(op1 = op2) andalso same(e11, e21) andalso same(e12, e22) andalso same(e13, e23)
+                    (op1 = op2) andalso same(e11, e21) andalso same(e12, e22) andalso same(e13, e23)
                 | (E.Opn(op1, es1), E.Opn(op2, es2)) =>
                     (op1 = op2) andalso sameList(es1, es2)
                 | _ => false
@@ -95,7 +95,9 @@ andalso (id14 = id24)
             and sameSubEin([], []) = true
             | sameSubEin ((e1,_)::es1, (e2,_)::es2) = same(e1, e2) andalso sameSubEin(es1, es2)
             | sameSubEin _ = false
-
+            and sameListID ([], []) = true
+            | sameListID (e1::es1, e2::es2) = (e1=e2) andalso sameListID(es1, es2)
+            | sameListID _ = false
         and sameList ([], []) = true
           | sameList (e1::es1, e2::es2) = same(e1, e2) andalso sameList(es1, es2)
           | sameList _ = false

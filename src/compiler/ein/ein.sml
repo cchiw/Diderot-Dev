@@ -65,8 +65,7 @@ structure Ein =
 
     (*other field types *)
     and ofield
-        = PolyWrap of ein_exp list     (* input variables *)
-            (*OField(Poly [Tensor input args], computation, dx)*)
+        = PolyWrap of param_id list     (* input variables *)
         | DataFem of param_id          (* param id is to data file *)
         | BuildFem of param_id *param_id       (*param id to function space *)
         | ManyPointerBuildFem of param_id *param_id * param_id *param_id

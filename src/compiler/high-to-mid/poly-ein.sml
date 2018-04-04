@@ -20,6 +20,8 @@ structure PolyEin : sig
     structure ISet = IntRedBlackSet
     structure SrcIR = HighIR
     structure DstIR = MidIR
+    structure ScanE = ScanEin
+
     fun p1(id, cx, vx) = E.Opn(E.Prod, [E.Poly(id, [E.C cx], 1, []), E.Delta(E.C cx, E.V vx)])
     fun mkpos(id, vx,dim) = E.Opn(E.Add, List.tabulate(dim, (fn n => p1(id, n, vx))))
     fun mkposScalar(id) =  E.Poly(id, [], 1, [])
@@ -90,7 +92,7 @@ structure PolyEin : sig
         in body' end
 
     (*do the variable replacement for all the poly input variables *)
-    fun polyArgs(args, params, polyargs, start_idxs, e) =
+    fun polyArgs(args, params, pargs, start_idxs, e) =
         let
         (*replacement instances of arg at idy position with arg at idx position *)
         fun replaceArg(args, params,  idx, idy) =
@@ -116,8 +118,8 @@ structure PolyEin : sig
             in (args, params, mapp) end
 
         (*iterate over all the poly variable expressions *)
-        fun iter([], args, params, _, e) = (args, params,e)
-            | iter (E.Tensor(pid, _)::es, args, params, idx::idxs,e) =
+        fun iter(_, args, params, [], e) = (args, params,e)
+            | iter (pid::es, args, params, idx::idxs,e) =
             let
                 val _ = (String.concat["\n replacing param id:",Int.toString(pid),"idx:",Int.toString(idx)])
                 val (args, params, mapp) = replaceArg(args, params, idx, pid)
@@ -133,7 +135,7 @@ structure PolyEin : sig
             in iter(es, args,params, idxs, e) end
 
         (*start_id: start of position variables for probe operation *)
-        val (args, params, e) = iter(polyargs, args, params, start_idxs, e)
+        val (args, params, e) = iter(pargs, args, params, start_idxs, e)
         in (args, params, e) end
     (********************************** Step 2 *******************************)
     (* collect the poly expressions*)
@@ -265,8 +267,8 @@ structure PolyEin : sig
     (* transform ein operator *)
     fun transform (y, ein as Ein.EIN{body,index, params}, args) =
         let
-            val E.Probe(E.OField(E.PolyWrap polyargs, e, dx), expProbe) = body
-            val _ = print(String.concat["\n\n*******************\n  starting polyn:",MidIR.Var.name(y),"=", EinPP.toString(ein),"-",ll(args,0)])
+            val E.Probe(E.OField(E.PolyWrap pargs, e, dx), expProbe) = body
+            val _ = (String.concat["\n\n*******************\n  starting polyn:",MidIR.Var.name(y),"=", EinPP.toString(ein),"-",ll(args,0)])
             (********************************** Step 1 *******************************)
             (* replace polywrap args/params with probed position(s) args/params *)
             val start_idxs = (case (expProbe)
@@ -274,9 +276,9 @@ structure PolyEin : sig
                 |   E.Opn(E.Add,ps) => List.map (fn E.Tensor(tid,_) => tid) ps
                 (*end case*))
 
-            val (args, params, e) = polyArgs(args, params, polyargs, start_idxs, e)
+            val (args, params, e) = polyArgs(args, params, pargs, start_idxs, e)
             val ein = Ein.EIN{body=e, index=index, params=params}
-            val _ = print(String.concat["\n\n   polyArgs\n:",MidIR.Var.name(y),"=", EinPP.toString(ein),"-",ll(args,0)])
+            val _ = (String.concat["\n\n   polyArgs\n:",MidIR.Var.name(y),"=", EinPP.toString(ein),"-",ll(args,0)])
 
             (********************************** Step 2 *******************************)
             (* need to flatten before merging polynomials in product *)
@@ -286,9 +288,14 @@ structure PolyEin : sig
            (********************************** Step 3 *******************************)
             (* normalize ein by cleaning it up and differntiating*)
             val e = normalize(e, dx)
-            val _ = (String.concat["\n\n   normalize->", EinPP.expToString(e),"********"])
+            val _ = print(String.concat["\n\n   normalize->", EinPP.expToString(e),"********"])
+            val _ = print(String.concat["\n\n*******************\n"])
+            val newbie = (y, IR.EINAPP(Ein.EIN{body=e, index=index, params=params}, args))
+
+            val _ = ScanE.readEinPoly(newbie)
+      
         in
-                [(y, IR.EINAPP(Ein.EIN{body=e, index=index, params=params}, args))]
+               [newbie]
         end
 
 

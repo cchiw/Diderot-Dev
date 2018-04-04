@@ -1716,6 +1716,29 @@ end))
     end))
 
 
+    val fn_printIR_os = polyVar (Atom.atom "$printIR", all([DK, NK, SK],
+        fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF] => let
+        val k0 = Ty.DiffVar(k, 0)
+        val t1 = Ty.T_OField{diff = k0, dim = Ty.DimVar d, shape = Ty.ShapeVar ddF}
+        in
+            [t1, Ty.T_String] --> Ty.T_Int
+        end))
+
+    val fn_printIR_so = polyVar (Atom.atom "$printIR", all([DK, NK, SK],
+        fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF] => let
+        val k0 = Ty.DiffVar(k, 0)
+        val t1 = Ty.T_OField{diff = k0, dim = Ty.DimVar d, shape = Ty.ShapeVar ddF}
+        in
+        [ Ty.T_String,t1] --> Ty.T_Int
+        end))
+
+    val fn_printIR_o = polyVar (Atom.atom "$printIR", all([DK, NK, SK],
+        fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF] => let
+        val k0 = Ty.DiffVar(k, 0)
+        val t1 = Ty.T_OField{diff = k0, dim = Ty.DimVar d, shape = Ty.ShapeVar ddF}
+        in
+        [t1] --> Ty.T_Int
+        end))
 
 
 

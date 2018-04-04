@@ -1252,7 +1252,7 @@ structure MkOperators : sig
         val expindex = specialize(falpha, 0)
         val n = length(talphas)
         val fldtem = E.Tensor(n, expindex)
-        val tterm = List.tabulate(n, fn id => E.Tensor(id, []))
+        val tterm = List.tabulate(n, fn id => id)
         val e1 =
           E.EIN {
             params = (List.map (fn talpha => mkTEN talpha)  talphas)@[mkTEN falpha],

@@ -228,6 +228,13 @@ structure ScanPP : sig
                 val (s1, _) = getAlpha(e1)
                 in (concat["|",s1,"|"], []) end
         
+        
+            fun iterIDS (_, [],rest,beta) = (rest,beta)
+              | iterIDS(cnt, e2::es,rest,beta) = let
+                val (s2, beta) = getAlpha (e2)
+                val st  = concat[rest," ",Int.toString(cnt),".",s2]
+                in iterIDS(cnt+1,es,st,beta) end
+        
             (*get alpha addition *)
             fun getAdd (e1::es) = let
             
@@ -736,12 +743,7 @@ structure ScanPP : sig
                 | E.Sum([(vid1, _,_),(vid2, _,_)], E.Opn(E.Prod, [_,_,_,_])) => unhandled ("34",e)
                 | E.Sum(_, _) => unhandled ("31",e)
                 | E.Opn(E.Swap(param_id), ps) => let
-                    fun iter (_, [],rest,beta) = (rest,beta)
-                      | iter(cnt, e2::es,rest,beta) = let
-                        val (s2, beta) = getAlpha (e2)
-                        val st  = concat[rest," ",Int.toString(cnt),".",s2]
-                        in iter(cnt+1,es,st,beta) end
-                    val (ns,beta) = iter(1,ps,"",[])
+                    val (ns,beta) = iterIDS(1,ps,"",[])
                     val n = Int.toString(length(ps))
                     in (concat["Swap(",cvtId(args,param_id),",",n,")<",ns,">"],beta) end
                 | E.If(comp, e2, e3) => let
@@ -756,7 +758,49 @@ structure ScanPP : sig
                     val cname = concat["(",s4,cop,s5,")"]
                     val name =  concat(["\nIf ",cname,"\n\t then ", s2, "\n\t else ",s3])
                     in (name, alpha2) end
-                | _ => unhandled ("8",e)
+
+                | E.OField(E.PolyWrap(ids), e2, [])
+                    => 
+                    let
+                        fun iter ([],rest) = rest
+                          | iter (id::es, rest) = let
+                                val s0 =  cvtId(args,id)
+                                in iter (es, String.concat[rest,",",s0]) end
+                            
+                        val s1 =  iter(ids,"")
+                        val (s2, alpha2) = getAlpha (e2)
+                        val s3 = concat ["CFExp[var:",s1, "](exp:",s2,")"]
+                        in (s3,alpha2) end
+                | E.OField(E.PolyWrap(ids), e2, dx)
+                    =>  
+                    let
+                        val (s2, alpha2) = getAlpha(E.OField(E.PolyWrap(ids), e2, []))
+                        val s3 = concat [cvtdx(op_n, dx), " ",s2]
+                    in 
+                        (s3, alpha2@dx)
+                    end
+                | E.OField(E.DataFem aid, e2, alpha)    (* param id is to data file *)
+                      =>  unhandled ("OField-DataFem",e)
+                | E.OField(E.BuildFem(aid,bid), e2, alpha)
+                     =>  unhandled ("OField-BuildFem",e)
+                | E.OField(E.ManyPointerBuildFem (aid,bid,cid,did), e2, alpha)  
+                    =>  unhandled ("OField-ManyPointerBuildFem",e)
+                | E.Poly(param_id, alpha, n, dx)   (*  T_[alpha]^n dx*)
+                    => let
+                    val vP = cvtId(args,param_id)
+                    val (iX,alpha) = (case alpha
+                        of[E.C c1]          => (Int.toString(c1), [])
+                        | [E.C c1, E.C c2]  => (concat[Int.toString(c1),",",Int.toString(c2)], [])
+                        | _                 => (alphaToStr(alpha),alpha)
+                        (*end case*))
+                    val ns = (case n
+                        of 1  => ""
+                        | _   => concat["^",Int.toString(n)]
+                        (*end case*))
+                    val dX = cvtdx(op_n, dx)
+                    val name  = String.concat["Poly[",dX,vP,"_{",iX,"}",ns,"]"]
+                    in (name,alpha@dx) end
+                | _ => unhandled ("183",e)
                 (*end case*))
             val (name, beta) =  if(!complex) then ("?",[E.V ~1]) else run(e)
         
