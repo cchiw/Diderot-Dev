@@ -116,6 +116,13 @@ structure Ctl =
             help = "replace fields instead of lifting",
             default = false
         }
+    val readEin = C.genControl {
+            name = "readEin",
+            pri = [2, 2, 0],
+            obscurity = 5,
+            help = "Print some variation of the intermediate representation",
+            default = false
+        }
 
     val readEin1 = C.genControl {
             name = "readEin1",
@@ -157,8 +164,8 @@ structure Ctl =
         }
 
 
-    val readEinRewrite = C.genControl {
-            name = "readEinRewrite",
+    val repMultiple = C.genControl {
+            name = "repMultiple",
             pri = [2, 2, 0],
             obscurity = 5,
             help = "readable version of EIN notation. Prints multiple versions from various rewriting passes.",
@@ -173,42 +180,58 @@ structure Ctl =
             default = false
         }
 
-    val readEinPDF = C.genControl {
-            name = "readEinPDF",
+    val savePDF = C.genControl {
+            name = "savePDF",
             pri = [2, 2, 0],
             obscurity = 5,
             help = "output to a txt file",
             default = false
     }
 
-    val readEinUni = C.genControl {
-            name = "readEinUni",
+    val formatUni = C.genControl {
+            name = "formatUni",
             pri = [2, 2, 0],
             obscurity = 5,
-            help = "Translate EIN to unicode",
+            help = "Translate IR to unicode",
             default = false
         }
 
-    val readEinLatex = C.genControl {
-            name = "readEinLatex",
+    val formatTex = C.genControl {
+            name = "formatTex",
             pri = [2, 2, 0],
             obscurity = 5,
-            help = "Translate EIN to latex",
+            help = "Translate IR to latex",
             default = false
         }
 
-    val readEinWord = C.genControl {
-            name = "readEinWord",
+    val formatWrd = C.genControl {
+            name = "formatWrd",
             pri = [2, 2, 0],
             obscurity = 5,
-            help = "Translate EIN to words",
+            help = "Translate IR to words",
             default = false
         }
 
 
+    val repEin = C.genControl {
+            name = "repEin",
+            pri = [2, 2, 0],
+            obscurity = 5,
+            help = "Translate IR to EIN",
+            default = false
+        }
 
-val optimizeControls = [
-inline, highVN, midVN, midContract, lowVN, lowContract, treeContract,sliceFlag, fullSplitFlag, scaFlag ,replaceFlag,readEin1, readEin2, readEin3, readEin4,readEin5, readEinRewrite,readEinSplit,readEinUni,readEinLatex,readEinWord,readEinPDF]
+    val  stgPoly = C.genControl {
+            name = "stgPoly",
+            pri = [2, 2, 0],
+            obscurity = 5,
+            help = "Translate after polynomial terms are expanded",
+            default = false
+        }
+
+
+        val optimizeControls = [
+        inline, highVN, midVN, midContract, lowVN, lowContract, treeContract,sliceFlag, fullSplitFlag, scaFlag ,replaceFlag,readEin,readEin1, readEin2, readEin3, readEin4,readEin5, repMultiple,readEinSplit,formatUni,formatTex,formatWrd,repEin, stgPoly, savePDF]
 
 
     val dumpPT = C.genControl {

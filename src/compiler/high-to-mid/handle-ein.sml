@@ -18,6 +18,8 @@ structure HandleEin : sig
     structure ScanE = ScanEin
 
 
+
+
     fun useCount (SrcIR.V{useCnt, ...}) = !useCnt
     fun ll ([],cnt) = ""
     | ll (a1::args,cnt) = String.concat["\n\t", Int.toString(cnt),"_", MidTypes.toString(DstIR.Var.ty a1), " ", MidIR.Var.name(a1),",", ll(args,cnt+1)]
@@ -41,7 +43,8 @@ structure HandleEin : sig
         val newbie = (lhs, DstIR.EINAPP(ein', args))
 
         (* ************** Scan and rewrite *********** *)
-        val _ = ScanE.readEinSingle(newbie)
+        val readIR = Controls.get Ctl.readEin
+        val _ = if(readIR) then ScanE.readIR_Single(newbie,"tmp-High") else 1
 
         (* **************** split phase ************* *)
           fun iter([], ys) = ys
@@ -57,7 +60,7 @@ structure HandleEin : sig
         (*val _ = prntNewbies(newbies, "\n\n\npost floatx1")*)
         val newbies =iter(newbies, [])
         val _ = prntNewbies(newbies, "\n\n\npost floatx2")
-        (*val _ = ScanE.readEinSplit(newbies)*)
+        (*val _ = ScanE.readIR_Split(newbies)*)
         val _ = (String.concat["Number of pieces:",Int.toString(length(newbies))])
 
         (* **************** expand-fem ************* *)
@@ -65,7 +68,7 @@ structure HandleEin : sig
         val _ =   "\n\n\nbefore translating fields"
         val newbies  = List.foldr (fn (e,acc)=>  translateField.transform(e)@acc ) []  newbies
         (*val _ = prntNewbies(newbies, "\n\n\npost transform fields")*)
-        val _ = ScanE.readEinSplit(newbies)
+        val _ = ScanE.readIR_Split(newbies)
         (* ************** ProbeEIN *********** *)
       val _ = ("****about to call probe ein")
         (*   val _ = "about to call probe ein"*)

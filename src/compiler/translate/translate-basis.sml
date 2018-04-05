@@ -783,22 +783,22 @@ structure TranslateBasis : sig
                                             [assignEin(y, Mk.swap(d, dd, 6), xs)]),
                 (BV.sp_getCell,  fn (y, _, xs) =>
                                             assign(y, Op.sp_getCell, xs)),
-                (BV.fn_printIR_ts , fn (y, _, [t,s]) =>
-                                            assign(y, Op.printIR, [s,t])),
-                (BV.fn_printIR_st , fn (y, _, xs) =>
+                (BV.fn_printIR_ts , fn (y, _,   xs) =>
                                             assign(y, Op.printIR, xs)),
+                (BV.fn_printIR_st , fn (y, _, [s,t]) =>
+                                            assign(y, Op.printIR, [t,s])),
                 (BV.fn_printIR_t , fn (y, _, xs) =>
                                             assign(y, Op.printIR, xs)),
-                (BV.fn_printIR_fs , fn (y, _, [t,s]) =>
-                                            assign(y, Op.printIR, [s,t])),
-                (BV.fn_printIR_sf , fn (y, _, xs) =>
+                (BV.fn_printIR_fs , fn (y, _, xs) =>
                                             assign(y, Op.printIR, xs)),
+                (BV.fn_printIR_sf , fn (y, _, [s,f]) =>
+                                            assign(y, Op.printIR, [f,s])),
                 (BV.fn_printIR_f , fn (y, _, xs) =>
                                             assign(y, Op.printIR, xs)),
-                (BV.fn_printIR_os , fn (y, _, [t,s]) =>
-                                        assign(y, Op.printIR, [s,t])),
-                (BV.fn_printIR_so , fn (y, _, xs) =>
+                (BV.fn_printIR_os , fn (y, _, xs) =>
                                         assign(y, Op.printIR, xs)),
+                (BV.fn_printIR_so , fn (y, _, [s,f]) =>
+                                        assign(y, Op.printIR,[f,s])),
                 (BV.fn_printIR_o , fn (y, _, xs) =>
                                         assign(y, Op.printIR, xs))
               ];

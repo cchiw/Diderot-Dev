@@ -288,11 +288,12 @@ structure PolyEin : sig
            (********************************** Step 3 *******************************)
             (* normalize ein by cleaning it up and differntiating*)
             val e = normalize(e, dx)
-            val _ = print(String.concat["\n\n   normalize->", EinPP.expToString(e),"********"])
-            val _ = print(String.concat["\n\n*******************\n"])
+            val _ = (String.concat["\n\n   normalize->", EinPP.expToString(e),"********"])
+            val _ = (String.concat["\n\n*******************\n"])
             val newbie = (y, IR.EINAPP(Ein.EIN{body=e, index=index, params=params}, args))
 
-            val _ = ScanE.readEinPoly(newbie)
+            val stg_poly = Controls.get Ctl.stgPoly
+            val _ =  if(stg_poly) then ScanE.readIR_Single(newbie,"tmp-poly") else 1
       
         in
                [newbie]

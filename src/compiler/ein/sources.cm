@@ -11,6 +11,7 @@ Library
   structure Ein
   structure EinFilter
   structure EinPP
+  structure EinPPLat
   structure EinSums
   structure EinUtil
   structure MkOperators
@@ -30,6 +31,7 @@ Library
   ein.sml
   ein-filter.sml
   ein-pp.sml
+  ein-pp-latex.sml
   ein-sums.sml
   ein-util.sml
   mk-operators.sml

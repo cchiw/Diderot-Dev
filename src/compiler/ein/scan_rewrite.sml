@@ -374,6 +374,7 @@ val reader = Scan.scanEin
     | rewriteName 3 = "refactor"
     | rewriteName 4 = "pull-division"
     | rewriteName 5 = "tab addition"
+    | rewriteName n = concat["rewrite---",Int.toString(n)]
     (*apply just once*)
     fun apply (1,e) = EinSums.transform (rewriteE (e,false))  (*flatten*)
     | apply (2,e) = EinSums.transform (rewriteE (e,true))   (*look for matching terms*)

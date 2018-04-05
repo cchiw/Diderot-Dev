@@ -11,9 +11,9 @@
 structure EinPP : sig
 
     val toString : Ein.ein -> string
-
+    val toString_reader : Ein.ein -> string
     val expToString : Ein.ein_exp -> string
- 
+    val paramsToString : Ein.param_kind list -> string
     val HeadexpToString : Ein.ein_exp -> string
   end = struct
 
@@ -60,7 +60,7 @@ structure EinPP : sig
                 concat ["[", expToString e2 , concat ["{", shp2s n1, "}"],  "]", iter(es)]
                 in concat ["Cmp(", expToString e1,")", (iter(es))] end
             | E.OField(E.PolyWrap(es), e1, [])
-                => concat ["CFExp[v:", String.concatWithMap " ," i2s  es,  "](exp:",expToString e1,")"]
+                => concat ["CFExp[ids:", String.concatWithMap " ," i2s  es,  "](exp:",expToString e1,")"]
             | E.OField(E.PolyWrap(es), e1, alpha)
                 => concat [  expToString(E.OField(E.PolyWrap(es), e1, [])) ,"dx",multiIndex2s alpha, ")"]
             | E.OField(E.DataFem id, e1, alpha) => concat ["DataFEM(",expToString e1,")_",i2s id, deriv alpha, ")"]
@@ -83,7 +83,7 @@ structure EinPP : sig
                       (fn (v, lb, ub) => concat ["(i", i2s v, (*"=", i2s lb, "..", i2s ub, *)")"])
                         sx
                 in
-                  concat ("ΣΣ" :: sx @ ["<(", expToString e, ")>Σ"]@sx)
+                  concat ("ΣΣ" :: sx @ ["(", expToString e, ")Σ"]@sx)
                 end
             | E.Op1(E.PowInt n, e) => concat["(", expToString e , ")^", i2s n]
             | E.Op1(f, e) => let
@@ -124,21 +124,30 @@ structure EinPP : sig
                in
                 concat[ "\nif(", c, ") then ", expToString e3," else ", expToString e4]
                end
+               
           (* end case *))
-
+    fun paramToString (i, E.TEN(t, shp)) = concat["T", i2s i, "[", shp2s shp, "]"]
+          | paramToString (i, E.FLD (d,shp)) = concat["F", i2s i, "[", shp2s shp, "]"]
+          | paramToString (i, E.KRN) = "H" ^ i2s i
+          | paramToString (i, E.IMG(d, shp)) = concat["V", i2s i, "(", i2s d, ")[", shp2s shp, "]"]
+          | paramToString (i, E.DATA) = "DATA" ^ i2s i
+          | paramToString (i, E.FNCSPACE) = "FNCSPACE" ^ i2s i
+    fun paramsToString (params) = String.concatWith "," (List.mapi paramToString params)
+          
     fun toString (Ein.EIN{params, index, body}) = let
-          fun paramToString (i, E.TEN(t, shp)) = concat["T", i2s i, "[", shp2s shp, "]"]
-            | paramToString (i, E.FLD (d,shp)) = concat["F", i2s i, "[", shp2s shp, "]"]
-            | paramToString (i, E.KRN) = "H" ^ i2s i
-            | paramToString (i, E.IMG(d, shp)) = concat["V", i2s i, "(", i2s d, ")[", shp2s shp, "]"]
-            | paramToString (i, E.DATA) = "DATA" ^ i2s i
-            | paramToString (i, E.FNCSPACE) = "FNCSPACE" ^ i2s i
-          val params = String.concatWith "," (List.mapi paramToString params)
+          val params = paramsToString (params)
           val index = if null index then "" else concat["_{", shp2s index, "}"]
           in
             concat["λ(", params, ")<", expToString body, ">", index]
           end
 
+    fun toString_reader (Ein.EIN{params, index, body}) = let
+        val params = paramsToString (params)
+        val index = if null index then "" else concat["{", shp2s index, "}"]
+        in
+            concat["\n\tParams:(", params, ")\n\tBody:<", expToString body, ">\n\tSize:", index]
+        end
+    
     fun HeadexpToString e = (case e
         of E.Const r => i2s r
         | E.ConstR r => Rational.toString r
