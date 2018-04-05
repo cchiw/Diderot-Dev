@@ -316,7 +316,7 @@ structure ScanPP : sig
                 of E.Epsilon(i,j,k)         => (*("EPS3", [i,j,k])*)  unhandled("EPS3",e)
                 | E.Eps2(i,j)               => (*("EPS2", [i,j])*)    unhandled("EPS2",e)
                 
-                | E.Delta(i,j)              => ("Identity", [i,j])
+                | E.Delta(i,j)              => ("I", [i,j])
                 | E.Tensor (id, alpha)      => (cvtId(args,id), alpha)
                 | E.Field (id, alpha)       => (cvtId(args,id), alpha)
                 | E.Conv (id,alpha, hid,[]) =>  (cvtId(args,id), alpha)
@@ -798,7 +798,7 @@ structure ScanPP : sig
                         | _   => concat["^",Int.toString(n)]
                         (*end case*))
                     val dX = cvtdx(op_n, dx)
-                    val name  = String.concat["Poly[",dX,vP,"_{",iX,"}",ns,"]"]
+                    val name  = String.concat["P[",dX,vP,"_{",iX,"}",ns,"]"]
                     in (name,alpha@dx) end
                 | _ => unhandled ("183",e)
                 (*end case*))

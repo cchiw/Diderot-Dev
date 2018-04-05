@@ -67,8 +67,8 @@ structure EinPP : sig
             | E.OField(E.BuildFem (id,id2), e1, alpha) => concat ["BuildFEM(",expToString e1,")_", i2s id, "[",i2s id2,"]",deriv alpha, ")"]
             | E.OField(E.ManyPointerBuildFem(id,id2, id3, id4), e1, alpha) => concat ["ManyPtr(",expToString e1,")_", i2s id, "[",i2s id2,"|",i2s id3,"|",i2s id4,"]",deriv alpha, ")"]
             (* | E.Poly(tid, cx, 1, []) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")"]*)
-            | E.Poly(tid, cx, 1, dx) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")",deriv dx]
-            | E.Poly(tid, cx, n, dx) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")^",  i2s n, deriv  dx]
+            | E.Poly(tid, cx, 1, dx) => concat [deriv dx,"(P", i2s tid,"_", multiIndex2s  cx, ")"]
+            | E.Poly(tid, cx, n, dx) => concat [deriv dx,"(P", i2s tid,"_", multiIndex2s  cx, ")^",  i2s n]
             | E.Value ix => "i" ^ i2s ix
             | E.Img(fid, alpha, pos, s) => concat [
                   "V", i2s fid, multiIndex2s alpha, "(", i2s s, ")[",

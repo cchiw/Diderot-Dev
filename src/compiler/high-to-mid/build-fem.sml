@@ -131,7 +131,7 @@ structure BuildFem : sig
         val fsize = sortF(alpha, 0)
         val dxsize =sortF(dx, 0)
         val size = fsize@dxsize
-        (*val _ = List.map (fn n => print("-"^Int.toString(n))) size*)
+        (*val _ = List.map (fn n => ("-"^Int.toString(n))) size*)
 
 
         (*evaluate ofields*)
