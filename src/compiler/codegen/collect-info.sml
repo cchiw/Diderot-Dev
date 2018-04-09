@@ -283,19 +283,21 @@ structure CollectInfo : sig
                 fun insertTensorTy (shp as [_]) = (
                       insert (Ty.TensorTy shp);
                       insert (Ty.TensorRefTy shp))
+                     
                     | insertTensorTy (shp as [i,j,k]) = (
+                    print(Int.toString(i)^"*"^Int.toString(j)^"*"^Int.toString(k));
                     insert (Ty.TensorTy shp);
                     insert (Ty.TensorRefTy shp);
                       insert (Ty.TensorTy[i]);
                       insert (Ty.TensorRefTy[i]);
+                      insert (Ty.TensorTy[j]);
+                      insert (Ty.TensorRefTy[j]);
                       insert (Ty.TensorTy[k]);
                       insert (Ty.TensorRefTy[k]);
                       insert (Ty.TensorTy[i,j]);
                       insert (Ty.TensorRefTy[i,j])
-                      
-                      
                       )
-                      
+        
                   | insertTensorTy (shp as _::dd) = let
 
                       val d = List.last dd
