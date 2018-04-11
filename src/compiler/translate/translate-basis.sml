@@ -759,6 +759,8 @@ structure TranslateBasis : sig
                                                    [assignEin(y, Mk.ofieldfemBuild (d, dd), [f, s,r])]),
                 (BV.fn_insideO, fn (y, [_,Ty.DIM d, Ty.SHAPE dd], xs) =>
                                                         assign(y, Op.InsideFEM d, xs)),
+(BV.fn_inside, fn (y, [_,Ty.DIM d, Ty.SHAPE dd], xs) =>
+assign(y, Op.InsideFEM d, xs)), (*remy-just added here*)
                 (BV.ms_USq,                     fn (y, _, xs) =>
 						   assign(y, Op.BuildMesh (ME.UnitSquareMesh), xs)),
 		(BV.ms_UCq,                     fn (y, _, xs) =>

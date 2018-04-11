@@ -61,15 +61,15 @@ structure SimplifyFields : sig
   (* a property that maps field variables back to a set of source image variables *)
     local
       val {getFn : V.t -> image_set, setFn, ...} =
-            V.newProp (fn x => raise Fail("images: no images for " ^ V.uniqueNameOf x))
+V.newProp (fn x => raise Fail("images: no images for " ^ V.uniqueNameOf x))
     in
     val bindImages = setFn
     val images = getFn
     end (* local *)
 
     fun isField x = (case V.typeOf x
-           of Ty.T_Field _ => true
-            | _ => false
+           of (*Ty.T_Field _ => true
+            | *) _ => false
           (* end case *))
 
   (* process an assignment by analysing the rhs expression to see if it uses a field
@@ -107,13 +107,15 @@ structure SimplifyFields : sig
                   else if Var.same(rator, B.op_probe)
                     then ??
 *)
+
                   else if Var.same(rator, B.fn_inside)
                     then let
                     (* we convert an inside operator to one or more inside tests on images *)
                       val [pos, fld] = args
                       in
                         case listItems(images fld)
-                         of [] => raise Fail "no image for inside test"
+                         of [] => (*raise Fail "no image for inside test"*)
+                                          SOME(S.E_InsideFEM(pos, fld), [])
                           | [(img, s)] => SOME(S.E_InsideImage(pos, img, s), [])
                           | (img, s)::imgs => let
                               fun mkTest ([], exp, stms) = SOME(exp, stms)
@@ -132,6 +134,7 @@ structure SimplifyFields : sig
                               end
                         (* end case *)
                       end
+
                     else unionArgs (List.filter isField args)
               | S.E_Tensor _ => NONE
               | S.E_Seq _ => NONE

@@ -13,7 +13,7 @@ structure BuildFem : sig
 
     val sum_evaluate : MidIR.assign -> MidIR.assign list
     val scan_evaluate : MidIR.assign -> MidIR.assign list
-    val inside : MidIR.var * int * MidIR.var list -> MidIR.assign list
+    val inside : MidIR.var * int * HighIR.var list * MidIR.var list -> MidIR.assign list
     val getCell: MidIR.var * MidIR.var list -> MidIR.assign list
   end = struct
 
@@ -31,9 +31,22 @@ structure BuildFem : sig
     structure EF = ExpandFem
     structure DF = DataFem
 
+fun getRHSEINSrc x = (case SrcIR.Var.getDef x
+of  SrcIR.EINAPP (ein, args) => ((ein, args);print"ein-app")
+| SrcIR.LIT l => print(concat["\n\nSrcLIT expected LHS rhs operator for ", SrcIR.Var.toString x, " but found ", SrcIR.RHS.toString (SrcIR.LIT l)])
+| SrcIR.OP l => print(concat["\n\nsrcOP expected LHS rhs operator for ", SrcIR.Var.toString x, " but found ", SrcIR.RHS.toString (SrcIR.OP l)])
+| SrcIR.CONS l => print(concat["\n\nsrccons expected LHS rhs operator for ", SrcIR.Var.toString x, " but found ", SrcIR.RHS.toString (SrcIR.CONS l)])
+| SrcIR.GLOBAL l => print(concat["\n\nsrcglobal expected LHS rhs operator for ", SrcIR.Var.toString x, " but found ", SrcIR.RHS.toString (SrcIR.GLOBAL l)])
+| rhs => print(concat["\n\nsrcexpected rhs operator for ", SrcIR.Var.toString x, " but found ", SrcIR.RHS.toString rhs])
+(* end case *))
+
 
     fun getRHSEIN x = (case IR.Var.getDef x
         of  IR.EINAPP (ein, args) => (ein, args)
+        | IR.LIT l => raise Fail(concat["\n\nLIT expected LHS rhs operator for ", IR.Var.toString x, " but found ", IR.RHS.toString (IR.LIT l)])
+        | IR.OP l => raise Fail(concat["\n\nOP expected LHS rhs operator for ", IR.Var.toString x, " but found ", IR.RHS.toString (IR.OP l)])
+| IR.CONS l => raise Fail(concat["\n\ncons expected LHS rhs operator for ", IR.Var.toString x, " but found ", IR.RHS.toString (IR.CONS l)])
+| IR.GLOBAL l => raise Fail(concat["\n\nglobal expected LHS rhs operator for ", IR.Var.toString x, " but found ", IR.RHS.toString (IR.GLOBAL l)])
         | rhs => raise Fail(concat["\n\nexpected rhs operator for ", IR.Var.toString x, " but found ", IR.RHS.toString rhs])
         (* end case *))
 
@@ -202,9 +215,11 @@ structure BuildFem : sig
 
 
     (* check ifposition is inside field *)
-    fun inside(y, dim, [vp, f]) =
+    fun inside(y, dim, [vpH,fH], [vp, f]) =
         let
-            val (E.EIN{body,...}, args) = getRHSEIN f (*get EIN operator attached to variable*)
+             val _ = getRHSEINSrc fH
+
+            val (E.EIN{body,...}, args) = getRHSEIN f (*remy change here was f*) (*get EIN operator attached to variable*)
             val (Pall, space, sdim, dim, sBasisFunctions, vL, mN, mP, vTC, vfindcell, mC, vX, vB,sBasisDervs) = translate(body, vp, args)
             val p14 = (y, IR.OP(Op.checkCell, [vfindcell]))
         in

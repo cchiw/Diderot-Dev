@@ -54,7 +54,7 @@ structure BasisNames =
     (* ofields math functions *)
     val fn_poly = Atom.atom "cfexp"
     val fn_inst = Atom.atom "inst"
-    val fn_convert = Atom.atom "convert"
+    val fn_convert = Atom.atom "FEM"
     val fn_convertTracker = Atom.atom "convertTracker"
     val fn_insideO = Atom.atom "insideF"
     val fn_printIR = Atom.atom "printIR"

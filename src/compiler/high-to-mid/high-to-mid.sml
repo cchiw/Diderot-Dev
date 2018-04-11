@@ -193,7 +193,7 @@ structure HighToMid : sig
               | SrcOp.LoadSeq(ty, file) => assign (DstOp.LoadSeq(cvtTy ty, file))
               | SrcOp.LoadImage(ty, file) => assign (DstOp.LoadImage(cvtTy ty, file))
               | SrcOp.MathFn e => assign (DstOp.MathFn e)
-              | SrcOp.InsideFEM dim => BuildFem.inside(y, dim, Env.renameList(env, args)) 
+              | SrcOp.InsideFEM dim => BuildFem.inside(y, dim, args, Env.renameList(env, args))
               | SrcOp.BuildMesh e => assign (DstOp.BuildMesh (e))
               | SrcOp.BuildElement e => assign (DstOp.BuildElement (e))
               | SrcOp.BuildSpace => assign (DstOp.BuildSpace)
@@ -208,8 +208,8 @@ handle ex => (print(concat["HighToMid.expandOp: error converting ", SrcOp.toStri
    * Field operators are changed to zero
    *)
     fun expandEINAPP (env, srcy, y, rator, args) = (case SrcIR.Var.ty srcy
-           of SrcTy.FieldTy => [DstIR.ASSGN(y, DstIR.LIT(Literal.Int 0))]
-            | _ => if (useCount srcy > 0)
+           of (*SrcTy.FieldTy => [DstIR.ASSGN(y, DstIR.LIT(Literal.Int 0))] (*Needed for FEM*)
+            |*) _ => if (useCount srcy > 0)
                 then HandleEin.expand (y, rator, Env.renameList(env, args))
                 else []
           (* end case *))

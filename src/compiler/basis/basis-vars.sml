@@ -1799,7 +1799,7 @@ val fn_tensorfunctionspace = polyVar (N.fn_tensorfunctionspace, all([],
             val Ff= Ty.T_Field{diff=k, dim=d, shape=dd}  (*change back*)
             val s = Ty.T_String
         in
-            [f, s] --> p
+            [f, s] --> Ff
         end))
 
     (* expects argument to have field pointer, describe fnspace, path to data *)
@@ -1814,7 +1814,7 @@ val fn_tensorfunctionspace = polyVar (N.fn_tensorfunctionspace, all([],
             val p = poly(k, d, dd)
             val Ff= Ty.T_Field{diff=k, dim=d, shape=dd}  (*change back*)
         in
-            [f, fs, s] --> p
+            [f, fs, s] --> Ff
         end))
 
 (* -------------------  inside fem field  ------------------- *)
@@ -1824,7 +1824,8 @@ val fn_tensorfunctionspace = polyVar (N.fn_tensorfunctionspace, all([],
             val k = Ty.DiffVar(k, 0)
             val d = Ty.DimVar d
             val dd = Ty.ShapeVar dd
-            val f =  Ty.T_OField{diff=k, dim=d, shape=dd}
+            val fo =  Ty.T_OField{diff=k, dim=d, shape=dd}
+            val f =  Ty.T_Field{diff=k, dim=d, shape=dd}
             in
                 [Ty.T_Tensor(Ty.Shape[d]), f] --> Ty.T_Bool
             end))
@@ -1941,7 +1942,7 @@ val fn_tensorfunctionspace = polyVar (N.fn_tensorfunctionspace, all([],
         val d = Ty.DimVar d
         val dF = Ty.ShapeVar ddF
         val dT = Ty.ShapeVar ddT
-        val f =  Ty.T_OField{diff=k, dim=d, shape=dF}
+        val f =  Ty.T_Field{diff=k, dim=d, shape=dF}
         in
         [f, Ty.T_Tensor dT] --> Ty.T_Int
         end))
