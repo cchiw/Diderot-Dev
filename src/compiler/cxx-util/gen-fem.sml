@@ -469,13 +469,13 @@ structure TS = TargetSpec
               
     fun makePhiDerv({prefix,sdim,dim,dlevel,s_derivativeInfoList}) =
         let
-            val _ = print"\n  makephi derv 1"
+
           val dervType = implaceArrayU dim dlevel
-                 val _ = print"\n  makephi derv 2"
+    
           val t1 = "inline "^float^" "^fn_makePhiDerv(prefix)^"_"^Int.toString(dlevel)^"("^float^" H"^dervType^", const "^float^"* k, "^float^"* c){\n"
-                 val _ = print"\n  makephi derv 3"
+
           val ts = phiDervCode sdim dim dlevel s_derivativeInfoList "H" "[" "]"
-                 val _ = print"\n  makephi derv 3"
+     
           val t2 = indent "return(0);\n}\n"
         in
               [t1,ts,t2]
@@ -511,6 +511,7 @@ structure TS = TargetSpec
           val t1 = if shapeTest
                     then  "inline "^float^" "^(fn_makeEvaluate prefix 0 [])^"(NodeTy nodes, newposTy b, coordTy c"^"){\n"
                    else  "inline "^float^" "^(fn_makeEvaluateRange prefix 0 [])^"(NodeTy nodes, newposTy b, coordTy c"^",int start,int mult ){\n"
+
 	  val td1 = (debMsg "Entering helpMakeEvaluate")^((pointerStatus "b"))
           (*val stupid = if dim =2 then "const "^float^" arr[2] = {b[0],b[1]};" else "const "^float^" arr[3] = {b[0],b[1],b[2]};"*)
           val t2 = indent "if (nodes.data ==0){return(0);}"

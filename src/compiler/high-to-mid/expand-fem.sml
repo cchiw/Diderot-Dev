@@ -104,7 +104,7 @@ structure ExpandFem =
     (*post find cell*)
     fun eval(level,shape, y, index, space, sdim, dim, sBasisFunctions, vp, vL, mN, mP, vTC, vfindcell, mC, vX, vB,sBasisDervs) =
         let
-            val _ = "\n\nbefore expand-fem eval"
+
 	    val newposTy = Ty.TensorTy[dim]
             (* creating new mid-ir variables*)
 

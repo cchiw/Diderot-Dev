@@ -300,7 +300,7 @@ structure TreeToCxx : sig
             | (Op.makeTranslateCoordinates _, _) => CL.E_Str "none;printf(\"Reached a checkpoint;\n\");"
          
             | (Op.makeFindCellExpand(space,_,_,_,_), (vP::vL::nM::pM::lCa::lcb::_))
-            =>  CL.mkApply(RN.fn_makeFindCell (RN.mkFemPrefix space), [CL.mkDispatch(vP, "base", []),  vL,nM,pM,lcb])
+            =>  CL.mkApply(RN.fn_makeFindCell (RN.fn_Space space), [CL.mkDispatch(vP, "base", []),  vL,nM,pM,lcb])
             | (Op.makeBasisEvaluation _, _) => CL.E_Str "none;printf(\"Reached a checkpoint;\n\");"
              | (Op.makeFindCellPush _, [vP, vL, nM , pM])
              =>  CL.mkApply(RN.fn_makeFindCell "none", [CL.mkDispatch(vP, "_data", []),  vL,nM,pM])
@@ -311,12 +311,12 @@ structure TreeToCxx : sig
             | (Op.ProbeNodeC, args)  =>  CL.mkApply("ProbeNodeC", args)
             | (Op.ProbeF es, [a,b])  =>  CL.mkApply("ProbeF", [a,b])
             | (Op.ProbeInvF es, [a,b])  => (CL.mkApply("ProbeInvF", [a, b]))
-            | (Op.ProbePhi (space, dx, dy, dz), [a,b])  =>  CL.mkApply(RN.fn_ProbePhi (RN.mkFemPrefix space),  [a, b])
+            | (Op.ProbePhi (space, dx, dy, dz), [a,b])  =>  CL.mkApply(RN.fn_ProbePhi (RN.fn_Space space),  [a, b])
 	    (*Add shape to name*)
 	    | (Op.EvalFem (space,nnodes,level,shape) , [a,b,c,d,e,f]) =>
-	      CL.mkApply(RN.fn_makeEval ((RN.mkFemPrefix space)) level shape, [a,b,c,d,e,f])
+	      CL.mkApply(RN.fn_makeEval ((RN.fn_Space space)) level shape, [a,b,c,d,e,f])
             | (Op.EvalFem (space,nnodes,level,shape) , [a,b,c]) =>
-	      CL.mkApply(RN.fn_makeEval ((RN.mkFemPrefix space)) level shape, [a,b,c])
+	      CL.mkApply(RN.fn_makeEval ((RN.fn_Space space)) level shape, [a,b,c])
             | (Op.checkCell, [a]) => CL.mkApply(RN.checkCell, [a])
             | (Op.IfWrap, [a, b, c])    => CL.mkApply("IfWrap", [a,b,c])
             |  (Op.sp_getCell, [data])   =>  CL.mkApply("GetCell", [data])

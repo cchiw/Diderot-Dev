@@ -72,9 +72,6 @@ structure DataFem : sig
     fun defineField (ofield, args) =
         (case ofield
             of E.DataFem dataid => let
-                (*built-in. need to redo*)
-               (*val (mesh, element)  = (ME.CubeMesh, ME.P) (*fixed for now *)*)
-               (* val (mesh, element)  = (ME.UnitSquareMesh,ME.P)*)
                  val (mesh, element)  = (ME.NoneMesh, ME.NoneE)
                val datafile = getRHSS (List.nth(args, dataid))
                in
@@ -91,6 +88,7 @@ structure DataFem : sig
                 val space  = String.concat[ME.toStringMesh mesh, "_",  ME.toStringElement element, "_",Int.toString(dd)]
                 val pathtospace = getRHSS (List.nth(args,path))
                 val datafile = String.concat[pathtospace,space,".json"]
+                val _ = print(datafile)
                 in
                     ([], mesh, element, datafile)
                 end

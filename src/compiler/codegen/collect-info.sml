@@ -163,7 +163,7 @@ structure CollectInfo : sig
       struct
         type hash_key = operation
         
-        fun hashVal rator = (print"hashVal";case rator
+        fun hashVal rator = (case rator
                of Print ty =>0w5 * TreeTypes.hash ty
                 | RClamp => 0w13
                 | RLerp => 0w17
@@ -193,13 +193,18 @@ structure CollectInfo : sig
                 | SphereQuery(d, s) => 0w117 + 0w7 * Word.fromInt d + HashString.hashString s
                 (*FIXME: hash should reflect args that make each one unique
                 *)
-                | translateCoordinates (m,i,rs,ss,ssl) => 0w1+   meshElem.hashfnspace(m)
-                | findCellExpand  (m,_,_,_,_) => 0w11+   meshElem.hashfnspace(m)
-                | basisEvaluation  (m,s,i,ss) => 0w13+   meshElem.hashfnspace(m)
-                | ProbePhi (m,_,_,_,_) =>0w17+   meshElem.hashfnspace(m)
-                | EvalFemSca (m,_,l,true) => 0w101 +  meshElem.hashfnspace(m) +Word.fromInt(l)
-                | EvalFemSca (m,_,l,_) => 0w103 +  meshElem.hashfnspace(m) +Word.fromInt(l)
-                | EvalFemShape (m,_,l,ss) => 0w107+   meshElem.hashfnspace(m)
+                
+                | translateCoordinates (m,i,rs,ss,ssl) => 0w1
+                | findCellExpand  (m,_,_,_,_) => 0w5
+                | basisEvaluation  (m,s,i,ss) => 0w11
+                
+                | ProbePhi (m,_,_,_,_) =>0w17
+                | EvalFemSca (m,_,l,true)
+                    => 0w23
+                | EvalFemSca (m,_,l,_)
+                    => 0w29
+                | EvalFemShape (m,_,l,ss)
+                    => 0w1011
                     +Word.fromInt(l)+(List.foldl (fn (i, s) => (Word.fromInt i +  s)) 0w0 ss)
                     
                 | checkCell => 0w137
@@ -242,9 +247,9 @@ structure CollectInfo : sig
                     ME.samefnspace(m1, m2)andalso (n1 = n2)
                  (*andalso (ListPair.allEq (op =) (s1, s2)) andalso (ListPair.allEq (op =) (l1, l2))*)
                 | (findCellExpand (m1, s1, n1,nn1,mm1), findCellExpand (m2,s2,  n2,nn2,mm2)) =>
-                ME.samefnspace(m1, m2)andalso (s1 = s2) andalso (n1=n2) andalso (nn1=nn2) andalso mm1=mm2
+                    ME.samefnspace(m1, m2)andalso (s1 = s2) andalso (n1=n2) andalso (nn1=nn2) andalso mm1=mm2
                 | (basisEvaluation (m1, ss1,l1,ll1), basisEvaluation (m2, ss2,l2,ll2)) =>
-                ME.samefnspace(m1, m2)   andalso (ListPair.allEq (op =) (ss1, ss2)) andalso (l1=l2) andalso (ListPair.allEq (op =) (ll1, ll2))
+                    ME.samefnspace(m1, m2)   andalso (ListPair.allEq (op =) (ss1, ss2)) andalso (l1=l2) andalso (ListPair.allEq (op =) (ll1, ll2))
                 | (ProbePhi(m1,s1, dx1,dy1,dz1), ProbePhi(m2,s2,dx2,dy2,dz2)) =>
                     ME.samefnspace(m1, m2)
                     andalso  (dx1=dx2) andalso  (dy1=dy2)   andalso  (dz1=dz2)
@@ -270,7 +275,7 @@ structure CollectInfo : sig
       }
 
     fun addType (Info{tys, ...}) = let
-             val _ = print"\n addTys 5"
+
           val find = Ty.Tbl.find tys
           val ins = Ty.Tbl.insert tys
           fun addTy ty =  let
@@ -286,7 +291,6 @@ structure CollectInfo : sig
                       insert (Ty.TensorRefTy shp))
                      
                     | insertTensorTy (shp as [i,j,k]) = (
-                    print(Int.toString(i)^"*"^Int.toString(j)^"*"^Int.toString(k));
                     insert (Ty.TensorTy shp);
                     insert (Ty.TensorRefTy shp);
                       insert (Ty.TensorTy[i]);
@@ -340,7 +344,7 @@ structure CollectInfo : sig
           end
 
     fun addOp info = let
-         val _ = print"\n addOp 5"
+
           val insert = insertOp info
           val addTy = addType info
           fun add' rator = (case rator
@@ -384,7 +388,7 @@ structure CollectInfo : sig
                         fun putShape [] = ()
                           | putShape s = (addTy (Ty.TensorRefTy s))
                           fun putEval [] = (insert sa;putShape shapedx)
-                          | putEval _ =  (insert sb;insert(EvalFemShape (space,nnodes,level,shape));putShape shape;putShape shapedx)
+                          | putEval _ =  (insert(EvalFemShape (space,nnodes,level,shape));insert sb;putShape shape;putShape shapedx)
                          in if (level=0) then (insert(base);putEval(shape)) else putEval(shape)
                          end
                   | Op.checkCell => insert(checkCell)
@@ -393,7 +397,8 @@ structure CollectInfo : sig
                   | Op.swap3  => insert swap3
                   | Op.swap4  => insert swap4
                   | Op.swap5  => insert swap5
-                  | Op.swap6  => insert swap6                  | _ => ()
+                  | Op.swap6  => insert swap6
+                  | _ => ()
                 (* end case *))
           in
             add'

@@ -90,7 +90,8 @@ structure CxxNames : sig
     val fn_ProbePhi : string -> string
     val fn_makeEval : string -> int -> int list -> string
     val fn_makeEvalRange : string -> int -> int list -> string
-    val mkFemPrefix : meshElem.fnspace -> string
+    val fn_Space : meshElem.fnspace -> string
+    val fn_Elem : int*meshElem.element*int -> string
     val mkFemPrefixMD : meshElem.mesh * int ->string
     val fn_makePhiDerv : string -> string
     val checkCell: string
@@ -204,7 +205,9 @@ structure CxxNames : sig
     fun fn_affineDerv a level isSca = (setPrefix "affineDerv" a)^"_"^(if level = 0 then "" else Int.toString(level))^"_"^(if isSca  then "s" else "p")
 
     fun mkFemPrefixMD (mesh, d) = String.concat[meshElem.toStringMesh(mesh),"_",Int.toString(d)]
-    fun mkFemPrefix fnspace = meshElem.toStringfnspace fnspace
+    fun fn_Space(meshElem.Space(d,m,e,o1)) = String.concat["Dim",Int.toString(d),meshElem.toStringMesh m, "_", meshElem.toStringElement e,"_",Int.toString(o1)]
+    fun fn_Elem(d,e,o1) = String.concat["Dim",Int.toString(d), "_", meshElem.toStringElement e,"_",Int.toString(o1)]
+
     val checkCell = "checkCell"
     val GetCell  = "GetCell"
 
