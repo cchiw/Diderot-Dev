@@ -87,12 +87,12 @@ structure ExpandFem =
 
         (*make all the code before find cell*)
         val vTC = V.new ("JIs", Ty.StringTy)
-        val space = meshElem.Space(ME.None, elem, degree)
+        val space = meshElem.Space(dim, ME.NoneMesh, elem, degree)
         val p10 = (vTC, IR.OP(Op.makeTranslateCoordinates (space, dim, avgPos, gBasisFunctions, gbasisJacobian), []))
 
         val vfindcell = V.new ("fc", fcTy)
         val isAffine = if(isAffineTF) then 1 else 0
-	     val space = meshElem.Space(mesh, elem, degree)
+	     val space = meshElem.Space(dim,mesh, elem, degree)
         val p11 = (vfindcell, IR.OP(Op.makeFindCellExpand(space,  testString, isAffine,dim,Int.fromLarge gdim), [vp, vL,mN,mP, vTC,lC]))
         val Pcell = [p10, p11]
     in
@@ -105,7 +105,7 @@ structure ExpandFem =
     fun eval(level,shape, y, index, space, sdim, dim, sBasisFunctions, vp, vL, mN, mP, vTC, vfindcell, mC, vX, vB,sBasisDervs) =
         let
             val _ = "\n\nbefore expand-fem eval"
-	    val newposTy = Ty.TensorTy[dim] (*Should be dim!*)
+	    val newposTy = Ty.TensorTy[dim]
             (* creating new mid-ir variables*)
 
             val basisEval = V.new ("makeBasisEvaluation", Ty.StringTy)

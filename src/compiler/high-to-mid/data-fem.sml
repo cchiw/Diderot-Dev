@@ -73,7 +73,9 @@ structure DataFem : sig
         (case ofield
             of E.DataFem dataid => let
                 (*built-in. need to redo*)
-               val (mesh, element)  = (ME.CubeMesh, ME.P) (*fixed for now *)
+               (*val (mesh, element)  = (ME.CubeMesh, ME.P) (*fixed for now *)*)
+               (* val (mesh, element)  = (ME.UnitSquareMesh,ME.P)*)
+                 val (mesh, element)  = (ME.NoneMesh, ME.NoneE)
                val datafile = getRHSS (List.nth(args, dataid))
                in
                     ([], mesh, element, datafile)

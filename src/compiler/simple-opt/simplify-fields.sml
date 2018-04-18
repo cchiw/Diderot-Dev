@@ -61,7 +61,7 @@ structure SimplifyFields : sig
   (* a property that maps field variables back to a set of source image variables *)
     local
       val {getFn : V.t -> image_set, setFn, ...} =
-V.newProp (fn x => raise Fail("images: no images for " ^ V.uniqueNameOf x))
+    V.newProp (fn x => raise Fail("cat images: no images for " ^ V.uniqueNameOf x))
     in
     val bindImages = setFn
     val images = getFn
@@ -77,8 +77,8 @@ V.newProp (fn x => raise Fail("images: no images for " ^ V.uniqueNameOf x))
    *)
     fun doAssign (lhs, e) = let
           fun copyImg img = (wrapImage(lhs, resolveImage img); NONE)
-          fun copyFld fld = (bindImages(lhs, images fld); NONE)
-          fun image () = (bindImages(lhs, singleton(lhs, 0)); NONE)
+          fun copyFld fld = (* remy (bindImages(lhs, images fld); NONE)*) NONE
+          fun image () = (* remy (bindImages(lhs, singleton(lhs, 0)); NONE)*) NONE
           fun convolve (img, kern) = (
                 bindImages (lhs, singleton(resolveImage img, getSupport kern));
                 NONE)
@@ -100,16 +100,16 @@ V.newProp (fn x => raise Fail("images: no images for " ^ V.uniqueNameOf x))
               | S.E_Apply _ => NONE
               | S.E_Prim(rator, _, args, _) =>
                   if Var.same(rator, B.convolve_vk)
-                    then let val [img, kern] = args in convolve (img, kern) end
+then (print" conv-vk";let val [img, kern] = args in convolve (img, kern) end)
                   else if Var.same(rator, B.convolve_kv)
-                    then let val [kern, img] = args in convolve (img, kern) end
+                    then (print" conv-kv";let val [kern, img] = args in convolve (img, kern) end)
 (* TODO: handle probes for conditional fields
                   else if Var.same(rator, B.op_probe)
                     then ??
 *)
 
                   else if Var.same(rator, B.fn_inside)
-                    then let
+                    then (print" \ninside";let
                     (* we convert an inside operator to one or more inside tests on images *)
                       val [pos, fld] = args
                       in
@@ -133,9 +133,17 @@ V.newProp (fn x => raise Fail("images: no images for " ^ V.uniqueNameOf x))
                                 mkTest (imgs, S.E_InsideImage(pos, img, s), [])
                               end
                         (* end case *)
-                      end
-
-                    else unionArgs (List.filter isField args)
+                      end)
+(*
+                    else if Var.same(rator, B.fn_convert_fvp)
+then (print "\nconvert f";NONE)
+                    else if Var.same(rator, B.fn_convert_fp)
+                        then (print "\nconvert  rm ";NONE)
+                    else if Var.same(rator, B.op_probe)
+                        then (print "\nprobe";NONE)
+*)
+                    else (print "other";
+                    unionArgs (List.filter isField args))
               | S.E_Tensor _ => NONE
               | S.E_Seq _ => NONE
 (* WARNING: if tuples become a surface-language feature, then we will need to track tuples
@@ -162,10 +170,13 @@ V.newProp (fn x => raise Fail("images: no images for " ^ V.uniqueNameOf x))
                        of SOME(e', stms') => S.S_Var(x, SOME e') :: stms' @ stms
                         | NONE => stm::stms
                       (* end case *))
-                  | S.S_Assign(x, e) => (case doAssign (x, e)
+                  | S.S_Assign(x, e) => stm::stms
+(*
+                        (case doAssign (x, e)
                        of SOME(e', stms') => S.S_Assign(x, e') :: stms' @ stms
                         | NONE => stm::stms
                       (* end case *))
+*)
                   | S.S_IfThenElse(x, blk1, blk2) =>
                       S.S_IfThenElse(x, doBlock blk1, doBlock blk2) :: stms
                   | S.S_Foreach(x, seq, blk) =>

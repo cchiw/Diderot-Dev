@@ -665,9 +665,10 @@ structure GenTysAndOps : sig
 		      end
               
               
-              | translateCoordinates (space as meshElem.Space(mesh,element, degree), dim, avgPos, basisFunctions, basisJacobian) =>
+              | translateCoordinates (space as meshElem.Space(_,mesh,element, degree), dim, avgPos, basisFunctions, basisJacobian) =>
 		let
-                    val prefix = CxxNames.mkFemPrefix(meshElem.Space(meshElem.None,element, degree))
+                    val _  = print"translateCoordinates : start"
+                    val prefix = CxxNames.mkFemPrefix(meshElem.Space(dim,meshElem.NoneMesh,element, degree))
                     (*basisFunctions is gBasisFunctions and basisJacobian is gBasisJacobian*)
 		    val basisFunctionsLength = List.length basisFunctions
 		    val rows = List.length basisJacobian (*number of basis functions*)
@@ -689,64 +690,80 @@ structure GenTysAndOps : sig
 			      helpTranslateCoordinates
 			    ]
 			)
+                                  val _  = print"translateCoordinates :end"
 		in
 		    CL.D_Verbatim ret
 		end
 		    
-              | findCellExpand  (space as meshElem.Space(mesh,element, degree), testString, isAffineTF,dim,gdim) =>
+              | findCellExpand  (space as meshElem.Space(_, mesh,element, degree), testString, isAffineTF,dim,gdim) =>
 		let
-		    val prefixE = CxxNames.mkFemPrefix(meshElem.Space(meshElem.None,element, degree))
+                          val _  = print"findcell expand : start"
+		    val prefixE = CxxNames.mkFemPrefix(meshElem.Space(dim,meshElem.NoneMesh,element, degree))
 		    val prefixA = CxxNames.mkFemPrefix space
                     
 		    val isAffine = (isAffineTF=1)
 		    val wrapCell = GF.wrapCell{prefixE=prefixE, prefixA=prefixA, dim=dim,
 					       testString=testString, isAffine=isAffine,gdim=gdim}
 		    val ret = List.concat( [wrapCell])
+                              val _  = print"findcell expand : end"
 		in
 		    CL.D_Verbatim ret
 		end
               
-              | basisEvaluation  (space as  meshElem.Space(mesh,_,_), sBasisFunctions,0,_) =>
+              | basisEvaluation  (space as  meshElem.Space(dim, mesh,_,_), sBasisFunctions,0,_) =>
 		let
-		    
+		              val _  = print"\nbasis evalA : start"
 
                     val prefix = CxxNames.mkFemPrefix space
-		    val dim = ME.dimOfMesh mesh
+                      val _  = print"\nbasis evalA : start 2"
 		    val numEvalbasis = List.length sBasisFunctions (*also know as sdim*)
+                      val _  = print"\nbasis evalA : start 3"
 		    val sBasisItter = List.tabulate( numEvalbasis,fn x => x)
+                      val _  = print"\nbasis evalA : start 4"
 		    val makeEvaluations =  GF.makeBasisEvaluation{prefix=prefix, sBasisFunctions=sBasisFunctions, sBasisItter=sBasisItter}
+                      val _  = print"\nbasis evalA : start 5"
 		    val ret = makeEvaluations
+                              val _  = print"\nbasis evalA : end"
 		in
 		    CL.D_Verbatim ret
 		end
-             | basisEvaluation  (space as  meshElem.Space(mesh,_,_), sBasisFunctions,level,sBasisDervs) =>
+             | basisEvaluation  (space as  meshElem.Space(dim, mesh,_,_), sBasisFunctions,level,sBasisDervs) =>
                     let
-                    
+                      val _  = print"\nbasis evalB : start"
                     val prefix = CxxNames.mkFemPrefix space
-                    val dim = ME.dimOfMesh mesh
+                   
+                    val _  = print"\nbasis evalB : start 2"
                     val numEvalbasis = List.length sBasisFunctions (*also know as sdim*)
+                              val _  = print"\nbasis evalB : start 3"
                     val sBasisItter = List.tabulate( numEvalbasis,fn x => x)
+                              val _  = print"\nbasis evalB : start 4"
                     (* val makeBasisEvaluation =  GF.makeBasisEvaluation{prefix=prefix, sBasisFunctions=sBasisFunctions, sBasisItter=sBasisItter} (*Potential replication issues here?*) *)
+                              val _  = print"\nbasis evalB : start 5"
                     val makeEvaluations = GF.makePhiDerv({prefix=prefix,sdim=numEvalbasis,dim=dim,dlevel=level,s_derivativeInfoList=sBasisDervs})
+                              val _  = print"\nbasis evalB : start 6"
                     val ret = makeEvaluations
+                               val _  = print"\nbasis evalB: end"
                     in
                     CL.D_Verbatim ret
                     end
 		
               | ProbePhi  (space, nnodes, dx, dy, dz) =>
 		let
+                              val _  = print"probe-phi : start"
 		    val prefixME = CxxNames.mkFemPrefix space
 		    val probePhi = GF.makeProbePhi{prefixME=prefixME,nnodes=nnodes}
 		    val ret = List.concat( [probePhi])
+                                    val _  = print"probe-phi : end"
 		in
 		    CL.D_Verbatim ret
 		end
-             | EvalFemSca (space as meshElem.Space(mesh,element,degree),sdim,dlevel, isSca)=>
+             | EvalFemSca (space as meshElem.Space(dim,mesh,element,degree),sdim,dlevel, isSca)=>
                 let
+                                val _  = print"eval femsca : start"
                     (*when isSca is false evaluation that has args to set range*)
-                    val prefixE = CxxNames.mkFemPrefix(meshElem.Space(meshElem.None,element, degree))
+                    val prefixE = CxxNames.mkFemPrefix(meshElem.Space(dim,meshElem.NoneMesh,element, degree))
                     val prefixA = CxxNames.mkFemPrefix space
-                    val dim = ME.dimOfMesh mesh
+       
                     (*depends on differentiation and shape*)
                     val ret = if( dlevel=0)
                         then
@@ -758,17 +775,20 @@ structure GenTysAndOps : sig
                             val makeEvaluate = GF.helpMakeEvaluateDerv ({prefix=prefixA,sdim=sdim,dim=dim,shapeTest=isSca,dlevel=dlevel,namespace=namespace})
                         
                             in  List.concat( [affineData,makeEvaluate]) end
+                                    val _  = print"eval femsca : end"
                 in
                     CL.D_Verbatim ret
                 end
-            | EvalFemShape (space as meshElem.Space(mesh,element,degree),sdim,dlevel,shape)=>
+            | EvalFemShape (space as meshElem.Space(dim,mesh,element,degree),sdim,dlevel,shape)=>
                 let
+                        val _  = print"eval femshape :start"
                     (*for fields with non-scalar shape*)
-                    val prefixE = CxxNames.mkFemPrefix(meshElem.Space(meshElem.None,element, degree))
+                    val prefixE = CxxNames.mkFemPrefix(meshElem.Space(dim,meshElem.NoneMesh,element, degree))
                     val prefixA = CxxNames.mkFemPrefix space
-                    val dim = ME.dimOfMesh mesh
+     
                     val shapeTest=false
                     val ret = GF.helpMakeEvaluate_shape({prefixA=prefixA,sdim=sdim,dim=dim,shape=shape,dlevel=dlevel,namespace=namespace})
+                     val _  = print"eval femshape :end"
                 in
                     CL.D_Verbatim ret
                 end
@@ -853,10 +873,15 @@ structure GenTysAndOps : sig
     val noDclsOp = CL.D_Comment["***** No synthesized operations *****"]
 
     fun gen (env, info) = let
+            val _ = print "\ngen tys ops-0"
         val spec = Env.target env
         val genTrait = genSeqTrait env
         val genTyDecl = genTyDecl env
-        val opDcls = List.foldl (doOp env) [] (CollectInfo.listOps info)
+                val _ = print "\ngen tys ops-1"
+        val opDclsA = (CollectInfo.listOps info)
+                        val _ = print "\ngen tys ops-2"
+        val opDcls = List.foldl (doOp env) [] opDclsA
+        val _ = print "\ngen tys ops-3"
         val tys = CollectInfo.listTypes info
         val (tyDcls, fnDefs) = List.foldr genTyDecl ([], []) tys
 	val dcls = tyDcls @ fnDefs

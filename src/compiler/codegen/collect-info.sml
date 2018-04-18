@@ -51,11 +51,11 @@ structure CollectInfo : sig
       | EvalFemShape of meshElem.fnspace * int * int * int list
       | checkCell
       | RIfWrap
- | swap2
- | swap3
- | swap4
- | swap5
- | swap6
+     | swap2
+     | swap3
+     | swap4
+     | swap5
+     | swap6
  
  val collect : TreeIR.program -> t
 
@@ -102,11 +102,11 @@ structure CollectInfo : sig
       | EvalFemShape of meshElem.fnspace * int * int * int list
       | checkCell
       | RIfWrap
- | swap2
- | swap3
- | swap4
- | swap5
- | swap6
+      | swap2
+      | swap3
+      | swap4
+      | swap5
+      | swap6
  
  (* operator to string (for debugging) *)
     local
@@ -162,8 +162,8 @@ structure CollectInfo : sig
     structure OpTbl = HashTableFn (
       struct
         type hash_key = operation
-
-        fun hashVal rator = (case rator
+        
+        fun hashVal rator = (print"hashVal";case rator
                of Print ty =>0w5 * TreeTypes.hash ty
                 | RClamp => 0w13
                 | RLerp => 0w17
@@ -270,6 +270,7 @@ structure CollectInfo : sig
       }
 
     fun addType (Info{tys, ...}) = let
+             val _ = print"\n addTys 5"
           val find = Ty.Tbl.find tys
           val ins = Ty.Tbl.insert tys
           fun addTy ty =  let
@@ -339,6 +340,7 @@ structure CollectInfo : sig
           end
 
     fun addOp info = let
+         val _ = print"\n addOp 5"
           val insert = insertOp info
           val addTy = addType info
           fun add' rator = (case rator
@@ -373,16 +375,12 @@ structure CollectInfo : sig
                   | Op.makeFindCellExpand e
                   => insert(findCellExpand e)
                   | Op.makeBasisEvaluation  e  => insert(basisEvaluation e)
-                  | Op.EvalFem (space as meshElem.Space(mesh,_,_),nnodes,level,shape) => let
-                  
+                  | Op.EvalFem (space as meshElem.Space(dim,mesh,_,_),nnodes,level,shape) => let
                         val base = ProbePhi (space,nnodes,0,0,0)
                         val sa = EvalFemSca (space,nnodes,level,true)
                         val sb = EvalFemSca (space,nnodes,level,false)
-                        (*get dim to make shape*)
-                        val dim = meshElem.dimOfMesh(mesh)
                         val shapedx = shape@(List.tabulate(level,fn _ => dim))
                         val _ = List.app (fn e => print (Int.toString(e))) shapedx
-                        val _ = print(String.concat["\nshape:",Int.toString(length(shape)),"shapedx",Int.toString(length(shapedx))])
                         fun putShape [] = ()
                           | putShape s = (addTy (Ty.TensorRefTy s))
                           fun putEval [] = (insert sa;putShape shapedx)

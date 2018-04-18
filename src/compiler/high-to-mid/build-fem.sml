@@ -31,22 +31,22 @@ structure BuildFem : sig
     structure EF = ExpandFem
     structure DF = DataFem
 
-fun getRHSEINSrc x = (case SrcIR.Var.getDef x
-of  SrcIR.EINAPP (ein, args) => ((ein, args);print"ein-app")
-| SrcIR.LIT l => print(concat["\n\nSrcLIT expected LHS rhs operator for ", SrcIR.Var.toString x, " but found ", SrcIR.RHS.toString (SrcIR.LIT l)])
-| SrcIR.OP l => print(concat["\n\nsrcOP expected LHS rhs operator for ", SrcIR.Var.toString x, " but found ", SrcIR.RHS.toString (SrcIR.OP l)])
-| SrcIR.CONS l => print(concat["\n\nsrccons expected LHS rhs operator for ", SrcIR.Var.toString x, " but found ", SrcIR.RHS.toString (SrcIR.CONS l)])
-| SrcIR.GLOBAL l => print(concat["\n\nsrcglobal expected LHS rhs operator for ", SrcIR.Var.toString x, " but found ", SrcIR.RHS.toString (SrcIR.GLOBAL l)])
-| rhs => print(concat["\n\nsrcexpected rhs operator for ", SrcIR.Var.toString x, " but found ", SrcIR.RHS.toString rhs])
-(* end case *))
+    fun getRHSEINSrc x = (case SrcIR.Var.getDef x
+        of  SrcIR.EINAPP (ein, args) => ((ein, args);print"ein-app")
+        | SrcIR.LIT l => print(concat["\n\nSrcLIT expected LHS rhs operator for ", SrcIR.Var.toString x, " but found ", SrcIR.RHS.toString (SrcIR.LIT l)])
+        | SrcIR.OP l => print(concat["\n\nsrcOP expected LHS rhs operator for ", SrcIR.Var.toString x, " but found ", SrcIR.RHS.toString (SrcIR.OP l)])
+        | SrcIR.CONS l => print(concat["\n\nsrccons expected LHS rhs operator for ", SrcIR.Var.toString x, " but found ", SrcIR.RHS.toString (SrcIR.CONS l)])
+        | SrcIR.GLOBAL l => print(concat["\n\nsrcglobal expected LHS rhs operator for ", SrcIR.Var.toString x, " but found ", SrcIR.RHS.toString (SrcIR.GLOBAL l)])
+        | rhs => print(concat["\n\nsrcexpected rhs operator for ", SrcIR.Var.toString x, " but found ", SrcIR.RHS.toString rhs])
+        (* end case *))
 
 
     fun getRHSEIN x = (case IR.Var.getDef x
         of  IR.EINAPP (ein, args) => (ein, args)
         | IR.LIT l => raise Fail(concat["\n\nLIT expected LHS rhs operator for ", IR.Var.toString x, " but found ", IR.RHS.toString (IR.LIT l)])
         | IR.OP l => raise Fail(concat["\n\nOP expected LHS rhs operator for ", IR.Var.toString x, " but found ", IR.RHS.toString (IR.OP l)])
-| IR.CONS l => raise Fail(concat["\n\ncons expected LHS rhs operator for ", IR.Var.toString x, " but found ", IR.RHS.toString (IR.CONS l)])
-| IR.GLOBAL l => raise Fail(concat["\n\nglobal expected LHS rhs operator for ", IR.Var.toString x, " but found ", IR.RHS.toString (IR.GLOBAL l)])
+        | IR.CONS l => raise Fail(concat["\n\ncons expected LHS rhs operator for ", IR.Var.toString x, " but found ", IR.RHS.toString (IR.CONS l)])
+        | IR.GLOBAL l => raise Fail(concat["\n\nglobal expected LHS rhs operator for ", IR.Var.toString x, " but found ", IR.RHS.toString (IR.GLOBAL l)])
         | rhs => raise Fail(concat["\n\nexpected rhs operator for ", IR.Var.toString x, " but found ", IR.RHS.toString rhs])
         (* end case *))
 

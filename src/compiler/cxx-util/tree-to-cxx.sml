@@ -597,6 +597,7 @@ structure TreeToCxx : sig
           end
 
     and trBlock (env, IR.Block{locals, body}) = let
+            val _ = print"made itto tree to cxx"
           fun trLocal (x, (env, dcls)) = let
                 val x' = V.name x
                 val dcl = CL.mkDecl(trType(env, V.ty x), x', NONE)

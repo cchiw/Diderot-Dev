@@ -751,10 +751,10 @@ structure TranslateBasis : sig
                                             [ assignEin(y, Mk.polyProbe (ddF,d1, [ddT1, ddT2]), args)]),
                 (BV.fn_inst_3,               fn (y, [_, Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE ddT1, Ty.SHAPE ddT2, Ty.SHAPE ddT3], args) =>
                                             [ assignEin(y, Mk.polyProbe (ddF,d1, [ddT1, ddT2, ddT3]), args)]),
-                (BV.fn_convert_f,              fn (y, [_,Ty.DIM d, Ty.SHAPE dd], xs) =>
-						  [assignEin(y, Mk.ofieldfem (d, dd), xs)]),
-                (BV.fn_convert_rm,              fn (y, [_,Ty.DIM d, Ty.SHAPE dd], [f,fs,s]) =>
-						   [assignEin(y, Mk.ofieldfemBuild (d, dd), [f,fs, s])]),
+                (BV.fn_convert_fp,               fn (y, [_,Ty.DIM d, Ty.SHAPE dd], [f,p]) =>
+						   [assignEin(y, Mk.ofieldfem (d, dd), [f,p])]),
+                (BV.fn_convert_fvp,              fn (y, [_,Ty.DIM d, Ty.SHAPE dd], [f,v,p]) =>
+						   [assignEin(y, Mk.ofieldfemBuild (d, dd), [f,v,p])]),
 		(BV.fn_convert_Tracker_rm,      fn (y, [_,Ty.DIM d, Ty.SHAPE dd], [f,s,r]) =>
                                                    [assignEin(y, Mk.ofieldfemBuild (d, dd), [f, s,r])]),
                 (BV.fn_insideO, fn (y, [_,Ty.DIM d, Ty.SHAPE dd], xs) =>

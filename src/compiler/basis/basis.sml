@@ -159,7 +159,7 @@ structure Basis : sig
           (N.op_D,     [BV.op_D, BV.op_D_p]),
           (N.op_Dotimes,   [BV.op_Dotimes, BV.op_Dotimes_p]),
           (N.op_Ddot,   [BV.op_Ddot,BV.op_Ddot_p]),
-          (N.fn_convert, [BV.fn_convert_f, BV.fn_convert_rm]),
+          (N.fn_convert, [BV.fn_convert_fp, BV.fn_convert_fvp]),
 	  (N.fn_convertTracker, [BV.fn_convert_Tracker_rm]),
           (N.fn_inside, [BV.fn_inside]),
           (N.fn_insideO, [BV.fn_insideO]),

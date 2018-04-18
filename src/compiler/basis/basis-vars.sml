@@ -1789,29 +1789,30 @@ val fn_tensorfunctionspace = polyVar (N.fn_tensorfunctionspace, all([],
 							end))
 (* -------------------  convert pointer to ofield  ------------------- *)
     (* create pde solution. fem () *)
-    val fn_convert_f = polyVar (N.fn_convert, all([DK, NK, SK],
+    val fn_convert_fp = polyVar (N.fn_convert, all([DK, NK, SK],
         fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE dd] => let
             val k = Ty.DiffVar(k, 1)
             val d = Ty.DimVar d
             val dd = Ty.ShapeVar dd
-            val p = poly(k, d, dd)
+
             val f= Ty.T_FemFld{diff=k, dim=d, shape=dd}
-            val Ff= Ty.T_Field{diff=k, dim=d, shape=dd}  (*change back*)
             val s = Ty.T_String
+            val Ff= Ty.T_Field{diff=k, dim=d, shape=dd}
         in
             [f, s] --> Ff
         end))
 
     (* expects argument to have field pointer, describe fnspace, path to data *)
-    val fn_convert_rm = polyVar (N.fn_convert, all([DK, NK, SK],
+    val fn_convert_fvp = polyVar (N.fn_convert, all([DK, NK, SK],
         fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE dd] => let
             val k = Ty.DiffVar(k, 0)
             val d = Ty.DimVar d
             val dd = Ty.ShapeVar dd
+
             val f=  Ty.T_FemFld{diff=k, dim=d, shape=dd}
-            val fs= Ty.T_FnSpace
+            val fs= Ty.T_FnSpace (* Ty.T_Int*)
             val s = Ty.T_String
-            val p = poly(k, d, dd)
+
             val Ff= Ty.T_Field{diff=k, dim=d, shape=dd}  (*change back*)
         in
             [f, fs, s] --> Ff

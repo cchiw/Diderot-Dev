@@ -469,9 +469,13 @@ structure TS = TargetSpec
               
     fun makePhiDerv({prefix,sdim,dim,dlevel,s_derivativeInfoList}) =
         let
+            val _ = print"\n  makephi derv 1"
           val dervType = implaceArrayU dim dlevel
+                 val _ = print"\n  makephi derv 2"
           val t1 = "inline "^float^" "^fn_makePhiDerv(prefix)^"_"^Int.toString(dlevel)^"("^float^" H"^dervType^", const "^float^"* k, "^float^"* c){\n"
+                 val _ = print"\n  makephi derv 3"
           val ts = phiDervCode sdim dim dlevel s_derivativeInfoList "H" "[" "]"
+                 val _ = print"\n  makephi derv 3"
           val t2 = indent "return(0);\n}\n"
         in
               [t1,ts,t2]
