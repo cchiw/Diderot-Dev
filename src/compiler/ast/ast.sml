@@ -77,6 +77,7 @@ structure AST =
       | E_Comprehension of expr * iter * Ty.ty          (* sequence comprehension *)
       | E_ParallelMap of expr * var * var * Ty.ty       (* parallel map over a global set of strands *)
       | E_Tensor of expr list * Ty.ty                   (* tensor-value construction *)
+      | E_Field of expr list * Ty.ty                    (* field-value construction *)
       | E_Seq of expr list * Ty.ty                      (* sequence-value construction (ty is result type) *)
       | E_Slice of expr * expr option list * Ty.ty      (* tensor slicing (ty is result type). Note
                                                          * that we restrict the indices to be

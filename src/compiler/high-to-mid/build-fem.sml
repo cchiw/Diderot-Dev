@@ -214,13 +214,16 @@ structure BuildFem : sig
         end
 
 
+
     (* check ifposition is inside field *)
     fun inside(y, dim, [vpH,fH], [vp, f]) =
         let
+ val _ = print"\npost A"
              val _ = getRHSEINSrc fH
-
             val (E.EIN{body,...}, args) = getRHSEIN f (*remy change here was f*) (*get EIN operator attached to variable*)
+            val _ = print"\npost B"
             val (Pall, space, sdim, dim, sBasisFunctions, vL, mN, mP, vTC, vfindcell, mC, vX, vB,sBasisDervs) = translate(body, vp, args)
+            val _ = print"\npost C"
             val p14 = (y, IR.OP(Op.checkCell, [vfindcell]))
         in
             Pall@[p14]

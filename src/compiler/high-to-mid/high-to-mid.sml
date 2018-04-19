@@ -15,6 +15,7 @@ structure HighToMid : sig
   end = struct
 
     structure SrcIR = HighIR
+    structure IR = MidIR
     structure SrcTy = HighTypes
     structure SrcOp = HighOps
     structure SrcSV = SrcIR.StateVar
@@ -43,6 +44,30 @@ structure HighToMid : sig
                   " but found ", SrcIR.RHS.toString rhs
                 ])
           (* end case *))
+
+    structure Op = MidOps
+    structure Ty = MidTypes
+    fun getRHSBase x = (case IR.Var.getDef x
+        of IR.EINAPP (ein, [f,a]) => (getRHSBase f)@ (getRHSBase a)
+        | IR.GLOBAL gv => let
+            val Ty.ImageTy info = IR.GlobalVar.ty gv
+            in
+                [(x, info)]
+            end
+        | IR.OP(Op.BorderCtlDefault info, [img, v]) =>  [(img, info)]
+        | IR.OP(Op.BorderCtlClamp info, [img]) =>       [(img, info)]
+        | IR.OP(Op.BorderCtlMirror info, [img]) =>      [(img, info)]
+        | IR.OP(Op.BorderCtlWrap info, [img]) =>        [(img, info)]
+        | IR.OP(Op.LoadImage(Ty.ImageTy info, _), _) => [(x, info)]
+        | _ =>  []
+        (* end case*))
+
+        fun getRHSSupport x = (case IR.Var.getDef x
+        of IR.EINAPP (ein, [f,a]) => (getRHSSupport f)@ (getRHSSupport a)
+        | IR.OP(Op.Kernel(h, _), _) => [Kernel.support h]
+        | _ =>  []
+        (* end case*))
+
 
     fun cvtTy SrcTy.BoolTy = DstTy.BoolTy
       | cvtTy SrcTy.StringTy = DstTy.StringTy
@@ -121,6 +146,31 @@ structure HighToMid : sig
             List.rev code
           end
 
+
+    (* expand the High IR Inside operator into an image-space test *)
+    fun expandInsideBase (env, result, dim, [pos, fld]) = let
+        fun iter([],[]) = []
+          | iter((img, info)::Vs, s::Hs) = let
+            val (x, code) = let
+                val avail = AvailRHS.new()
+                val (_, x) = CoordSpaceTransform.worldToImage {
+                    avail = avail, info = info, img = img, pos = pos
+                    }
+                in
+                    (x, AvailRHS.getAssignments avail)
+                end
+            val code = (result, DstIR.OP(DstOp.Inside(info, s), [x, img])) :: code
+            val tmp =    List.rev code
+            in
+                tmp @iter(Vs,Hs)
+            end
+
+        val Vs = getRHSBase fld
+        val Hs  = getRHSSupport fld
+        in
+            iter(Vs,Hs)
+        end
+
     fun arity (SrcTy.TensorTy[]) = 1
       | arity (SrcTy.TensorTy[d]) = d
       | arity _ = raise Fail "arity"
@@ -194,6 +244,7 @@ structure HighToMid : sig
               | SrcOp.LoadImage(ty, file) => assign (DstOp.LoadImage(cvtTy ty, file))
               | SrcOp.MathFn e => assign (DstOp.MathFn e)
               | SrcOp.InsideFEM dim => BuildFem.inside(y, dim, args, Env.renameList(env, args))
+              | SrcOp.InsideBASE dim => expandInsideBase(env, y, dim, Env.renameList(env, args))
               | SrcOp.BuildMesh e => assign (DstOp.BuildMesh (e))
               | SrcOp.BuildElement e => assign (DstOp.BuildElement (e))
               | SrcOp.BuildSpace => assign (DstOp.BuildSpace)

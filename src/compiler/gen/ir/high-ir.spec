@@ -42,8 +42,7 @@ Lerp : ty : 1 : 3 : linear interpolation between 0 and 1
 FieldPtr: int*int: 1 : 1:
 #Probed domty,rngty, diffgrad,diffcurl
 ProbePtr: ty * ty*int*int : 1 : 2:
-#Inside: dimension
-InsidePtr: int : 1 : 2:
+
 ### vector operations
 #
 Eigen2x2 : : 2 : 1 : Eigenvector and values for 2x2 matrix
@@ -126,7 +125,10 @@ BuildMesh : mesh : 1 : 2:
 BuildElement : element : 1 : 2:
 BuildSpace : : 1 : 3:
 #Inside fem: dimension
-InsideFEM: int : 1 : 2:
+InsideFEM: int : 1 : 2: inside fem
+InsideBASE: int : 1 : 2: inside base
+#Inside: dimension
+InsidePtr: int : 1 : 2:
 # surface code. (F,pos)->cell
 sp_getCell: : 1: 2:
 #printIR

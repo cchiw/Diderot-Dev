@@ -77,7 +77,6 @@ structure HighOps =
       | Lerp of ty
       | FieldPtr of int * int
       | ProbePtr of ty * ty * int * int
-      | InsidePtr of int
       | Eigen2x2
       | Eigen3x3
       | Zero of ty
@@ -115,6 +114,8 @@ structure HighOps =
       | BuildElement of element
       | BuildSpace
       | InsideFEM of int
+      | InsideBASE of int
+      | InsidePtr of int
       | sp_getCell
       | printIR
 
@@ -142,7 +143,6 @@ structure HighOps =
       | resultArity (Lerp _) = 1
       | resultArity (FieldPtr _) = 1
       | resultArity (ProbePtr _) = 1
-      | resultArity (InsidePtr _) = 1
       | resultArity Eigen2x2 = 2
       | resultArity Eigen3x3 = 2
       | resultArity (Zero _) = 1
@@ -180,6 +180,8 @@ structure HighOps =
       | resultArity (BuildElement _) = 1
       | resultArity BuildSpace = 1
       | resultArity (InsideFEM _) = 1
+      | resultArity (InsideBASE _) = 1
+      | resultArity (InsidePtr _) = 1
       | resultArity sp_getCell = 1
       | resultArity printIR = 1
 
@@ -207,7 +209,6 @@ structure HighOps =
       | arity (Lerp _) = 3
       | arity (FieldPtr _) = 1
       | arity (ProbePtr _) = 2
-      | arity (InsidePtr _) = 2
       | arity Eigen2x2 = 1
       | arity Eigen3x3 = 1
       | arity (Zero _) = 0
@@ -245,6 +246,8 @@ structure HighOps =
       | arity (BuildElement _) = 2
       | arity BuildSpace = 3
       | arity (InsideFEM _) = 2
+      | arity (InsideBASE _) = 2
+      | arity (InsidePtr _) = 2
       | arity sp_getCell = 2
       | arity printIR = 0
 
@@ -281,7 +284,6 @@ structure HighOps =
       | same (Lerp(a0), Lerp(b0)) = samety(a0, b0)
       | same (FieldPtr(a0,a1), FieldPtr(b0,b1)) = sameint(a0, b0) andalso sameint(a1, b1)
       | same (ProbePtr(a0,a1,a2,a3), ProbePtr(b0,b1,b2,b3)) = samety(a0, b0) andalso samety(a1, b1) andalso sameint(a2, b2) andalso sameint(a3, b3)
-      | same (InsidePtr(a0), InsidePtr(b0)) = sameint(a0, b0)
       | same (Eigen2x2, Eigen2x2) = true
       | same (Eigen3x3, Eigen3x3) = true
       | same (Zero(a0), Zero(b0)) = samety(a0, b0)
@@ -319,6 +321,8 @@ structure HighOps =
       | same (BuildElement(a0), BuildElement(b0)) = sameelement(a0, b0)
       | same (BuildSpace, BuildSpace) = true
       | same (InsideFEM(a0), InsideFEM(b0)) = sameint(a0, b0)
+      | same (InsideBASE(a0), InsideBASE(b0)) = sameint(a0, b0)
+      | same (InsidePtr(a0), InsidePtr(b0)) = sameint(a0, b0)
       | same (sp_getCell, sp_getCell) = true
       | same (printIR, printIR) = true
       | same _ = false
@@ -347,46 +351,47 @@ structure HighOps =
       | hash (Lerp(a0)) = 0w83 + hashty a0
       | hash (FieldPtr(a0,a1)) = 0w89 + hashint a0 + hashint a1
       | hash (ProbePtr(a0,a1,a2,a3)) = 0w97 + hashty a0 + hashty a1 + hashint a2 + hashint a3
-      | hash (InsidePtr(a0)) = 0w101 + hashint a0
-      | hash Eigen2x2 = 0w103
-      | hash Eigen3x3 = 0w107
-      | hash (Zero(a0)) = 0w109 + hashty a0
-      | hash (TensorIndex(a0,a1)) = 0w113 + hashty a0 + hashshape a1
-      | hash (Select(a0,a1)) = 0w127 + hashty a0 + hashint a1
-      | hash (Subscript(a0)) = 0w131 + hashty a0
-      | hash (MkDynamic(a0,a1)) = 0w137 + hashty a0 + hashint a1
-      | hash (Append(a0)) = 0w139 + hashty a0
-      | hash (Prepend(a0)) = 0w149 + hashty a0
-      | hash (Concat(a0)) = 0w151 + hashty a0
-      | hash Range = 0w157
-      | hash (Length(a0)) = 0w163 + hashty a0
-      | hash (SphereQuery(a0,a1)) = 0w167 + hashint a0 + hashty a1
-      | hash IntToReal = 0w173
-      | hash TruncToInt = 0w179
-      | hash RoundToInt = 0w181
-      | hash CeilToInt = 0w191
-      | hash FloorToInt = 0w193
-      | hash (NumStrands(a0)) = 0w197 + StrandSets.hash a0
-      | hash (Strands(a0,a1)) = 0w199 + hashty a0 + StrandSets.hash a1
-      | hash (Kernel(a0,a1)) = 0w211 + Kernel.hash a0 + hashint a1
-      | hash (Inside(a0,a1)) = 0w223 + ImageInfo.hash a0 + hashint a1
-      | hash (ImageDim(a0,a1)) = 0w227 + ImageInfo.hash a0 + hashint a1
-      | hash (BorderCtlDefault(a0)) = 0w229 + ImageInfo.hash a0
-      | hash (BorderCtlClamp(a0)) = 0w233 + ImageInfo.hash a0
-      | hash (BorderCtlMirror(a0)) = 0w239 + ImageInfo.hash a0
-      | hash (BorderCtlWrap(a0)) = 0w241 + ImageInfo.hash a0
-      | hash (LoadSeq(a0,a1)) = 0w251 + hashty a0 + hashstring a1
-      | hash (LoadImage(a0,a1)) = 0w257 + hashty a0 + hashstring a1
-      | hash KillAll = 0w263
-      | hash StabilizeAll = 0w269
-      | hash (Print(a0)) = 0w271 + hashtys a0
-      | hash (MathFn(a0)) = 0w277 + MathFns.hash a0
-      | hash (BuildMesh(a0)) = 0w281 + hashmesh a0
-      | hash (BuildElement(a0)) = 0w283 + hashelement a0
-      | hash BuildSpace = 0w293
-      | hash (InsideFEM(a0)) = 0w307 + hashint a0
-      | hash sp_getCell = 0w311
-      | hash printIR = 0w313
+      | hash Eigen2x2 = 0w101
+      | hash Eigen3x3 = 0w103
+      | hash (Zero(a0)) = 0w107 + hashty a0
+      | hash (TensorIndex(a0,a1)) = 0w109 + hashty a0 + hashshape a1
+      | hash (Select(a0,a1)) = 0w113 + hashty a0 + hashint a1
+      | hash (Subscript(a0)) = 0w127 + hashty a0
+      | hash (MkDynamic(a0,a1)) = 0w131 + hashty a0 + hashint a1
+      | hash (Append(a0)) = 0w137 + hashty a0
+      | hash (Prepend(a0)) = 0w139 + hashty a0
+      | hash (Concat(a0)) = 0w149 + hashty a0
+      | hash Range = 0w151
+      | hash (Length(a0)) = 0w157 + hashty a0
+      | hash (SphereQuery(a0,a1)) = 0w163 + hashint a0 + hashty a1
+      | hash IntToReal = 0w167
+      | hash TruncToInt = 0w173
+      | hash RoundToInt = 0w179
+      | hash CeilToInt = 0w181
+      | hash FloorToInt = 0w191
+      | hash (NumStrands(a0)) = 0w193 + StrandSets.hash a0
+      | hash (Strands(a0,a1)) = 0w197 + hashty a0 + StrandSets.hash a1
+      | hash (Kernel(a0,a1)) = 0w199 + Kernel.hash a0 + hashint a1
+      | hash (Inside(a0,a1)) = 0w211 + ImageInfo.hash a0 + hashint a1
+      | hash (ImageDim(a0,a1)) = 0w223 + ImageInfo.hash a0 + hashint a1
+      | hash (BorderCtlDefault(a0)) = 0w227 + ImageInfo.hash a0
+      | hash (BorderCtlClamp(a0)) = 0w229 + ImageInfo.hash a0
+      | hash (BorderCtlMirror(a0)) = 0w233 + ImageInfo.hash a0
+      | hash (BorderCtlWrap(a0)) = 0w239 + ImageInfo.hash a0
+      | hash (LoadSeq(a0,a1)) = 0w241 + hashty a0 + hashstring a1
+      | hash (LoadImage(a0,a1)) = 0w251 + hashty a0 + hashstring a1
+      | hash KillAll = 0w257
+      | hash StabilizeAll = 0w263
+      | hash (Print(a0)) = 0w269 + hashtys a0
+      | hash (MathFn(a0)) = 0w271 + MathFns.hash a0
+      | hash (BuildMesh(a0)) = 0w277 + hashmesh a0
+      | hash (BuildElement(a0)) = 0w281 + hashelement a0
+      | hash BuildSpace = 0w283
+      | hash (InsideFEM(a0)) = 0w293 + hashint a0
+      | hash (InsideBASE(a0)) = 0w307 + hashint a0
+      | hash (InsidePtr(a0)) = 0w311 + hashint a0
+      | hash sp_getCell = 0w313
+      | hash printIR = 0w317
 
     fun toString IAdd = "IAdd"
       | toString ISub = "ISub"
@@ -412,7 +417,6 @@ structure HighOps =
       | toString (Lerp(a0)) = concat["Lerp<", tyToString a0, ">"]
       | toString (FieldPtr(a0,a1)) = concat["FieldPtr<", intToString a0, ",", intToString a1, ">"]
       | toString (ProbePtr(a0,a1,a2,a3)) = concat["ProbePtr<", tyToString a0, ",", tyToString a1, ",", intToString a2, ",", intToString a3, ">"]
-      | toString (InsidePtr(a0)) = concat["InsidePtr<", intToString a0, ">"]
       | toString Eigen2x2 = "Eigen2x2"
       | toString Eigen3x3 = "Eigen3x3"
       | toString (Zero(a0)) = concat["Zero<", tyToString a0, ">"]
@@ -450,6 +454,8 @@ structure HighOps =
       | toString (BuildElement(a0)) = concat["BuildElement<", elementToString a0, ">"]
       | toString BuildSpace = "BuildSpace"
       | toString (InsideFEM(a0)) = concat["InsideFEM<", intToString a0, ">"]
+      | toString (InsideBASE(a0)) = concat["InsideBASE<", intToString a0, ">"]
+      | toString (InsidePtr(a0)) = concat["InsidePtr<", intToString a0, ">"]
       | toString sp_getCell = "sp_getCell"
       | toString printIR = "printIR"
 

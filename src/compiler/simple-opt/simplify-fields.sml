@@ -76,16 +76,27 @@ structure SimplifyFields : sig
    * (and thus images)
    *)
     fun doAssign (lhs, e) = let
+
           fun copyImg img = (wrapImage(lhs, resolveImage img); NONE)
           fun copyFld fld = (* remy (bindImages(lhs, images fld); NONE)*) NONE
           fun image () = (* remy (bindImages(lhs, singleton(lhs, 0)); NONE)*) NONE
+            fun unionArgs [] = NONE
+            | unionArgs (x::xs) =NONE
+
+(* original
+fun copyImg img = (wrapImage(lhs, resolveImage img); NONE)
+fun copyFld fld = (bindImages(lhs, images fld); NONE)
+fun image () =    (bindImages(lhs, singleton(lhs, 0)); NONE)
+fun unionArgs [] = NONE
+| unionArgs (x::xs) = (
+bindImages (lhs, List.foldl (fn (x, s) => union(images x, s)) (images x) xs);
+NONE)
+*)
+
           fun convolve (img, kern) = (
                 bindImages (lhs, singleton(resolveImage img, getSupport kern));
                 NONE)
-          fun unionArgs [] = NONE
-            | unionArgs (x::xs) = (
-                bindImages (lhs, List.foldl (fn (x, s) => union(images x, s)) (images x) xs);
-                NONE)
+
           in
             case e
              of S.E_Var x => (case V.typeOf x
@@ -107,13 +118,14 @@ then (print" conv-vk";let val [img, kern] = args in convolve (img, kern) end)
                   else if Var.same(rator, B.op_probe)
                     then ??
 *)
-
+(*
                   else if Var.same(rator, B.fn_inside)
+
                     then (print" \ninside";let
                     (* we convert an inside operator to one or more inside tests on images *)
                       val [pos, fld] = args
                       in
-                        case listItems(images fld)
+case (print"pre list items";listItems(images fld))
                          of [] => (*raise Fail "no image for inside test"*)
                                           SOME(S.E_InsideFEM(pos, fld), [])
                           | [(img, s)] => SOME(S.E_InsideImage(pos, img, s), [])
@@ -134,6 +146,8 @@ then (print" conv-vk";let val [img, kern] = args in convolve (img, kern) end)
                               end
                         (* end case *)
                       end)
+*)
+
 (*
                     else if Var.same(rator, B.fn_convert_fvp)
 then (print "\nconvert f";NONE)
@@ -144,7 +158,8 @@ then (print "\nconvert f";NONE)
 *)
                     else (print "other";
                     unionArgs (List.filter isField args))
-              | S.E_Tensor _ => NONE
+| S.E_Field (args,_) => (print"e-fld";unionArgs (List.filter isField args))
+| S.E_Tensor _ => (print"e-tens";NONE)
               | S.E_Seq _ => NONE
 (* WARNING: if tuples become a surface-language feature, then we will need to track tuples
  * that contain fields or images.

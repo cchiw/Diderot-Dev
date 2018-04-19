@@ -189,6 +189,7 @@ structure Inliner : sig
                   | S.E_Prim(f, tys, xs, ty) =>
                       S.E_Prim(f, tys, List.map (rename env) xs, ty)
                   | S.E_Tensor(xs, ty) => S.E_Tensor(List.map (rename env) xs, ty)
+                  | S.E_Field(xs, ty) => S.E_Field(List.map (rename env) xs, ty)
                   | S.E_Seq(xs, ty) => S.E_Seq(List.map (rename env) xs, ty)
                   | S.E_Tuple xs => S.E_Tuple(List.map (rename env) xs)
                   | S.E_Project(x, i) => S.E_Project(rename env x, i)

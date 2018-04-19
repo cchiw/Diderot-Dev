@@ -91,6 +91,7 @@ structure SimplePP : sig
                   | S.E_Prim(f, mvs, args, _) => (
                       ppASTVar(ppStrm, f); ppTyArgs (ppStrm, mvs); sp(); ppArgs (ppStrm, args))
                   | S.E_Tensor(es, _) => ppList ppVar ("[", ",", "]") (ppStrm, es)
+                  | S.E_Field(es, _) => ppList ppVar ("[", ",", "]") (ppStrm, es)
                   | S.E_Seq(es, _) => ppList ppVar ("{", ",", "}") (ppStrm, es)
                   | S.E_Tuple es => ppList ppVar ("(", ",", ")") (ppStrm, es)
                   | S.E_Project(x, i) => (var x; string "."; string(Int.toString i))

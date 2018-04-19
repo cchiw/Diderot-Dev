@@ -216,6 +216,11 @@ structure Util : sig
                       in
                         (env, S.E_Tensor(args', ty))
                       end
+ | S.E_Field(args, ty) => let
+ val (env, args') = cvtVars (env, args)
+ in
+ (env, S.E_Field(args', ty))
+ end
                   | S.E_Seq(args, ty) => let
                       val (env, args') = cvtVars (env, args)
                       in

@@ -996,6 +996,18 @@ end))
                   [Ty.T_Tensor(Ty.Shape[d]), field(k, d, dd)]
                     --> Ty.T_Bool
                 end))
+    (*inside fem field *)
+    val fn_insideO = polyVar (N.fn_insideO, all([DK, NK, SK],
+            fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE dd] => let
+                val k = Ty.DiffVar(k, 0)
+                val d = Ty.DimVar d
+                val dd = Ty.ShapeVar dd
+                val f =  Ty.T_Field{diff=k, dim=d, shape=dd}
+                in
+                    [Ty.T_Tensor(Ty.Shape[d]), f] --> Ty.T_Bool
+                end))
+
+
 
     val fn_length = polyVar (N.fn_length, all([TK],
             fn [Ty.TYPE tv] => [dynSeq(Ty.T_Var tv)] --> Ty.T_Int))
@@ -1819,17 +1831,7 @@ val fn_tensorfunctionspace = polyVar (N.fn_tensorfunctionspace, all([],
         end))
 
 (* -------------------  inside fem field  ------------------- *)
-        (*inside fem field *)
-        val fn_insideO = polyVar (N.fn_insideO, all([DK, NK, SK],
-            fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE dd] => let
-            val k = Ty.DiffVar(k, 0)
-            val d = Ty.DimVar d
-            val dd = Ty.ShapeVar dd
-            val fo =  Ty.T_OField{diff=k, dim=d, shape=dd}
-            val f =  Ty.T_Field{diff=k, dim=d, shape=dd}
-            in
-                [Ty.T_Tensor(Ty.Shape[d]), f] --> Ty.T_Bool
-            end))
+
 
 	val fn_convert_Tracker_rm = polyVar (N.fn_convert, all([DK, NK, SK],
            fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE dd] => let
