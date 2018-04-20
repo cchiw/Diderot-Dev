@@ -81,10 +81,6 @@ structure BasisNames =
     val fn_sqrt = Atom.atom "sqrt"
     val fn_tan = Atom.atom "tan"
     val fn_trunc = Atom.atom "trunc"
-
-
-    val fn_maxF = Atom.atom "maxF"
-    val fn_minF = Atom.atom "minF"
     val fn_swap = Atom.atom "swap"
 
 

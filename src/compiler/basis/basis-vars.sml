@@ -1462,7 +1462,7 @@ end))
     end (* local *)
 
 
-    val fn_maxF_s = polyVar (N.fn_maxF, all([DK,NK], fn [Ty.DIFF k, Ty.DIM d] => let
+    val fn_maxF_s = polyVar (N.fn_max, all([DK,NK], fn [Ty.DIFF k, Ty.DIM d] => let
         val k' = Ty.DiffVar(k, 0)
         val d' = Ty.DimVar d
         val f = field(k', d', Ty.Shape[])
@@ -1471,7 +1471,7 @@ end))
         end))
 
 
-    val fn_minF_s = polyVar (N.fn_minF, all([DK,NK], fn [Ty.DIFF k, Ty.DIM d] => let
+    val fn_minF_s = polyVar (N.fn_min, all([DK,NK], fn [Ty.DIFF k, Ty.DIM d] => let
         val k' = Ty.DiffVar(k, 0)
         val d' = Ty.DimVar d
         val f = field(k', d', Ty.Shape[])
@@ -1479,7 +1479,7 @@ end))
             [f, f] --> f
         end))
 
-    val fn_maxF_l = polyVar (N.fn_maxF, all([DK,NK], fn [Ty.DIFF k, Ty.DIM d] => let
+    val fn_maxF_l = polyVar (N.fn_max, all([DK,NK], fn [Ty.DIFF k, Ty.DIM d] => let
         val k' = Ty.DiffVar(k, 0)
         val d' = Ty.DimVar d
         val f = poly(k', d', Ty.Shape[])
@@ -1488,7 +1488,7 @@ end))
         end))
 
 
-    val fn_minF_l = polyVar (N.fn_minF, all([DK,NK], fn [Ty.DIFF k, Ty.DIM d] => let
+    val fn_minF_l = polyVar (N.fn_min, all([DK,NK], fn [Ty.DIFF k, Ty.DIM d] => let
         val k' = Ty.DiffVar(k, 0)
         val d' = Ty.DimVar d
         val f = poly(k', d', Ty.Shape[])

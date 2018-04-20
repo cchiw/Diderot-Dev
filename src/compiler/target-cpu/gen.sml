@@ -363,6 +363,7 @@ structure Gen : sig
                     outputs = outputs
                   }
               else ();
+(*
           (* generate the optional JSON description of the library API *)
             if (#jsonAPI spec)
               then GenLibraryJSON.gen {
@@ -373,7 +374,7 @@ structure Gen : sig
                   inputs = inputs,
                   outputs = outputs
                 }
-              else ();
+              else ();*)
             ppDecl (CL.verbatimDcl [CxxFragments.cxxHead] substitutions);
             outputDefines (outS, spec, substitutions);
             if (TSpec.isDebugger spec)

@@ -282,11 +282,13 @@ structure EinToLow : sig
   (* scan:var*E.Ein*Var list * Var list-> Var*LowIR.Assgn list
    * scans body  for vectorization potential
    *)
-    fun useCount (LowIR.V{useCnt, ...}) = Int.toString(!useCnt)
-          
+       fun useCount (LowIR.V{useCnt, ...}) = Int.toString(!useCnt)
+       
     fun expand (y, ein as Ein.EIN{params, index, body}, args) = let
-        val _ = print("\n\n *********************** Starting expand************** ")
-        val _ = print( String.concat["\n\n ",LowToString.stringArgs[y],"=",EinPP.toString(ein),(LowToString.stringArgs args)])
+
+val _ = print("\n\n *********************** Starting expand************** ")
+        val _ = print( String.concat["\n\n ",LowTypes.toString(Var.ty(y))," ", Var.name(y),"=",EinPP.toString(ein)])
+        val _ = List.map (fn e1 => print(String.concat["\n\t",LowTypes.toString(Var.ty(e1)),Var.name(e1)," cnt: ",useCount(e1)])) args
 (* DEBUG
           val _ = (case Var.ty y
                  of LowTypes.TensorTy alpha => if (alpha = index)
@@ -304,7 +306,7 @@ structure EinToLow : sig
                 of [] =>
                     [LowIR.ASSGN  (y, LowIR.VAR (List.nth (args, 0)))]
                 | (_, asgn)::rest => let
-                    val _ = print("\n\n ************* translated to ******* \n\n ")
+                val _ = print("\n\n ************* translated to ******* \n\n ")
                     val es = List.revMap LowIR.ASSGN ((y, asgn)::rest)
                     val _ = List.map (fn e1 => print("\n\t"^LowToString.toStringAssgn(e1))) es
                     val _ = print("\n\n ***************************************** \n\n ")

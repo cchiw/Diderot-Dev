@@ -48,7 +48,7 @@ structure HighToMid : sig
     structure Op = MidOps
     structure Ty = MidTypes
     fun getRHSBase x = (case IR.Var.getDef x
-        of IR.EINAPP (ein, [f,a]) => (getRHSBase f)@ (getRHSBase a)
+        of IR.EINAPP (ein, es) => (("\n ein:"^EinPP.toString(ein));List.foldl (fn (x,acc) => acc@getRHSBase(x)) [] es)
         | IR.GLOBAL gv => let
             val Ty.ImageTy info = IR.GlobalVar.ty gv
             in
@@ -59,12 +59,14 @@ structure HighToMid : sig
         | IR.OP(Op.BorderCtlMirror info, [img]) =>      [(img, info)]
         | IR.OP(Op.BorderCtlWrap info, [img]) =>        [(img, info)]
         | IR.OP(Op.LoadImage(Ty.ImageTy info, _), _) => [(x, info)]
+        | IR.OP(_, es) => List.foldl (fn (x,acc) => acc@getRHSBase(x)) [] es
         | _ =>  []
         (* end case*))
 
-        fun getRHSSupport x = (case IR.Var.getDef x
-        of IR.EINAPP (ein, [f,a]) => (getRHSSupport f)@ (getRHSSupport a)
+    fun getRHSSupport x = (case IR.Var.getDef x
+of IR.EINAPP (ein, es) => (("\n ein:"^EinPP.toString(ein));List.foldl (fn (x,acc) => acc@getRHSSupport(x)) [] es)
         | IR.OP(Op.Kernel(h, _), _) => [Kernel.support h]
+        | IR.OP(_, es) => List.foldl (fn (x,acc) => acc@getRHSSupport(x)) [] es
         | _ =>  []
         (* end case*))
 
@@ -149,8 +151,10 @@ structure HighToMid : sig
 
     (* expand the High IR Inside operator into an image-space test *)
     fun expandInsideBase (env, result, dim, [pos, fld]) = let
-        fun iter([],[]) = []
+
+        fun iter([],_) = []
           | iter((img, info)::Vs, s::Hs) = let
+
             val (x, code) = let
                 val avail = AvailRHS.new()
                 val (_, x) = CoordSpaceTransform.worldToImage {
@@ -161,14 +165,20 @@ structure HighToMid : sig
                 end
             val code = (result, DstIR.OP(DstOp.Inside(info, s), [x, img])) :: code
             val tmp =    List.rev code
-            in
-                tmp @iter(Vs,Hs)
+            in (case Hs
+                of [] => tmp @iter(Vs,[s])
+                | _   => tmp @iter(Vs,Hs)
+              (*end case*))
             end
+
 
         val Vs = getRHSBase fld
         val Hs  = getRHSSupport fld
-        in
-            iter(Vs,Hs)
+
+
+        val code =  iter(Vs,Hs)
+
+        in code
         end
 
     fun arity (SrcTy.TensorTy[]) = 1

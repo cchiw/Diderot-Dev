@@ -13,7 +13,7 @@ Library
   structure CodeGenEnv
   structure CodeGenUtil
   structure CodeOutput
-  structure GenLibraryJSON
+  (*structure GenLibraryJSON*)
   structure GenLibraryInterface
   structure GlobalStruct
   structure OutputUtil
@@ -45,7 +45,7 @@ is
   codegen-env.sml
   codegen-util.sml
   code-output.sml
-  gen-library-json.sml
+  (*gen-library-json.sml*)
   gen-library-interface.sml
   global-struct.sml
   output-util.sml
