@@ -54,6 +54,11 @@ structure Normalize : sig
             (* end case *)
           end
 
+fun useCount (HighIR.V{useCnt, ...}) = !useCnt
+fun ll ([],cnt) = ""
+| ll (a1::args,cnt) = String.concat[" ", Int.toString(cnt),"_", HighTypes.toString(HighIR.Var.ty a1), " ", HighIR.Var.name(a1),",", ll(args,cnt+1)]
+
+
  (* doNormalize : EIN -> EIN
   * Orders EIN, normalizes it, then cleans the summation
   *)
@@ -84,13 +89,12 @@ structure Normalize : sig
    *    lhs
    *)
 fun rewriteEin (changed, params, place, newEinOp, newArgs, done, arg, orig, lhs) = (
-     ("\n\n*************************pre  app:"^EinPP.toString(newEinOp));
     case List.nth(params, place)
             of Ein.TEN(false, _) => (
                 (changed, orig, place+1, done@[arg]))
 	    | _ => (case Apply.apply (orig, place, newEinOp,newArgs,done)
                     of SOME einOp => let
-                        val _ = ("\n\n*************************post  app:"^EinPP.toString(einOp));
+                        val _ = print(String.concat["\n\nAfter Application:",EinPP.toString(einOp), ":",ll(done @ newArgs,0)])
                          (* einOp is the result of the beta-reduction *)
                         in
                         (decUse arg; List.app incUse newArgs;
@@ -112,11 +116,8 @@ fun rewriteEin (changed, params, place, newEinOp, newArgs, done, arg, orig, lhs)
    * Keeps track of the place of the argument in substitution.
    *)
     fun doRHS (lhs, IR.EINAPP(ein, args)) = let
-(*
-val _ = print ("\n in doRHS central ein:"^EinPP.toString(ein))
-    val _ = print(String.concat["highir type",HighTypes.toString(V.ty lhs)])
-    val _ = print(String.concatWith",\t" (List.map (fn e1=> HighTypes.toString(V.ty e1)) args))
-*)
+
+val _ = print(String.concat["\n\ndoRhs:",EinPP.toString(ein), ":",ll(args,0)])
 
             fun rewrite (false, _, _, [], _) = (NONE)
               | rewrite (true, einOp, _, [], args') =(
@@ -124,11 +125,11 @@ val _ = print ("\n in doRHS central ein:"^EinPP.toString(ein))
              | rewrite (changed, einOp, place, x::xs, args') = (case getEinApp x
                  of NONE => (rewrite (changed, einOp, place+1, xs, args'@[x]))
                   | SOME(newE, newA) => let
-
                         val Ein.EIN{params, ...} = einOp
-                       (* val _ =print ("\ninside ein"^EinPP.toString(einOp))*)
+val _ = print(String.concat["\n\n----------------------------------------\n\nBefore rewriting:",EinPP.toString(einOp), ":",ll(args'@(x::xs),0)])
                       val (changed, einOp', place', done') =
                             rewriteEin (changed, params, place, newE, newA, args', x, einOp, lhs)
+val _ = print(String.concat["\n\nDone rewriting:",EinPP.toString(einOp'), ":",ll(done'@xs,0)])
                       in
                         rewrite (changed, einOp', place', xs, done')
                       end

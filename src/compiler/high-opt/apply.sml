@@ -138,9 +138,13 @@ structure Apply : sig
           in
             (params', origId, subId, nbeg)
           end
-
+fun useCount (HighIR.V{useCnt, ...}) = !useCnt
+fun ll ([],cnt) = ""
+| ll (a1::args,cnt) = String.concat[" ", Int.toString(cnt),"_", HighTypes.toString(HighIR.Var.ty a1), " ", HighIR.Var.name(a1),",", ll(args,cnt+1)]
   (* Looks for params id that match substitution *)
    fun apply (e1 as E.EIN{params, index, body}, place, e2,newArgs,done) = let
+val _ = print(String.concat["\n\nInside Apply:e1:",EinPP.toString(e1), ":",ll(done,0)])
+val _ = print(String.concat["\n\nInside Apply:e2:",EinPP.toString(e2), ":",ll(newArgs,0)])
 (*
           val _ = print(String.concat["\n*******************\n Apply:",EinPP.toString(e1)])
            val _ = print(String.concat["\nwith:",EinPP.toString(e2), " \nat:",Int.toString(place),"\n"])

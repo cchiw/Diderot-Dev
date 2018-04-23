@@ -126,6 +126,7 @@ structure MkOperators : sig
     val zeros : shape -> Ein.ein
     val sliceT : bool list * int list * Ein.index_bind list * int list -> Ein.ein
     val sliceF : bool list * int list * Ein.index_bind list * int -> Ein.ein
+    val concatTensor: shape *int -> Ein.ein
     val concatField: int * shape *int -> Ein.ein
     val composition: shape * shape * int -> Ein.ein
  
@@ -1140,7 +1141,24 @@ structure MkOperators : sig
           in
             E.EIN{params = [E.FLD (dim, const)], index = rstTy, body = E.Field(0, ix)}
           end
-
+          
+          
+          
+    fun concatTensor (shape, nflds) = let
+          val expindex = specialize(shape, 1)
+          val params = List.tabulate (nflds, fn _=> mkTEN shape)
+          val exps = List.tabulate (nflds, fn n =>  E.Opn(E.Prod, [E.Tensor(n, expindex), E.Delta(E.C n, E.V 0)]))
+          
+          val einop =
+          E.EIN{
+          params = params,
+          index = nflds::shape,
+          body = E.Opn(E.Add, exps)
+          }
+          
+          in einop end
+          
+          
     fun concatField (dim, shape, nflds) = let
         val expindex = specialize(shape, 1)
         val params = List.tabulate (nflds, fn _=> E.FLD (dim, shape))
@@ -1251,15 +1269,15 @@ structure MkOperators : sig
     fun poly (falpha, talphas) = let
         val expindex = specialize(falpha, 0)
         val n = length(talphas)
-        val fldtem = E.Tensor(n, expindex)
-        val tterm = List.tabulate(n, fn id => id)
+        val fldtem = E.Tensor(0, expindex)
+        val tterm = List.tabulate(n, fn id => id+1)
         val e1 =
           E.EIN {
             params = (List.map (fn talpha => mkTEN talpha)  talphas)@[mkTEN falpha],
             index = falpha,
             body = E.OField(E.PolyWrap tterm, fldtem , [])
             }
-        val _ = print(String.concat["\npoly term: ",EinPP.toString(e1)])
+        val _ = print(String.concat["\n mk-operators- poly term: ",EinPP.toString(e1)])
         in
             e1
         end

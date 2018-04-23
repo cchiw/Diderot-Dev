@@ -285,8 +285,10 @@ structure EinToLow : sig
     fun useCount (LowIR.V{useCnt, ...}) = Int.toString(!useCnt)
           
     fun expand (y, ein as Ein.EIN{params, index, body}, args) = let
+    (*
         val _ = print("\n\n *********************** Starting expand************** ")
         val _ = print( String.concat["\n\n ",LowToString.stringArgs[y],"=",EinPP.toString(ein),(LowToString.stringArgs args)])
+        *)
 (* DEBUG
           val _ = (case Var.ty y
                  of LowTypes.TensorTy alpha => if (alpha = index)
@@ -304,10 +306,12 @@ structure EinToLow : sig
                 of [] =>
                     [LowIR.ASSGN  (y, LowIR.VAR (List.nth (args, 0)))]
                 | (_, asgn)::rest => let
-                    val _ = print("\n\n ************* translated to ******* \n\n ")
                     val es = List.revMap LowIR.ASSGN ((y, asgn)::rest)
+                    (*
+                    val _ = print("\n\n ************* translated to ******* \n\n ")
                     val _ = List.map (fn e1 => print("\n\t"^LowToString.toStringAssgn(e1))) es
                     val _ = print("\n\n ***************************************** \n\n ")
+                    *)
                     in
                         es
                     end
