@@ -117,7 +117,7 @@ fun rewriteEin (changed, params, place, newEinOp, newArgs, done, arg, orig, lhs)
    *)
     fun doRHS (lhs, IR.EINAPP(ein, args)) = let
 
-val _ = print(String.concat["\n\ndoRhs:",EinPP.toString(ein), ":",ll(args,0)])
+val _ = print(String.concat["\n\n****************************************************\ndoRhs:",EinPP.toString(ein), ":",ll(args,0)])
 
             fun rewrite (false, _, _, [], _) = (NONE)
               | rewrite (true, einOp, _, [], args') =(

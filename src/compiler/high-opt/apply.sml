@@ -144,7 +144,7 @@ fun ll ([],cnt) = ""
   (* Looks for params id that match substitution *)
    fun apply (e1 as E.EIN{params, index, body}, place, e2,newArgs,done) = let
 val _ = print(String.concat["\n\nInside Apply:e1:",EinPP.toString(e1), ":",ll(done,0)])
-val _ = print(String.concat["\n\nInside Apply:e2:",EinPP.toString(e2), ":",ll(newArgs,0)])
+val _ = print(String.concat["\n\nwith :",EinPP.toString(e2), ":",ll(newArgs,0)," \nat:",Int.toString(place),"\n"])
 (*
           val _ = print(String.concat["\n*******************\n Apply:",EinPP.toString(e1)])
            val _ = print(String.concat["\nwith:",EinPP.toString(e2), " \nat:",Int.toString(place),"\n"])

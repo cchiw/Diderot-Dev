@@ -32,8 +32,9 @@ structure PolyEin : sig
     | iterP (E.Const 1::es, rest) = iterP(es, rest)
     | iterP (E.Delta(E.C c1, E.V v1)::E.Delta(E.C c2, E.V v2)::es, rest) =
         (* variable can't be 0 and 1 '*)
-        if(c1=c2) then iterP (es, E.Delta(E.C c1, E.V v1)::E.Delta(E.C c2, E.V v2)::rest)
-        else E.Const(0)
+        if(c1=c2 orelse (not (v1=v2)))
+        then iterP (es, E.Delta(E.C c1, E.V v1)::E.Delta(E.C c2, E.V v2)::rest)
+        else  E.Const(0)
     | iterP(E.Opn(E.Prod, ys)::es, rest) = iterP(ys@es, rest)
     | iterP (e1::es, rest)   = iterP(es, e1::rest)
 
@@ -268,7 +269,7 @@ structure PolyEin : sig
     fun transform (y, ein as Ein.EIN{body,index, params}, args) =
         let
             val E.Probe(E.OField(E.PolyWrap pargs, e, dx), expProbe) = body
-            val _ = (String.concat["\n\n*******************\n  starting polyn:",MidIR.Var.name(y),"=", EinPP.toString(ein),"-",ll(args,0)])
+            val _ = print(String.concat["\n\n*******************\n  starting polyn:",MidIR.Var.name(y),"=", EinPP.toString(ein),"-",ll(args,0)])
             (********************************** Step 1 *******************************)
             (* replace polywrap args/params with probed position(s) args/params *)
             val start_idxs = (case (expProbe)
@@ -278,7 +279,7 @@ structure PolyEin : sig
 
             val (args, params, e) = polyArgs(args, params, pargs, start_idxs, e)
             val ein = Ein.EIN{body=e, index=index, params=params}
-            val _ = (String.concat["\n\n   polyArgs\n:",MidIR.Var.name(y),"=", EinPP.toString(ein),"-",ll(args,0)])
+            val _ = print(String.concat["\n\n   polyArgs\n:",MidIR.Var.name(y),"=", EinPP.toString(ein),"-",ll(args,0)])
 
             (********************************** Step 2 *******************************)
             (* need to flatten before merging polynomials in product *)
