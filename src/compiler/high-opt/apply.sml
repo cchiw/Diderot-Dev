@@ -37,11 +37,11 @@ structure Apply : sig
     fun ixT(E.V V) = "V"^Int.toString(V)
       | ixT(E.C C) = "C"^Int.toString(C)
     fun rewriteSubst (e, subId, mx, paramShift, sumShift,newArgs,done) = let
-            (*
+
             val aa= String.concatWith"," (List.map (fn e1=>(HighIR.Var.name(e1))) done)
             val bb= String.concatWith"," (List.map (fn e1=>(HighIR.Var.name(e1))) newArgs)
-            val _ = (concat["\n\n inside rewritesub \ndone:",aa, "\n newargs:",bb])
-            *)
+            val _ = (concat["\n\n inside rewriteSubst \ndone:",aa, "\n newargs:",bb])
+
 
           fun insertIndex ([], _, dict, shift) = (dict, shift)
             | insertIndex (e::es, n, dict, _) = let
@@ -159,10 +159,10 @@ val _ = (String.concat["\n\nwith :",EinPP.toString(e2), ":",ll(newArgs,0)," \nat
                 val comp = !insideComp
                 (* note change here*)
                 val x = if(comp) then (length index) else  !sumIndex
-(*
+
                 val _ = (String.concat["\nInside rewrite:",EinPP.expToString(e)])
 val _ = (String.concat["mx:",Int.toString(length mx)," shape:",Int.toString(length shape)])
-*)
+
                 in
                   if (id = place)
                     then if (length mx = length shape)

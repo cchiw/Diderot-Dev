@@ -740,11 +740,11 @@ structure TranslateBasis : sig
                                           assign(y, Op.MathFn MathFns.ROUND, args)),
                 (BV.fn_trunc_r,         fn (y, _, args) =>
                                           assign(y, Op.MathFn MathFns.TRUNC, args)),
-                (BV.fn_poly_1,              fn (y, [_,Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE ddT], xs) =>
+                (BV.fn_cfe_1,              fn (y, [_,Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE ddT], xs) =>
                                             [assignEin(y, Mk.poly (ddF, [ddT]), xs)]),
-                (BV.fn_poly_2,              fn (y, [_,Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE dd1, Ty.SHAPE dd2], xs) =>
+                (BV.fn_cfe_2,              fn (y, [_,Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE dd1, Ty.SHAPE dd2], xs) =>
                                             [assignEin(y, Mk.poly (ddF, [dd1, dd2]), xs)]),
-                (BV.fn_poly_3,              fn (y, [_,Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE dd1, Ty.SHAPE dd2, Ty.SHAPE dd3], xs) =>
+                (BV.fn_cfe_3,              fn (y, [_,Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE dd1, Ty.SHAPE dd2, Ty.SHAPE dd3], xs) =>
                                             [assignEin(y, Mk.poly (ddF, [dd1, dd2, dd3]), xs)]),
                 (BV.fn_inst_1_FT,               fn (y, [_, Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE ddT], args) =>
                                             [ assignEin(y, Mk.polyProbe (ddF,d1, [ddT]), args)]),

@@ -1290,7 +1290,7 @@ structure MkOperators : sig
         val tterm = List.tabulate(n, fn id => id+1)
         val e1 =
           E.EIN {
-            params = (List.map (fn talpha => mkTEN talpha)  talphas)@[mkTEN falpha],
+            params = [mkTEN falpha]@(List.map (fn talpha => mkNoSubstTEN  talpha)  talphas),
             index = falpha,
             body = E.OField(E.PolyWrap tterm, fldtem , [])
                     (*Tensor term ids, expression, derivative indices*)

@@ -1662,32 +1662,32 @@ end))
 (* --------------------------------------Closed-Form example -----------------------------------------*)
     (*function polynomial*)
     (* below we offer different number of input variables *)
-    val fn_poly_1 = polyVar(N.fn_poly , all([DK, NK, SK, SK],
+    val fn_cfe_1 = polyVar(N.fn_poly , all([DK, NK, SK, SK],
         fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.SHAPE ddT] => let
 
         val k0 = Ty.DiffVar(k, 0)
         val t1 = Ty.T_Tensor(Ty.ShapeVar ddT)
         val f0 = Ty.T_Tensor(Ty.ShapeVar ddF)
-        val f1 = Ty.T_OField{diff = k0, dim = Ty.DimVar d, shape = Ty.ShapeVar ddF}
+        val f1 = Ty.T_Field{diff = k0, dim = Ty.DimVar d, shape = Ty.ShapeVar ddF}
         in
         [f0,t1] --> f1
         end
         ))
 
-    val fn_poly_2 = polyVar(N.fn_poly , all([DK, NK, SK, SK, SK],
+    val fn_cfe_2 = polyVar(N.fn_poly , all([DK, NK, SK, SK, SK],
         fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.SHAPE ddT, Ty.SHAPE ddT2] => let
 
         val k0 = Ty.DiffVar(k, 0)
         val t1 = Ty.T_Tensor(Ty.ShapeVar ddT)
         val t2 = Ty.T_Tensor(Ty.ShapeVar ddT2)
         val f0 = Ty.T_Tensor(Ty.ShapeVar ddF)
-        val f1 = Ty.T_OField{diff = k0, dim = Ty.DimVar d, shape = Ty.ShapeVar ddF}
+        val f1 = Ty.T_Field{diff = k0, dim = Ty.DimVar d, shape = Ty.ShapeVar ddF}
         in
         [f0,t1, t2] --> f1
         end
         ))
 
-    val fn_poly_3 = polyVar(N.fn_poly , all([DK, NK, SK, SK, SK, SK],
+    val fn_cfe_3 = polyVar(N.fn_poly , all([DK, NK, SK, SK, SK, SK],
         fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.SHAPE ddT, Ty.SHAPE ddT2, Ty.SHAPE ddT3] => let
 
         val k0 = Ty.DiffVar(k, 0)
@@ -1695,7 +1695,7 @@ end))
         val t2 = Ty.T_Tensor(Ty.ShapeVar ddT2)
         val t3 = Ty.T_Tensor(Ty.ShapeVar ddT3)
         val f0 = Ty.T_Tensor(Ty.ShapeVar ddF)
-        val f1 = Ty.T_OField{diff = k0, dim = Ty.DimVar d, shape = Ty.ShapeVar ddF}
+        val f1 = Ty.T_Field{diff = k0, dim = Ty.DimVar d, shape = Ty.ShapeVar ddF}
         in
         [f0,t1, t2, t3] --> f1
         end
@@ -1875,7 +1875,7 @@ val fn_tensorfunctionspace = polyVar (N.fn_tensorfunctionspace, all([],
         val d = Ty.DimVar d
         val dF = Ty.ShapeVar ddF
         val dT = Ty.ShapeVar ddT
-        val f =  Ty.T_OField{diff=k, dim=d, shape=dF}
+        val f =  Ty.T_Field{diff=k, dim=d, shape=dF}
         in
         [f, Ty.T_Tensor dT] --> Ty.T_Tensor dF
         end))
@@ -1886,7 +1886,7 @@ val fn_tensorfunctionspace = polyVar (N.fn_tensorfunctionspace, all([],
         val d = Ty.DimVar d
         val dF = Ty.ShapeVar ddF
         val dT = Ty.ShapeVar ddT
-        val f =  Ty.T_OField{diff=k, dim=d, shape=dF}
+        val f =  Ty.T_Field{diff=k, dim=d, shape=dF}
         in
             [Ty.T_Tensor dT, f] --> Ty.T_Tensor dF
         end))
@@ -1899,7 +1899,7 @@ val fn_tensorfunctionspace = polyVar (N.fn_tensorfunctionspace, all([],
         val dF = Ty.ShapeVar ddF
         val dT = Ty.ShapeVar ddT
         val d2T = Ty.ShapeVar ddT2
-        val f =  Ty.T_OField{diff=k, dim=d, shape=dF}
+        val f =  Ty.T_Field{diff=k, dim=d, shape=dF}
         in
         [f, Ty.T_Tensor dT, Ty.T_Tensor d2T] --> Ty.T_Tensor dF
         end))
@@ -1912,7 +1912,7 @@ val fn_tensorfunctionspace = polyVar (N.fn_tensorfunctionspace, all([],
         val dT = Ty.ShapeVar ddT
         val d2T = Ty.ShapeVar ddT2
         val d3T = Ty.ShapeVar ddT3
-        val f =  Ty.T_OField{diff=k, dim=d, shape=dF}
+        val f =  Ty.T_Field{diff=k, dim=d, shape=dF}
         in
         [f, Ty.T_Tensor dT, Ty.T_Tensor d2T, Ty.T_Tensor d3T] --> Ty.T_Tensor dF
         end))

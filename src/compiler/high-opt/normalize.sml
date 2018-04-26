@@ -99,7 +99,7 @@ fun rewriteEin (changed, params, place, newEinOp, newArgs, done, arg, orig, lhs)
                         in
                         (decUse arg; List.app incUse newArgs;
                         (true, einOp, place + length newArgs, done @ newArgs))
-                        end 
+                        end
                     | NONE => ( (* arg was unused in orig, so we can get rid of it *)
                         decUse arg;
                         (true, orig, place, done))
