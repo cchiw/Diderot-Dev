@@ -343,6 +343,17 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
                 in
                 [IR.ASSGN(lhs, ein)]
                 end
+            | S.E_Slice(x, indices, ty as Ty.T_Tensor shape) => let
+                val x = lookup env x
+                (* extract the integer indices from the mask *)
+                val args' = List.mapPartial Fn.id indices
+                val mask' = List.map Option.isSome indices
+                val DstTy.TensorTy argTy =  IR.Var.ty x
+                val rator =  MkOperators.sliceT(mask', args', shape, argTy)
+                val ein = IR.EINAPP(rator, [x])
+                in
+                [IR.ASSGN(lhs, ein)]
+                end
             | S.E_Slice(x, indices, ty) => let
                 val x = lookup env x
               (* check the indices to the slice.  There are two special cases: if all of the indices

@@ -122,7 +122,7 @@ structure PolyEin : sig
         fun iter(_, args, params, [], e) = (args, params,e)
             | iter (pid::es, args, params, idx::idxs,e) =
             let
-                val _ = (String.concat["\n replacing param id:",Int.toString(pid),"idx:",Int.toString(idx)])
+                val _ = print(String.concat["\n replacing param id:",Int.toString(pid),"idx:",Int.toString(idx)])
                 val (args, params, mapp) = replaceArg(args, params, idx, pid)
                 (* get dimension of vector that is being broken into components*)
                 val param_pos = List.nth(params, pid)
@@ -136,6 +136,16 @@ structure PolyEin : sig
             in iter(es, args,params, idxs, e) end
 
         (*start_id: start of position variables for probe operation *)
+        fun iTos(name,es) = String.concat[name ,String.concatWith","(List.map (fn e1=> String.concat[Int.toString(e1)]) es)]
+val _ = print(String.concat["\n\n",
+EinPP.expToString(e),
+"\n",
+iTos("pargs:",pargs),
+iTos("start_idxs:",start_idxs),
+"\n",
+"Argsl:", Int.toString(length(args)),
+"Paramsl:", Int.toString(length(params))])
+
         val (args, params, e) = iter(pargs, args, params, start_idxs, e)
         in (args, params, e) end
     (********************************** Step 2 *******************************)
@@ -274,7 +284,7 @@ structure PolyEin : sig
             (* replace polywrap args/params with probed position(s) args/params *)
             val start_idxs = (case (expProbe)
                 of E.Tensor(tid,_) => [tid]
-                |   E.Opn(E.Add,ps) => List.map (fn E.Tensor(tid,_) => tid) ps
+                |  E.Opn(E.Add,ps) => List.map (fn E.Tensor(tid,_) => tid) ps
                 (*end case*))
 
             val (args, params, e) = polyArgs(args, params, pargs, start_idxs, e)

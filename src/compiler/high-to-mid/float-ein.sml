@@ -115,7 +115,7 @@ structure FloatEin : sig
         val k= (case e
         of E.Probe(fld, x) =>(
             case fld
-            of E.Tensor _        => err "Tensor without Lift"
+            of E.Tensor _        => fld (*in case cfexp of tensor*)
             | E.Lift e           => e
             | E.Zero _           => fld
             | E.Partial _        => err "Probe Partial"
@@ -143,22 +143,30 @@ structure FloatEin : sig
     (*
     * sx- outside summation, sx2-wrapped around probe
     *)
-    fun compSingle (name, params, sx, sx2, args, avail, innerVar, e1, index, index2) = let
+    fun compSingle (name, params, sx, sx2, args, avail, innerVar, A, index, index2, fld) = let
+
         (* outer term in composition: newP, innerVar*)
         val id2 = length params
         val args2 = args@[innerVar]
         val newP2 = params@[E.TEN(true, index2)]
+
+        val exp_pos = E.Tensor(id2,[])
+        val exp_fld =(case fld
+            of E.OField(E.PolyWrap tterm, _, dx) => E.OField(E.PolyWrap tterm, A , dx)
+            | _  => A
+            (*end case*))
+        val exp_probe = mkProbe(E.Probe(exp_fld, exp_pos))
         val outerExp2 = (case sx2
-            of [] => mkProbe(E.Probe(e1, E.Tensor(id2,[])))
-            | _  => E.Sum(sx2, mkProbe(E.Probe(e1, E.Tensor(id2,[]))))
+            of [] => exp_probe
+            | _   => E.Sum(sx2, exp_probe)
             (* end case*))
+
         val (tshape2, sizes2, body2) = CleanIndex.clean(outerExp2, index, sx)
         val einapp2 = CleanParams.clean (body2, newP2, sizes2, args2)
         val IR.EINAPP(outerExp, _) = einapp2
-        (* val _ = (String.concat["\n\n  outer:",EinPP.toString(outerExp)])*)
-        val lhs = AvailRHS.addAssign (
-        avail,
-        concat[name, "l"], Ty.tensorTy sizes2, einapp2)
+        val _ = print(String.concat["\n\n  outer:",EinPP.toString(outerExp)])
+        val lhs = AvailRHS.addAssign (avail,concat[name, "l"], Ty.tensorTy sizes2, einapp2)
+
         (*replacement*)
         val Re = E.Tensor(id2, tshape2)
         in
@@ -167,21 +175,33 @@ structure FloatEin : sig
 
 
     fun compn (name, exp, params, indexD, sx, sx2, args, avail) = let
-        val E.Probe(E.Comp(D, es),x) = exp
+        val E.Probe(fld, pos) = exp
+        val (D, es) = (case fld
+            of E.Comp e => e
+            |  E.OField(E.PolyWrap tterm,E.Comp e , dx) => e
+            (*end case*))
 
-        fun iter(sizes, lhs, [], avail) =  compSingle(name, params, sx, sx2, args, avail, lhs, D, indexD, sizes)
+
+        fun iter(sizes, lhs, [], avail) =  compSingle(name, params, sx, sx2, args, avail, lhs, D, indexD, sizes,fld)
           | iter(sizes, lhs, (B, indexB)::ns, avail) = let
-            val (_, sizes2, lhs2) =        compSingle(name, params, [], [], args, avail, lhs, B, indexB, sizes)
+            val (_, sizes2, lhs2) =        compSingle(name, params, [], [], args, avail, lhs, B, indexB, sizes,fld)
             in
                 iter(sizes2, lhs2, ns, avail)
             end
         val es' = List.rev(es)
         (* inner term in composition *)
         val (A, indexA) = List.hd(es')
-        val innerExp = E.EIN{params = params, index =  indexA, body = E.Probe(A,x)}
+        val wrapA = (case fld
+            of E.OField(E.PolyWrap tterm, _, dx) => E.OField(E.PolyWrap tterm, A , dx)
+            | _  => A
+            (*end case*))
+
+        val innerExp = E.EIN{params = params, index =  indexA, body = E.Probe(wrapA,pos)}
         val innerVar = AvailRHS.addAssign (avail, "Inner", Ty.tensorTy indexA, IR.EINAPP(innerExp, args))
+        val _ = print(String.concat["\n\n",V.name(innerVar), " = ",EinPP.toString(innerExp)])
         (*other  composition *)
         val (Re, sizes, lhs) = iter(indexA, innerVar, List.tl(es'), avail)
+        val _ = print(String.concat["\n\n",V.name(lhs), " = ",EinPP.expToString(Re)])
 
         in
             (Re, params @ [E.TEN(true, sizes)], args @ [lhs])
@@ -221,118 +241,98 @@ structure FloatEin : sig
                   filter (es, [], params, args)
                 end
         fun rewrite (sx, exp, params, args) = (case exp
-                 of E.Probe(E.Conv(_, [E.C _], _, []), _) =>
-                     (cut ("cut", exp, params, index, sx, args, avail, 0))
-                  | E.Probe(E.Conv(_, [E.C _ ], _, [E.V 0]), _) =>
-                     ( "--cut"; cut ("cut", exp, params, index, sx, args, avail, 1))
-                  | E.Probe(E.Conv(_, [E.C _ ], _, [E.V 0, E.V 1]), _) =>
-                     ( "--cut"; cut ("cut", exp, params, index, sx, args, avail, 2))
-                  | E.Probe(E.Conv(_, [E.C _ ], _, [E.V 0, E.V 1, E.V 2]), _) =>
-                      ( "--cut";cut ("cut", exp, params, index, sx, args, avail, 3))
-                  | E.Probe(E.OField(_, E.Tensor(_,alpha), dx), _) =>
-                    let
-                        fun cutAlpha(id,shiftcx)=
-                            cut_ofield1 ("cut", exp, params, index, sx, args, avail, id,shiftcx)
-                        val shiftcx = 0
-                        in (case (alpha, dx)
-                            of (*([E.C c], []) =>  cutAlpha (E.C c, shiftcx)
-                            |  ([E.C c], [E.V 0]) => cutAlpha(E.C c, shiftcx)
-                            |  ([E.C c], [E.V 0, E.V 1]) => cutAlpha(E.C c, shiftcx)
-                            |  ([E.C c], [E.V 0, E.V 1, E.V 2]) => cutAlpha(E.C c, shiftcx)
-                            |  ([E.C c, E.V 0], []) =>  cutAlpha (E.C c, shiftcx)
-                            |  ([E.C c, E.V 0], [E.V 1]) => cutAlpha(E.C c, shiftcx)
-                            |  ([E.C c, E.V 0], [E.V 1, E.V 2]) => cutAlpha(E.C c, shiftcx)
-                            |  ([E.C c, E.V 0], [E.V 1, E.V 2, E.V 3]) => cutAlpha(E.C c, shiftcx)
-                            |*) _ => lift ("probe", exp, params, index, sx, args, avail)
-
-                        (*end case*))
-                    end
-                    | E.Probe(E.Comp(_, es), _) => (case es
-                        of []   => raise Fail "nonsupported nest"
-                        | _     => compn("composition", exp,params, index, sx, [],args, avail)
-                        (* end case*))
-                    | E.Sum(sx2, exp as E.Probe(E.Comp(_, es), _)) => (case es
-                        of []   => raise Fail "nonsupported nest"
-                        | _     =>  compn("composition", exp,params, index, sx, sx2, args, avail)
-                        (* end case*))
-
-                  | E.Probe _ => (case (mkProbe exp)
-                    of E.Probe _ => ( "--lift";lift ("probe", exp, params, index, sx, args, avail))
-                    | exp => ( "--else";rewrite(sx, exp, params, args))
+            of E.Probe(fld, pos) => (case fld
+               of E.Conv(_, [E.C _], _, [])         => cut ("cut", exp, params, index, sx, args, avail, 0)
+                | E.Conv(_, [E.C _ ], _, [E.V 0])   => cut ("cut", exp, params, index, sx, args, avail, 1)
+                | E.Conv(_, [E.C _ ], _, [E.V 0, E.V 1])
+                                                    => cut ("cut", exp, params, index, sx, args, avail, 2)
+                | E.Conv(_, [E.C _ ], _, [E.V 0, E.V 1, E.V 2])
+                                                    => cut ("cut", exp, params, index, sx, args, avail, 3)
+                | E.OField(_, E.Tensor(_,alpha), dx) => lift ("probe", exp, params, index, sx, args, avail)
+                | E.Comp(_, []) => raise Fail "nonsupported nest"
+                | E.Comp(_, es)
+                    => compn("composition", exp,params, index, sx, [],args, avail)
+                | E.OField(E.PolyWrap tterm, E.Comp _ , dx)
+                    =>  compn("poly-wrap-composition", exp,params, index, sx, [],args, avail)
+                |  _ => (case (mkProbe exp)
+                    of E.Probe _ => lift ("probe", exp, params, index, sx, args, avail)
+                    | exp       => rewrite(sx, exp, params, args))
                     (* end case*))
-                   | E.Sum(_, E.Probe ( _, _)) => lift ("sumprobe", exp, params, index, sx, args, avail)
+            | E.Sum(sx2, exp as E.Probe(E.Comp(_, []), _)) =>  raise Fail ("nonsupported nest")
+            | E.Sum(sx2, exp as E.Probe(E.Comp(_, es), _)) =>  compn("composition", exp,params, index, sx, sx2, args, avail)
+            | E.Sum(_, E.Probe ( _, _)) => lift ("sumprobe", exp, params, index, sx, args, avail)
 
-                  | E.Op1(op1, e1) => let
-                      val (e1', params', args') = rewrite (sx, e1, params, args)
-                      val ([e1], params', args') = filterOps ([e1'], params', args', index, sx)
-                      in
-                        (E.Op1(op1, e1), params', args')
-                      end
-                  | E.Op2(E.Div, E.Const 1, e2) => let
-                      val e1 = E.Const 1
-                      val (e1', params', args') = rewrite (sx, e1, params, args)
-                      val (e2', params', args') = rewrite (sx, e2, params', args')
-                      val ([e1', e2'], params', args') =
+            | E.Op1(op1, e1) => let
+                  val (e1', params', args') = rewrite (sx, e1, params, args)
+                  val ([e1], params', args') = filterOps ([e1'], params', args', index, sx)
+                  in
+                    (E.Op1(op1, e1), params', args')
+                  end
+            | E.Op2(E.Div, E.Const 1, e2) => let
+                  val e1 = E.Const 1
+                  val (e1', params', args') = rewrite (sx, e1, params, args)
+                  val (e2', params', args') = rewrite (sx, e2, params', args')
+                  val ([e1', e2'], params', args') =
+                    filterOps ([e1', e2'], params', args', index, sx)
+                  in
+                    (E.Op2(E.Div, e1', e2'), params', args')
+                  end
+
+            | E.Op2(op2, e1, e2) => let
+                  val (e1', params', args') = rewrite (sx, e1, params, args)
+                  val (e2', params', args') = rewrite (sx, e2, params', args')
+                  val ([e1', e2'], params', args') =
                         filterOps ([e1', e2'], params', args', index, sx)
-                      in
-                        (E.Op2(E.Div, e1', e2'), params', args')
-                      end
+                  in
+                    (E.Op2(op2, e1', e2'), params', args')
+                  end
+            | E.Op3(op3, e1, e2, e3) => let
+                  val (e1', params', args') = rewrite (sx, e1, params, args)
+                  val (e2', params', args') = rewrite (sx, e2, params', args')
+                  val (e3', params', args') = rewrite (sx, e3, params', args')
+                  val ([e1', e2', e3'], params', args') =
+                    filterOps ([e1', e2', e3'], params', args', index, sx)
+                  in
+                    (E.Op3(op3, e1', e2', e3'), params', args')
+                  end
+            | E.Opn(opn, es) => let
+                  fun iter ([], es, params, args) = (List.rev es, params, args)
+                    | iter (e::es, es', params, args) = let
+                        val (e', params', args') = rewrite (sx, e, params, args)
+                        in
+                          iter (es, e'::es', params', args')
+                        end
+                  val (es, params, args) = iter (es, [], params, args)
+                  val (es, params, args) = filterOps (es, params, args, index, sx)
+                  in
+                    (E.Opn(opn, es), params, args)
+                  end
+            | E.Sum(sx1, e) => let
+                  val (e', params', args') = rewrite (sx1@sx, e, params, args)
+                  in
+                    (E.Sum(sx1, e'), params', args')
+                  end
+            | E.If(comp, e3, e4) => let
+                val (e1,e2) = (case comp
+                    of E.GT(e1, e2) => (e1, e2)
+                    | E.LT(e1, e2) => (e1, e2)
+                    (* end case*))
 
-                  | E.Op2(op2, e1, e2) => let
-                      val (e1', params', args') = rewrite (sx, e1, params, args)
-                      val (e2', params', args') = rewrite (sx, e2, params', args')
-                      val ([e1', e2'], params', args') =
-                            filterOps ([e1', e2'], params', args', index, sx)
-                      in
-                        (E.Op2(op2, e1', e2'), params', args')
-                      end
-                   | E.Op3(op3, e1, e2, e3) => let
-                      val (e1', params', args') = rewrite (sx, e1, params, args)
-                      val (e2', params', args') = rewrite (sx, e2, params', args')
-                      val (e3', params', args') = rewrite (sx, e3, params', args')
-                      val ([e1', e2', e3'], params', args') =
-                        filterOps ([e1', e2', e3'], params', args', index, sx)
-                      in
-                        (E.Op3(op3, e1', e2', e3'), params', args')
-                      end
-                  | E.Opn(opn, es) => let
-                      fun iter ([], es, params, args) = (List.rev es, params, args)
-                        | iter (e::es, es', params, args) = let
-                            val (e', params', args') = rewrite (sx, e, params, args)
-                            in
-                              iter (es, e'::es', params', args')
-                            end
-                      val (es, params, args) = iter (es, [], params, args)
-                      val (es, params, args) = filterOps (es, params, args, index, sx)
-                      in
-                        (E.Opn(opn, es), params, args)
-                      end
-                  | E.Sum(sx1, e) => let
-                      val (e', params', args') = rewrite (sx1@sx, e, params, args)
-                      in
-                        (E.Sum(sx1, e'), params', args')
-                      end
-                  | E.If(comp, e3, e4) => let
-                    val (e1,e2) = (case comp
-                        of E.GT(e1, e2) => (e1, e2)
-                        | E.LT(e1, e2) => (e1, e2)
-                        (* end case*))
+                val (e1', params', args') = rewrite (sx, e1, params, args)
+                val (e2', params', args') = rewrite (sx, e2, params', args')
+                val (e3', params', args') = rewrite (sx, e3, params', args')
+                val (e4', params', args') = rewrite (sx, e4, params', args')
+                val ([e1', e2', e3', e4'], params', args') =
+                filterOps ([e1', e2', e3', e4'], params', args', index, sx)
 
-                    val (e1', params', args') = rewrite (sx, e1, params, args)
-                    val (e2', params', args') = rewrite (sx, e2, params', args')
-                    val (e3', params', args') = rewrite (sx, e3, params', args')
-                    val (e4', params', args') = rewrite (sx, e4, params', args')
-                    val ([e1', e2', e3', e4'], params', args') =
-                    filterOps ([e1', e2', e3', e4'], params', args', index, sx)
-
-                    val comp'= (case comp
-                        of E.GT _ => E.GT(e1', e2')
-                        | E.LT _ => E.LT(e1', e2')
-                        (* end case *))
-                    in
-                        (E.If(comp', e3', e4'), params', args')
-                    end
-                  | _ => (exp, params, args)
+                val comp'= (case comp
+                    of E.GT _ => E.GT(e1', e2')
+                    | E.LT _ => E.LT(e1', e2')
+                    (* end case *))
+                in
+                    (E.If(comp', e3', e4'), params', args')
+                end
+            | _ => (exp, params, args)
                 (* end case *))
           val (body', params', args') = rewrite ([], mkProbe (body), params, args)
           val einapp = CleanParams.clean (body', params', index, args')

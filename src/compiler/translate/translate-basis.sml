@@ -552,15 +552,18 @@ structure TranslateBasis : sig
                                         assignEin(denom, Mk.det3F dim, [x]),
                                         assignEin(y, Mk.divFS(dim, shape), [num, denom])
                                         ] end),
-
-                (BV.fn_comp,          fn (y,[_,Ty.DIM d1, Ty.DIM d2, Ty.SHAPE dd0, Ty.SHAPE dd1],xs) =>
-                                          [assignEin(y, Mk.composition(dd0, dd1, d1), xs)]),
-                (BV.comp,          fn (y,[_,Ty.DIM d1, Ty.DIM d2, Ty.SHAPE dd0, Ty.SHAPE dd1],xs) =>
-                                         [assignEin(y, Mk.composition(dd0, dd1, d1), xs)]),
-                (BV.fn_comp_p,          fn (y,[_,Ty.DIM d1, Ty.DIM d2, Ty.SHAPE dd0, Ty.SHAPE dd1],xs) =>
-                                        [assignEin(y, Mk.composition(dd0, dd1, d1), xs)]),
-                (BV.comp_p,          fn (y,[_,Ty.DIM d1, Ty.DIM d2, Ty.SHAPE dd0, Ty.SHAPE dd1],xs) =>
-                                        [assignEin(y, Mk.composition(dd0, dd1, d1), xs)]),
+                (BV.fn_comp_t,          fn (y,[Ty.SHAPE dd0, Ty.SHAPE dd1],xs) =>
+                                            [assignEin(y, Mk.compositionT(dd0, dd1), xs)]),
+                (BV.op_comp_t,          fn (y,[Ty.SHAPE dd0, Ty.SHAPE dd1],xs) =>
+                                            [assignEin(y, Mk.compositionT(dd0, dd1), xs)]),
+                (BV.fn_comp_f,          fn (y,[_,Ty.DIM d1, Ty.DIM d2, Ty.SHAPE dd0, Ty.SHAPE dd1],xs) =>
+                                          [assignEin(y, Mk.compositionF(dd0, dd1, d1), xs)]),
+                (BV.op_comp_f,          fn (y,[_,Ty.DIM d1, Ty.DIM _, Ty.SHAPE dd0, Ty.SHAPE dd1],xs) =>
+                                         [assignEin(y, Mk.compositionF(dd0, dd1, d1), xs)]),
+                (BV.fn_comp_p,          fn (y,[_,Ty.DIM d1, Ty.DIM _, Ty.SHAPE dd0, Ty.SHAPE dd1],xs) =>
+                                        [assignEin(y, Mk.compositionF(dd0, dd1, d1), xs)]),
+                (BV.op_comp_p,          fn (y,[_,Ty.DIM d1, Ty.DIM d2, Ty.SHAPE dd0, Ty.SHAPE dd1],xs) =>
+                                        [assignEin(y, Mk.compositionF(dd0, dd1, d1), xs)]),
                 (BV.fn_sqrt_r,          fn (y, _, xs) =>
                                           [assignEin(y, Mk.sqrtR, xs)]),
                 (BV.fn_sqrt_s,          fn (y, [_, Ty.DIM d1], xs) =>

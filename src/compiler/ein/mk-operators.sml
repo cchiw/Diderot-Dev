@@ -128,8 +128,8 @@ structure MkOperators : sig
     val sliceF : bool list * int list * Ein.index_bind list * int -> Ein.ein
     val concatTensor: shape *int -> Ein.ein
     val concatField: int * shape *int -> Ein.ein
-    val composition: shape * shape * int -> Ein.ein
- 
+    val compositionF: shape * shape * int -> Ein.ein
+    val compositionT: shape * shape -> Ein.ein    (*note added for cfexp*)
  
      val lerp3 : shape -> Ein.ein
      val lerp5 : shape -> Ein.ein
@@ -811,7 +811,7 @@ structure MkOperators : sig
   (************************* determinant *************************)
 
     val det2T = E.EIN{
-            params = [mkNoSubstTEN [2, 2]],
+            params = [mkTEN [2, 2]], (* was mkNoSubstTEN- changed toSubst for CFExp*)
             index = [],
             body = E.Op2(E.Sub,
               E.Opn(E.Prod, [E.Tensor(0, [E.C 0, E.C 0]), E.Tensor(0, [E.C 1, E.C 1])]),
@@ -830,7 +830,7 @@ structure MkOperators : sig
           val i = E.Tensor(0, [E.C 2, E.C 2])
           in
             E.EIN{
-                params = [mkNoSubstTEN [3, 3]],
+                params = [mkTEN [3, 3]],(* was mkNoSubstTEN- changed toSubst for CFExp*)
                 index = [],
                 body = E.Op2(E.Sub,
                   E.Opn(E.Add, [
@@ -899,8 +899,8 @@ structure MkOperators : sig
 
   (************************* Exponential **************************)
     fun expF dim = E.EIN{params = [E.FLD (dim, [])], index = [], body = E.Op1(E.Exp, E.Field(0, []))}
-    val expT = E.EIN{params = [mkNoSubstTEN []], index = [], body = E.Op1(E.Exp, E.Tensor(0, []))}
-
+    val expT = E.EIN{params = [mkTEN []], index = [], body = E.Op1(E.Exp, E.Tensor(0, []))}
+(* was mkNoSubstTEN- changed toSubst for CFExp*)
   (************************* Lifted single-argument math functions *************************)
     local
       fun tensorFn rator = E.EIN{
@@ -1003,7 +1003,7 @@ structure MkOperators : sig
             params = [], index = shape, body = E.Zero (specialize(shape, 0))
           }
     
-    fun composition (shape0, shape1, dim1) = let
+    fun compositionT (shape0, shape1) = let
           val dim0 = (case shape1
             of [] => 1
             | [n] => n
@@ -1013,11 +1013,28 @@ structure MkOperators : sig
            val expindex1 = specialize(shape1, 0)
           in
             E.EIN{
-                params = [E.FLD (dim0, shape0), E.FLD (dim1, shape1)],
+                params = [mkTEN shape0, mkTEN shape1],
                 index = shape0,
-                body = E.Comp (E.Field(0, expindex0), [(E.Field(1, expindex1),  shape1)])
+                body = E.Comp (E.Tensor(0, expindex0), [(E.Tensor(1, expindex1),  shape1)])
                 }
           end
+          
+    fun compositionF (shape0, shape1, dim1) = let
+          val dim0 = (case shape1
+          of [] => 1
+          | [n] => n
+          (* end case *))
+          
+          val expindex0 = specialize(shape0, 0)
+          val expindex1 = specialize(shape1, 0)
+          in
+          E.EIN{
+          params = [E.FLD (dim0, shape0), E.FLD (dim1, shape1)],
+          index = shape0,
+          body = E.Comp (E.Field(0, expindex0), [(E.Field(1, expindex1),  shape1)])
+          }
+          end
+          
           
           (* Lerp<ty>(a, b, t) -- computes a + t*(b-a), where a and b have type ty
               * and t has type real
@@ -1276,6 +1293,7 @@ structure MkOperators : sig
             params = (List.map (fn talpha => mkTEN talpha)  talphas)@[mkTEN falpha],
             index = falpha,
             body = E.OField(E.PolyWrap tterm, fldtem , [])
+                    (*Tensor term ids, expression, derivative indices*)
             }
         val _ = print(String.concat["\n mk-operators- poly term: ",EinPP.toString(e1)])
         in
