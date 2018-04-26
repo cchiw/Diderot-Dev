@@ -32,7 +32,7 @@ structure HandleEin : sig
 
     fun expand (lhs, ein, args) = let
         val _ = ("\n\n   ***********\n")
-         val _ = print(String.concat["\n\n   expand ***********\n:",MidIR.Var.name(lhs),"=", EinPP.toString(ein),"-",ll(args,0)])
+         val _ = (String.concat["\n\n   expand ***********\n:",MidIR.Var.name(lhs),"=", EinPP.toString(ein),"-",ll(args,0)])
         val sliceFlag = Controls.get Ctl.sliceFlag
         val fullSplitFlag = Controls.get Ctl.fullSplitFlag
         val replaceFlag =  Controls.get Ctl.replaceFlag
@@ -65,7 +65,7 @@ structure HandleEin : sig
 
         (* **************** expand-fem ************* *)
 
-        val _ =  print "\n\n\nbefore translating fields"
+        val _ =   "\n\n\nbefore translating fields"
         val newbies  = List.foldr (fn (e,acc)=>  translateField.transform(e)@acc ) []  newbies
         (*val _ = prntNewbies(newbies, "\n\n\npost transform fields")*)
         val _ = ScanE.readIR_Split(newbies)

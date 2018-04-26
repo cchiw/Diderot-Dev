@@ -122,7 +122,7 @@ structure PolyEin : sig
         fun iter(_, args, params, [], e) = (args, params,e)
             | iter (pid::es, args, params, idx::idxs,e) =
             let
-                val _ = print(String.concat["\n replacing param id:",Int.toString(pid),"idx:",Int.toString(idx)])
+                val _ = (String.concat["\n replacing param id:",Int.toString(pid),"idx:",Int.toString(idx)])
                 val (args, params, mapp) = replaceArg(args, params, idx, pid)
                 (* get dimension of vector that is being broken into components*)
                 val param_pos = List.nth(params, pid)
@@ -137,7 +137,7 @@ structure PolyEin : sig
 
         (*start_id: start of position variables for probe operation *)
         fun iTos(name,es) = String.concat[name ,String.concatWith","(List.map (fn e1=> String.concat[Int.toString(e1)]) es)]
-val _ = print(String.concat["\n\n",
+val _ = (String.concat["\n\n",
 EinPP.expToString(e),
 "\n",
 iTos("pargs:",pargs),
@@ -279,7 +279,7 @@ iTos("start_idxs:",start_idxs),
     fun transform (y, ein as Ein.EIN{body,index, params}, args) =
         let
             val E.Probe(E.OField(E.PolyWrap pargs, e, dx), expProbe) = body
-            val _ = print(String.concat["\n\n*******************\n  starting polyn:",MidIR.Var.name(y),"=", EinPP.toString(ein),"-",ll(args,0)])
+            val _ = (String.concat["\n\n*******************\n  starting polyn:",MidIR.Var.name(y),"=", EinPP.toString(ein),"-",ll(args,0)])
             (********************************** Step 1 *******************************)
             (* replace polywrap args/params with probed position(s) args/params *)
             val start_idxs = (case (expProbe)
@@ -289,7 +289,7 @@ iTos("start_idxs:",start_idxs),
 
             val (args, params, e) = polyArgs(args, params, pargs, start_idxs, e)
             val ein = Ein.EIN{body=e, index=index, params=params}
-            val _ = print(String.concat["\n\n   polyArgs\n:",MidIR.Var.name(y),"=", EinPP.toString(ein),"-",ll(args,0)])
+            val _ = (String.concat["\n\n   polyArgs\n:",MidIR.Var.name(y),"=", EinPP.toString(ein),"-",ll(args,0)])
 
             (********************************** Step 2 *******************************)
             (* need to flatten before merging polynomials in product *)

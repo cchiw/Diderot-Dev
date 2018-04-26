@@ -258,10 +258,21 @@ structure FloatEin : sig
                     of E.Probe _ => lift ("probe", exp, params, index, sx, args, avail)
                     | exp       => rewrite(sx, exp, params, args))
                     (* end case*))
-            | E.Sum(sx2, exp as E.Probe(E.Comp(_, []), _)) =>  raise Fail ("nonsupported nest")
-            | E.Sum(sx2, exp as E.Probe(E.Comp(_, es), _)) =>  compn("composition", exp,params, index, sx, sx2, args, avail)
-            | E.Sum(_, E.Probe ( _, _)) => lift ("sumprobe", exp, params, index, sx, args, avail)
-
+            | E.Sum(sx2, e) => (case e
+                of E.Probe(E.Comp(_, []), _) =>  raise Fail ("nonsupported nest")
+                | E.Probe(E.Comp(_, es), _) =>  compn("composition", e,params, index, sx, sx2, args, avail)
+                | E.Probe(E.OField(E.PolyWrap _, _, _),_) => let
+                    val (e', params', args') = rewrite (sx2@sx, e, params, args)
+                    in
+                        (E.Sum(sx2, e'), params', args')
+                    end
+                | E.Probe ( _, _) => lift ("sumprobe", e, params, index, sx, args, avail)
+                | _ => let
+                    val (e', params', args') = rewrite (sx2@sx, e, params, args)
+                    in
+                        (E.Sum(sx2, e'), params', args')
+                    end
+                (*end case*))
             | E.Op1(op1, e1) => let
                   val (e1', params', args') = rewrite (sx, e1, params, args)
                   val ([e1], params', args') = filterOps ([e1'], params', args', index, sx)
@@ -306,11 +317,6 @@ structure FloatEin : sig
                   val (es, params, args) = filterOps (es, params, args, index, sx)
                   in
                     (E.Opn(opn, es), params, args)
-                  end
-            | E.Sum(sx1, e) => let
-                  val (e', params', args') = rewrite (sx1@sx, e, params, args)
-                  in
-                    (E.Sum(sx1, e'), params', args')
                   end
             | E.If(comp, e3, e4) => let
                 val (e1,e2) = (case comp

@@ -1295,7 +1295,7 @@ structure MkOperators : sig
             body = E.OField(E.PolyWrap tterm, fldtem , [])
                     (*Tensor term ids, expression, derivative indices*)
             }
-        val _ = print(String.concat["\n mk-operators- poly term: ",EinPP.toString(e1)])
+        val _ = (String.concat["\n mk-operators- poly term: ",EinPP.toString(e1)])
         in
             e1
         end
