@@ -420,7 +420,21 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
                 in
                   [IR.ASSGN(lhs, IR.OP(Op.Inside(info, s), [lookup env pos, lookup env img]))]
                 end
+            | S.E_CondField(e1,e2,e3,ty as Ty.T_Field{diff, dim, shape}) =>
+                let
 
+                    val ve1 = IR.Var.new ("e1", HighTypes.BoolTy)
+                    val ve2 = IR.Var.new ("e2", cvtTy(ty))
+                    val ve3 = IR.Var.new ("e3", cvtTy(ty))
+                    val args = [ve1,ve2,ve3]
+                    val s1 = cvtExp (env, ve1,S.E_Var e1)
+                    val s2 = cvtExp (env, ve2,e2)
+                    val s3 = cvtExp (env, ve3,e3)
+                    val rator  = MkOperators.condField(dim,shape)
+                    val ein = IR.EINAPP(rator,args)
+                in
+                    s1@s2@s3@[IR.ASSGN(lhs, ein)]
+                end
           (* end case *))
 
   (* add nodes to save the varying strand state, followed by an exit node *)
@@ -486,6 +500,7 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
                               stms))
                       end
                   | S.S_IfThenElse(x, b0, b1) => let
+                      val _ = print("Make it here to translate \n")
                       val x' = lookup env x
                       val join as JOIN{nd=joinNd, ...} = newJoin (env, 2)
                       val (cfg0, _) = cvtBlock (state, env, (0, join)::joinStk, b0)

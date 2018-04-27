@@ -61,7 +61,7 @@ structure Ein =
 
     and opn = Add | Prod | Swap of param_id
 
-    and compare = GT of ein_exp * ein_exp| LT of ein_exp * ein_exp
+    and compare = GT of ein_exp * ein_exp| LT of ein_exp * ein_exp | Bool of param_id
 
     (*other field types *)
     and ofield

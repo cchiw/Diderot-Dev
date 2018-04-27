@@ -141,7 +141,8 @@ structure MkOperators : sig
  
     val conv : dim * shape -> Ein.ein
     val probe : shape * dim -> Ein.ein
-
+    val condField : dim * shape -> Ein.ein
+ 
     val curl2d : Ein.ein
     val curl3d : Ein.ein
     val grad : shape -> Ein.ein
@@ -1213,6 +1214,16 @@ structure MkOperators : sig
                 params = [E.FLD (dim, alpha), mkNoSubstTEN [dim]], index = alpha,
                 body = E.Probe(E.Field(0, expindex), E.Tensor(1, []))
               }
+          end
+          
+    fun condField(dim,alpha) = let
+          val expindex = specialize(alpha, 0)
+          in
+          E.EIN{
+            params = [mkNoSubstTEN [dim],E.FLD (dim, alpha),E.FLD (dim, alpha)],
+            index = alpha,
+            body = E.If(E.Bool 0, E.Field(1,expindex) , E.Field(2,expindex))
+          }
           end
 
   (***************************** derivative ****************************)

@@ -30,7 +30,7 @@ structure TypeUtil : sig
    * string, or tensor), or a sequence of values.
    *)
     val isValueType : Types.ty -> bool
-
+    val isValueTypeIf : Types.ty -> bool
   (* returns true if the type is a value type, or a strand type, or a sequence of such types *)
     val isValueOrStrandType : Types.ty -> bool
 
@@ -255,6 +255,12 @@ structure TypeUtil : sig
             | Ty.T_Error => true
             | _ => false
           (* end case *))
+    (*Augmented^ for if else statement*)
+    fun isValueTypeIf ty = (case prune ty
+         of Ty.T_Field _ => true
+         | _ => isValueType ty
+         (* end case *))
+ 
      (* returns true if the type is an FemTy *)
      fun isMeshType ty = (case prune ty
             of Ty.T_FemFld _ => true

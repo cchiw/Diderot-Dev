@@ -34,6 +34,8 @@ structure Simplify : sig
     structure II = ImageInfo
     structure BV = BasisVars
 
+structure V = SimpleVar
+
   (* environment for mapping small global constants to AST expressions *)
     type const_env = AST.expr VMap.map
 
@@ -178,6 +180,59 @@ structure Simplify : sig
     fun mkLength (res, elemTy, xs) =
           mkDef (res, S.E_Prim(BV.fn_length, [STy.TY elemTy], [xs], STy.T_Int))
 
+fun var x =  (V.uniqueNameOf x)
+fun ppArgs  args = String.concatWith"," (List.map var args)
+fun sp() = " "
+fun ppExp (e) = let
+fun pp e = (case e
+of S.E_Var x => concat["E-var:",STy.toString(V.typeOf x), "-",var x]
+| S.E_Lit lit=>concat["E-Literal:",Literal.toString lit]
+| S.E_Kernel k=>(Kernel.name k)
+| S.E_Select(x, fld) => concat["E-Select:",var x, ".", var fld]
+| S.E_Apply(f, args) => concat["E-Apply:",SimpleFunc.uniqueNameOf f, sp(), ppArgs ( args)]
+| S.E_Prim(f, [], args, _) => concat["E-Prime:",Var.uniqueNameOf f, sp(), ppArgs ( args)]
+| S.E_Prim(f, mvs, args, _) =>
+concat["E-Prime multiple",Var.uniqueNameOf f, sp(), ppArgs ( args)]
+| S.E_Tensor(es, _) =>  concat["E-CONSTENSOR:",ppArgs ( es)]
+| S.E_Field(es, _) => concat["E-CONSField",ppArgs ( es)]
+| S.E_Seq(es, _) =>concat["E-Sequence",ppArgs ( es)]
+| S.E_Tuple es =>concat["E-Tuple",ppArgs ( es)]
+| S.E_Project(x, i) => concat["E-Project ",var x, ".",(Int.toString i)]
+| S.E_Slice(x, indices, _) =>   concat["E-Slice",var x, "."]
+| S.E_Coerce{srcTy, dstTy, x} =>
+concat["E-Coerce",var x]
+| S.E_BorderCtl(ctl, x) =>
+concat[BorderCtl.fmt V.uniqueNameOf ctl, "(", var x, ")"]
+| S.E_LoadSeq(ty, nrrd) =>
+concat["loadSeq", STy.toString ty]
+| S.E_LoadImage(ty, nrrd, _) =>
+concat[ "loadImage", (STy.toString ty)]
+| S.E_InsideImage(pos, img, s) => concat[ "insideImage(", var pos, ",", var img,
+",", (Int.toString s), ")"]
+
+(* end case *))
+in
+pp e
+end
+and stmtToString stm = (case stm
+of S.S_Var(x, SOME e) =>
+concat["S-VAR:",STy.toString(SimpleVar.typeOf x), SimpleVar.uniqueNameOf x,":",ppExp(e)]
+| S.S_Var(x, None) =>  concat["S-VAR:",STy.toString(SimpleVar.typeOf x),SimpleVar.uniqueNameOf x,":","none"]
+| S.S_Assign(x, e) =>  concat["S-Assign:",STy.toString(SimpleVar.typeOf x), SimpleVar.uniqueNameOf x,":",ppExp(e)]
+| S.S_IfThenElse(x, blk1,blk2) => concat["S-IFTHEN ELSE-var:",STy.toString(SimpleVar.typeOf x),"if\n\t then",blkToString blk1,"\n\telse",blkToString blk2]
+| S.S_Foreach _ =>concat["S-for each"]
+| S.S_New _ => concat["S- new"]
+| S.S_KillAll => "S-kill_all;"
+| S.S_StabilizeAll => "S-stabilize_all;"
+| S.S_Continue =>"S-continue;"
+| S.S_Die =>  "S-die;"
+| S.S_Stabilize => "S-stabilize"
+(* end case *))
+and  blkToString(S.Block{code, ...})  =
+String.concatWith "\n"(List.map (fn e1 => "\n"^stmtToString(e1))  code)
+
+
+
   (* simplify a statement into a single statement (i.e., a block if it expands
    * into more than one new statement).
    *)
@@ -221,6 +276,7 @@ structure Simplify : sig
             | AST.S_IfThenElse(AST.E_Andalso(e1, e2), s1, s2 as AST.S_Block[]) =>
                 simplifyStmt (cxt, AST.S_IfThenElse(e1, AST.S_IfThenElse(e2, s1, s2), s2), stms)
             | AST.S_IfThenElse(e, s1, s2) => let
+val _ = print"\n inside  simplify"
                 val (stms, x) = simplifyExpToVar (cxt, e, stms)
                 val s1 = simplifyBlock (cxt, s1)
                 val s2 = simplifyBlock (cxt, s2)
@@ -322,13 +378,14 @@ structure Simplify : sig
             case exp
              of AST.E_Var(x, _) => (case Var.kindOf x
                    of Var.BasisVar => let
+                        val _ = print"\n\t\t e-var basis var"
                         val ty = cvtTy(Var.monoTypeOf x)
                         val x' = newTemp ty
                         val stm = S.S_Var(x', SOME(S.E_Prim(x, [], [], ty)))
                         in
                           (stm::stms, S.E_Var x')
                         end
-                    | Var.ConstVar => (case findConst(cxt, x)
+| Var.ConstVar => (print"\n\t\t e-var const var";case findConst(cxt, x)
                          of SOME e => let
                               val (stms, x') = simplifyExpToVar (cxt, e, stms)
                               in
@@ -338,14 +395,14 @@ structure Simplify : sig
                         (* end case *))
                     | _ => (stms, S.E_Var(cvtVar x))
                   (* end case *))
-              | AST.E_Lit lit => (stms, S.E_Lit lit)
+| AST.E_Lit lit => (print"\n\t\te-lit" ;(stms,S.E_Lit lit))
               | AST.E_Kernel h => (stms, S.E_Kernel h)
               | AST.E_Select(e, (fld, _)) => let
                   val (stms, x) = simplifyExpToVar (cxt, e, stms)
                   in
                     (stms, S.E_Select(x, cvtVar fld))
                   end
-              | AST.E_Prim(rator, tyArgs, args as [e], ty) => (case e
+              | AST.E_Prim(rator, tyArgs, args as [e], ty) => (print"\n\t\te-prime";case e
                    of AST.E_Lit(Literal.Int n) => if Var.same(BV.neg_i, rator)
                         then (stms, S.E_Lit(Literal.Int(~n))) (* constant-fold negation of integer literals *)
                         else doPrimApply (rator, tyArgs, args, ty)
@@ -401,8 +458,9 @@ structure Simplify : sig
                           else raise Fail "unsupported operation on parallel map"
                     | _ => doPrimApply (rator, tyArgs, args, ty)
                   (* end case *))
-              | AST.E_Prim(f, tyArgs, args, ty) => doPrimApply (f, tyArgs, args, ty)
+              | AST.E_Prim(f, tyArgs, args, ty) => (print"\n\t\tAST-prim";doPrimApply (f, tyArgs, args, ty))
               | AST.E_Apply((f, _), args, ty) => let
+val _ = print"\n\t\tea-pply";
                   val (stms, xs) = simplifyExpsToVars (cxt, args, stms)
                   in
                     case Var.kindOf f
@@ -449,20 +507,38 @@ structure Simplify : sig
                   in
                     (stms, S.E_Slice(x, indices, cvtTy ty))
                   end
+              | AST.E_CondField(e1, e2, e3, ty) => let
+                 val (stms, x) = simplifyExpToVar (cxt, e1, stms)
+val (stms, e2') = simplifyExp (cxt, e2, [])
+val (stms, e3') = simplifyExp (cxt, e3, [])
+                in
+                    (stms, S.E_CondField(x, e2',e3', cvtTy ty))
+                end
+
               | AST.E_Cond(e1, e2, e3, ty) => let
                 (* a conditional expression gets turned into an if-then-else statememt *)
                   val result = newTemp(cvtTy ty)
                   val (stms, x) = simplifyExpToVar (cxt, e1, S.S_Var(result, NONE) :: stms)
+                    val _ = print"made it to simplify"
                   fun simplifyBranch e = let
                         val (stms, e) = simplifyExp (cxt, e, [])
+                        val _ = print(concat["\n\t blk:",STy.toString(SimpleVar.typeOf result), SimpleVar.uniqueNameOf result,":",ppExp(e)])
                         in
                           mkBlock (S.S_Assign(result, e)::stms)
                         end
+                    val _ = print"\n-----simplify branch e2-------\n"
+
                   val s1 = simplifyBranch e2
+               val _ = print"\n-----simplify branch e3-------\n"
                   val s2 = simplifyBranch e3
-                  in
+                   val exp  = S.S_IfThenElse(x, s1, s2)
+                    val _ = print"-------------"
+                    val _ = print(concat["\nreturning :",stmtToString(exp)])
+                        val _ = print"-------------"
+                          in
                     (S.S_IfThenElse(x, s1, s2) :: stms, S.E_Var result)
                   end
+
               | AST.E_Orelse(e1, e2) => simplifyExp (
                   cxt,
                   AST.E_Cond(e1, AST.E_Lit(Literal.Bool true), e2, Ty.T_Bool),
@@ -494,11 +570,12 @@ structure Simplify : sig
                         end
                     | _ => raise Fail "bogus type for E_LoadNrrd"
                   (* end case *))
-              | AST.E_Coerce{dstTy, e=AST.E_Lit(Literal.Int n), ...} => (case cvtTy dstTy
+| AST.E_Coerce{dstTy, e=AST.E_Lit(Literal.Int n), ...} => (print"ast coerceA";case cvtTy dstTy
                    of SimpleTypes.T_Tensor[] => (stms, S.E_Lit(Literal.Real(RealLit.fromInt n)))
                     | _ => raise Fail "impossible: bad coercion"
                   (* end case *))
               | AST.E_Coerce{dstTy, srcTy, e as AST.E_Seq(es, ty)} => let
+val _ = print"ast coerceB";
                   val Ty.T_Sequence(dstTy', dstBnd) = TU.prune dstTy
                   val Ty.T_Sequence(srcTy', srcBnd) = TU.prune srcTy
                   in
@@ -518,7 +595,7 @@ structure Simplify : sig
                             else simplifyExp (cxt, AST.E_Coerce{dstTy=dstTy, srcTy=eTy, e=e}, stms)
                         end
                   end
-              | AST.E_Coerce{srcTy, dstTy, e} => doCoerce (srcTy, dstTy, e, stms)
+              | AST.E_Coerce{srcTy, dstTy, e} => (print"ast coerceC";doCoerce (srcTy, dstTy, e, stms))
             (* end case *)
           end
 

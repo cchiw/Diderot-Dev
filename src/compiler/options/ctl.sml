@@ -229,9 +229,18 @@ structure Ctl =
             default = false
         }
 
+val  devF = C.genControl {
+name = "dev",
+pri = [2, 2, 0],
+obscurity = 5,
+help = "Develop (Skip simpleOpt phase)",
+default = false
+}
+
+
 
         val optimizeControls = [
-        inline, highVN, midVN, midContract, lowVN, lowContract, treeContract,sliceFlag, fullSplitFlag, scaFlag ,replaceFlag,readEin,readEin1, readEin2, readEin3, readEin4,readEin5, repMultiple,readEinSplit,formatUni,formatTex,formatWrd,repEin, stgPoly, savePDF]
+        inline, highVN, midVN, midContract, lowVN, lowContract, treeContract,sliceFlag, fullSplitFlag, scaFlag ,replaceFlag,readEin,readEin1, readEin2, readEin3, readEin4,readEin5, repMultiple,readEinSplit,formatUni,formatTex,formatWrd,repEin, stgPoly, savePDF,devF]
 
 
     val dumpPT = C.genControl {

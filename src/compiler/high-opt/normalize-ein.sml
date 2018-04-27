@@ -93,8 +93,9 @@ return (E.Op3(op3, E.Probe(e1, x), E.Probe(e2, x), E.Probe(e3, x)))
                     val comp2 =(case comp
                     of E.GT(e1,e2) => E.GT(E.Probe(e1, x), E.Probe(e2, x))
                      | E.LT(e1,e2) => E.LT(E.Probe(e1, x), E.Probe(e2, x))
+                     | E.Bool id   => E.Bool id
                 (* end case*))
-in (ST.tick cntProbe; (E.If(comp2, E.Probe(e3, x), E.Probe(e4, x)))) end
+                in (ST.tick cntProbe; (E.If(comp2, E.Probe(e3, x), E.Probe(e4, x)))) end
               | _                  => E.Probe(fld, x)
             (* end case *)
           end
@@ -413,6 +414,7 @@ in (ST.tick cntProbe; (E.If(comp2, E.Probe(e3, x), E.Probe(e4, x)))) end
                   | E.Opn(opn, es) => E.Opn(opn, List.map rewrite es)
                   | E.If(E.GT(e1,e2), e3, e4) => E.If(E.GT(rewrite e1, rewrite e2), rewrite e3, rewrite e4)
                   | E.If(E.LT(e1,e2), e3, e4) => E.If(E.LT(rewrite e1, rewrite e2), rewrite e3, rewrite e4)
+                | E.If(E.Bool e1, e3, e4) => E.If(E.Bool e1, rewrite e3, rewrite e4)
                 |  _ =>  raise Fail "unhandled"
 
                 (* end case *))

@@ -143,7 +143,7 @@ structure CheckStmt : sig
                 in
                   chk' (stms, false)
                 end
-            | chk (cxt, hasSucc, isJoin, unreachable, PT.S_IfThen(_, stm)) = (
+| chk (cxt, hasSucc, isJoin, unreachable, PT.S_IfThen(_, stm)) = (print("line 146 check-stmt");
                 if inFun() andalso not hasSucc andalso not unreachable
                   then err(cxt, [
                         S "Missing return statement in tail position of function ", funName()
@@ -152,6 +152,7 @@ structure CheckStmt : sig
                 ignore (chk (cxt, hasSucc, true, unreachable, stm));
                 false)
             | chk (cxt, hasSucc, isJoin, unreachable, PT.S_IfThenElse(_, stm1, stm2)) = let
+                val _ = print("line 155 check-stmt");
                 val escapes = chk (cxt, hasSucc, true, unreachable, stm1)
                 val escapes = chk (cxt, hasSucc, true, unreachable, stm2) andalso escapes
                 in
@@ -262,6 +263,7 @@ structure CheckStmt : sig
                   (chk' (Env.blockScope env, stms, []), env)
                 end
             | PT.S_IfThen(e, s) => let
+   val _ = print "\n\nif then in check statmnt"
                 val (e', ty) = chkE (env, cxt, e)
                 val (s', _) = chk (env, cxt, s)
                 in
@@ -274,6 +276,7 @@ structure CheckStmt : sig
                   (AST.S_IfThenElse(e', s', AST.S_Block[]), env)
                 end
             | PT.S_IfThenElse(e, s1, s2) => let
+                val _ = print "\n\nif then else in check statmnt"
                 val (e', ty) = chkE (env, cxt, e)
                 val (s1', _) = chk (env, cxt, s1)
                 val (s2', _) = chk (env, cxt, s2)

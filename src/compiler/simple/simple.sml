@@ -111,6 +111,7 @@ structure Simple =
                                                  * the maximum support of the image.
                                                  *)
       | E_InsideFEM of var * var
+      | E_CondField of var * exp * exp * ty
 
     fun typeOf (E_Var x) = SimpleVar.typeOf x
       | typeOf (E_Lit lit) = (case lit
@@ -139,7 +140,7 @@ structure Simple =
       | typeOf (E_LoadImage(ty, _, _)) = ty
       | typeOf (E_InsideImage _) = SimpleTypes.T_Bool
       | typeOf (E_InsideFEM _) = SimpleTypes.T_Bool
-
+      | typeOf (E_CondField(_,_,_,ty))  = ty
     fun newProp initFn = PropList.newProp (fn (Block{props, ...}) => props, initFn)
     fun newFlag () = PropList.newFlag (fn (Block{props, ...}) => props)
 

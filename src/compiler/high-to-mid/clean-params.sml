@@ -63,6 +63,8 @@ structure CleanParams : sig
                     walk (e4, walk (e3, walk (e2, walk (e1, mapp))))
                   | E.If(E.LT(e1, e2), e3, e4) =>
                     walk (e4, walk (e3, walk (e2, walk (e1, mapp))))
+                  | E.If(E.Bool id, e3, e4) =>
+                    walk (e4, walk (e3,ISet.add(mapp, id)))
                   | _ => mapp
                 (* end case *))
           in
@@ -117,6 +119,8 @@ structure CleanParams : sig
                     => E.If(E.GT(rewrite e1, rewrite e2), rewrite e3, rewrite e4)
                   | E.If(E.LT(e1, e2), e3, e4)
                     => E.If(E.LT(rewrite e1, rewrite e2), rewrite e3, rewrite e4)
+                  | E.If(E.Bool(id), e3, e4)
+                    => E.If(E.Bool(getId id), rewrite e3, rewrite e4)
                   | _ => b
                 (* end case *))
           in

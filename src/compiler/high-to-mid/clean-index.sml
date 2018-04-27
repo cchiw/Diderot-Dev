@@ -109,9 +109,11 @@ structure CleanIndex : sig
                   | E.OField(_,e2,alpha) => shape (e2, addMus(ixs, alpha))
                   | E.Poly (_,_,_, alpha) => addMus(ixs, alpha)
                   | E.If(E.GT(e1, e2), e3, e4) =>
-                    shape (e1,shape (e1, shape (e3, shape(e4, ixs))))
+                    shape (e1,shape (e2, shape (e3, shape(e4, ixs))))
                   | E.If(E.LT(e1, e2), e3, e4) =>
-                    shape (e1,shape (e1, shape (e3, shape(e4, ixs))))
+                    shape (e1,shape (e2, shape (e3, shape(e4, ixs))))
+                  | E.If(E.Bool id, e3, e4) =>
+                        shape (e3, shape(e4, ixs))
                   | _ => raise Fail "impossible"
                 (* end case *))
           in
@@ -170,6 +172,8 @@ structure CleanIndex : sig
                     shape' ([e1, e2, e3, e4], ixs)
                   | E.If(E.LT(e1, e2), e3, e4) =>
                     shape' ([e1, e2, e3, e4], ixs)
+                  | E.If(E.Bool id, e3, e4) =>
+                    shape' ([e3, e4], ixs)
                   | _ => raise Fail ("impossible"^EinPP.expToString(b))
             (* end case *))
             and  iter2(alpha) = let
@@ -303,6 +307,8 @@ structure CleanIndex : sig
                     E.If(E.GT(rewrite e1, rewrite e2), rewrite e3, rewrite e4)
                   | E.If(E.LT(e1, e2), e3, e4) =>
                     E.If(E.LT(rewrite e1, rewrite e2), rewrite e3, rewrite e4)
+                  | E.If(E.Bool id, e3, e4) =>
+                    E.If(E.Bool id, rewrite e3, rewrite e4)
             (* end case *))
           in
             rewrite e

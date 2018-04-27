@@ -120,6 +120,7 @@ structure EinPP : sig
                 val c = (case comp
                     of E.GT(e1, e2) => concat [expToString e1, ">", expToString e2]
                     | E.LT(e1, e2)  => concat [expToString e1, "<", expToString e2]
+                    | E.Bool id     => concat ["bool",i2s id]
                         (*end case*))
                in
                 concat[ "\nif(", c, ") then ", expToString e3," else ", expToString e4]
@@ -220,6 +221,7 @@ structure EinPP : sig
             val c = (case comp
             of E.GT(e1, e2) => ">"
             | E.LT(e1, e2)  => "<"
+            | E.Bool id   => concat["var",i2s id]
             (*end case*))
             in
                 concat[ "\nif(", c, ") then ", expToString e3," else ", expToString e4]

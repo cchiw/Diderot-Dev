@@ -25,7 +25,12 @@ structure SimpleOpt : sig
             checkIR = CheckSimple.check
           }
 
-    fun transform prog = let
+    fun transform prog =
+        if Controls.get Ctl.devF
+        then prog
+        else
+        let
+
           val prog = checkAfter ("contraction (1)", SimpleContract.transform prog)
           val prog = checkAfter ("map-reduce-fusion", MapReduceOpt.transform prog)
           val prog = if Controls.get Ctl.inline
@@ -35,7 +40,9 @@ structure SimpleOpt : sig
           val prog = if Controls.get Ctl.inline
                 then checkAfter ("contraction (2)", SimpleContract.transform prog)
                 else prog
+
           val prog = checkAfter ("simplify fields", SimplifyFields.transform prog)
+
           val prog = checkAfter ("simplify variables", SimplifyVars.transform prog)
           in
             prog

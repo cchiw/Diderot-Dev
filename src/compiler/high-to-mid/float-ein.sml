@@ -318,6 +318,15 @@ structure FloatEin : sig
                   in
                     (E.Opn(opn, es), params, args)
                   end
+            | E.If(E.Bool id, e3, e4) => let
+                val (e3', params', args') = rewrite (sx, e3, params, args)
+                val (e4', params', args') = rewrite (sx, e4, params', args')
+                val ([e3', e4'], params', args') =
+                        filterOps ([e3', e4'], params', args', index, sx)
+                val comp' = E.Bool id
+                in
+                    (E.If(comp', e3', e4'), params', args')
+                end
             | E.If(comp, e3, e4) => let
                 val (e1,e2) = (case comp
                     of E.GT(e1, e2) => (e1, e2)

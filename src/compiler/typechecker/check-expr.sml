@@ -524,6 +524,9 @@ structure CheckExpr : sig
                          of SOME(e1', e2', ty) =>
                               if TU.isValueType ty
                                 then (AST.E_Cond(cond', e1', e2', ty), ty)
+                              else if TU.isValueTypeIf ty
+                                (*it's a field'*)
+                                then (AST.E_CondField(cond', e1', e2', ty), ty)
                                 else err (cxt, [
                                     S "result of conditional expression must be value type,\n",
                                     S "  but found ", TY ty

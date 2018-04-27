@@ -71,12 +71,50 @@ structure SimplifyFields : sig
            of (*Ty.T_Field _ => true
             | *) _ => false
           (* end case *))
+ 
+ 
+ fun var x =  (V.uniqueNameOf x)
+ fun ppArgs  args = String.concatWith"," (List.map var args)
+ fun sp() = " "
+fun ppExp (e) = let
+    fun pp e = (case e
+        of S.E_Var x => concat["E-var:",Ty.toString(V.typeOf x), "-",var x]
+        | S.E_Lit lit=>concat["E-Literal:",Literal.toString lit]
+        | S.E_Kernel k=>(Kernel.name k)
+        | S.E_Select(x, fld) => concat["E-Select:",var x, ".", var fld]
+        | S.E_Apply(f, args) => concat["E-Apply:",SimpleFunc.uniqueNameOf f, sp(), ppArgs ( args)]
+        | S.E_Prim(f, [], args, _) => concat["E-Prime:",Var.uniqueNameOf f, sp(), ppArgs ( args)]
+        | S.E_Prim(f, mvs, args, _) =>
+            concat["E-Prime multiple",Var.uniqueNameOf f, sp(), ppArgs ( args)]
+        | S.E_Tensor(es, _) =>  concat["E-CONSTENSOR:",ppArgs ( es)]
+        | S.E_Field(es, _) => concat["E-CONSField",ppArgs ( es)]
+        | S.E_Seq(es, _) =>concat["E-Sequence",ppArgs ( es)]
+        | S.E_Tuple es =>concat["E-Tuple",ppArgs ( es)]
+        | S.E_Project(x, i) => concat["E-Project ",var x, ".",(Int.toString i)]
+        | S.E_Slice(x, indices, _) =>   concat["E-Slice",var x, "."]
+        | S.E_Coerce{srcTy, dstTy, x} =>
+            concat["E-Coerce",var x]
+        | S.E_BorderCtl(ctl, x) =>
+            concat[BorderCtl.fmt V.uniqueNameOf ctl, "(", var x, ")"]
+        | S.E_LoadSeq(ty, nrrd) =>
+            concat["loadSeq", Ty.toString ty]
+        | S.E_LoadImage(ty, nrrd, _) =>
+            concat[ "loadImage", (Ty.toString ty)]
+        | S.E_InsideImage(pos, img, s) => concat[ "insideImage(", var pos, ",", var img,
+        ",", (Int.toString s), ")"]
 
+        (* end case *))
+    in
+        pp e
+    end
+
+         
+         
   (* process an assignment by analysing the rhs expression to see if it uses a field
    * (and thus images)
    *)
     fun doAssign (lhs, e) = let
-
+(*val _ = print(String.concat["\n\t:", ppExp (e)])*)
           fun copyImg img = (wrapImage(lhs, resolveImage img); NONE)
           fun copyFld fld = (* remy (bindImages(lhs, images fld); NONE)*) NONE
           fun image () = (* remy (bindImages(lhs, singleton(lhs, 0)); NONE)*) NONE
@@ -180,20 +218,39 @@ then (print "\nconvert f";NONE)
           end
 
     fun doBlock (S.Block{code, props}) = let
-          fun doStmt (stm, stms) = (case stm
+
+            fun stmtToString stm = (case stm
+                of S.S_Var(x, SOME e) =>
+concat["S-VAR:",Ty.toString(SimpleVar.typeOf x), SimpleVar.uniqueNameOf x,":",ppExp(e)]
+                | S.S_Var(x, None) =>  concat["S-VAR:",Ty.toString(SimpleVar.typeOf x),SimpleVar.uniqueNameOf x,":","none"]
+                | S.S_Assign(x, e) =>  concat["S-Assign:",Ty.toString(SimpleVar.typeOf x), SimpleVar.uniqueNameOf x,":",ppExp(e)]
+                | S.S_IfThenElse(x, blk1,blk2) => concat["S-IFTHEN ELSE-var:",Ty.toString(SimpleVar.typeOf x),"if\n\t then",blkToString blk1,"\n\telse",blkToString blk2]
+                | S.S_Foreach _ =>concat["S-for each"]
+                | S.S_New _ => concat["S- new"]
+                | S.S_KillAll => "S-kill_all;"
+                | S.S_StabilizeAll => "S-stabilize_all;"
+                | S.S_Continue =>"S-continue;"
+                | S.S_Die =>  "S-die;"
+                | S.S_Stabilize => "S-stabilize"
+                (* end case *))
+            and  blkToString(S.Block{code, ...})  =
+                String.concatWith "\n"(List.map (fn e1 => "\n"^stmtToString(e1))  code)
+
+
+fun doStmt (stm, stms) = ( print("\n\t-"^stmtToString(stm));case stm
                  of S.S_Var(x, SOME e) => (case doAssign (x, e)
                        of SOME(e', stms') => S.S_Var(x, SOME e') :: stms' @ stms
                         | NONE => stm::stms
                       (* end case *))
-                  | S.S_Assign(x, e) => stm::stms
-(*
+                  | S.S_Assign(x, e) => (*stm::stms*)
+
                         (case doAssign (x, e)
                        of SOME(e', stms') => S.S_Assign(x, e') :: stms' @ stms
                         | NONE => stm::stms
                       (* end case *))
-*)
-                  | S.S_IfThenElse(x, blk1, blk2) =>
-                      S.S_IfThenElse(x, doBlock blk1, doBlock blk2) :: stms
+
+                | S.S_IfThenElse(x, blk1, blk2) => (print" made it simplify-fields";
+                      S.S_IfThenElse(x, doBlock blk1, doBlock blk2) :: stms)
                   | S.S_Foreach(x, seq, blk) =>
                       S.S_Foreach(x, seq, doBlock blk) :: stms
                   | S.S_MapReduce mrs => let

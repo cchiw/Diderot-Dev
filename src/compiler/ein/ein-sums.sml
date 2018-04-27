@@ -77,6 +77,7 @@ structure EinSums : sig
               | E.Opn(_, es)              => sort es
               | E.If(E.LT(e1,e2), e3, e4) => sort [e1, e2, e3, e4]
               | E.If(E.GT(e1,e2), e3, e4) => sort [e1, e2, e3, e4]
+              | E.If(E.Bool _, e3, e4)    => sort [e3, e4]
             (* end case *)
           end
 
@@ -173,6 +174,7 @@ structure EinSums : sig
                   | E.Opn(opn, es)        => E.Opn(opn, List.map rewriteBody es)
                   | E.If(E.LT(e1,e2), e3, e4) => E.If(E.LT(rewriteBody e1,rewriteBody e2), rewriteBody e3, rewriteBody e4)
                   | E.If(E.GT(e1,e2), e3, e4) => E.If(E.GT(rewriteBody e1,rewriteBody e2), rewriteBody e3, rewriteBody e4)
+                  | E.If(E.Bool id, e3, e4) => E.If(E.Bool id,rewriteBody e3, rewriteBody e4)
                   | _                     => body
                 (* end case *))
         in rewriteBody body end

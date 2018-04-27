@@ -175,6 +175,7 @@ structure AnalyzeSimple : sig
                         | S.E_LoadSeq _ => []
                         | S.E_LoadImage _ => []
                         | S.E_InsideImage(pos, img, _) => [pos, img]
+                        | S.E_CondField(e1,e2,e3,ty) => []
                       (* end case *))
                 in
                   addList (u, vs)
@@ -195,6 +196,7 @@ structure AnalyzeSimple : sig
                 markUpdate (cxt, x);
                 (addUses(e, VSet.subtract(live, x)), addVar(x, assigns)))
             | doStm (S.S_IfThenElse(x, b1, b2), (liveIn, assignsIn)) = let
+val _ = print"\n inside analyze simple"
                 val liveIn = addVar(x, liveIn)
                 val (live1, assigns1) = doBlock (b1, liveIn)
                 val (live2, assigns2) = doBlock (b2, liveIn)
