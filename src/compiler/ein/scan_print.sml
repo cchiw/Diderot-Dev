@@ -759,7 +759,7 @@ structure ScanPP : sig
                     val name =  concat(["\nIf ",cname,"\n\t then ", s2, "\n\t else ",s3])
                     in (name, alpha2) end
 
-                | E.OField(E.PolyWrap(ids), e2, [])
+                | E.OField(E.CFExp(_,ids), e2, [])
                     => 
                     let
                         fun iter ([],rest) = rest
@@ -771,10 +771,10 @@ structure ScanPP : sig
                         val (s2, alpha2) = getAlpha (e2)
                         val s3 = concat ["CFExp[var:",s1, "](exp:",s2,")"]
                         in (s3,alpha2) end
-                | E.OField(E.PolyWrap(ids), e2, dx)
+                | E.OField(E.CFExp(ids_tt,ids), e2, dx)
                     =>  
                     let
-                        val (s2, alpha2) = getAlpha(E.OField(E.PolyWrap(ids), e2, []))
+                        val (s2, alpha2) = getAlpha(E.OField(E.CFExp(ids_tt,ids), e2, []))
                         val s3 = concat [cvtdx(op_n, dx), " ",s2]
                     in 
                         (s3, alpha2@dx)

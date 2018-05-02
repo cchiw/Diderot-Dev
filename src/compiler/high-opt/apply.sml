@@ -102,8 +102,8 @@ structure Apply : sig
                   | E.OField(E.DataFem id, e2, alpha) => E.OField(E.DataFem(mapParam id), apply e2, mapAlpha alpha)
                   | E.OField(E.BuildFem (id,s), e2, alpha)
                         => E.OField(E.BuildFem(mapParam id, mapParam s), apply e2, mapAlpha alpha)
-                  | E.OField(E.PolyWrap inputV, e2, alpha)
-                    => E.OField(E.PolyWrap(List.map mapParam inputV), apply e2, mapAlpha alpha)
+                  | E.OField(E.CFExp (input_TT,input_TF), e2, alpha)
+                    => E.OField(E.CFExp(List.map mapParam input_TT,List.map mapParam input_TF), apply e2, mapAlpha alpha)
                   | E.OField(ofld, e2, alpha) => E.OField(ofld, apply e2, mapAlpha alpha)
                   | E.Value _ => raise Fail "expression before expand"
                   | E.Img _ => raise Fail "expression before expand"
@@ -192,9 +192,10 @@ val _ = (String.concat["mx:",Int.toString(length mx)," shape:",Int.toString(leng
                         in
                         (insideComp := true;E.Comp(fouter, es'))
                         end
-                  | E.OField(E.PolyWrap es, e2, alpha) => let
-                        val ps =List.map (fn id => mapId(id, origId, 0)) es
-                        in E.OField(E.PolyWrap ps, apply(e2,shape), alpha) end 
+                  | E.OField(E.CFExp (es_TT,es_TF), e2, alpha) => let
+                        val ps_TT =List.map (fn id => mapId(id, origId, 0)) es_TT
+                        val ps_TF =List.map (fn id => mapId(id, origId, 0)) es_TF
+                        in E.OField(E.CFExp (ps_TT,ps_TF), apply(e2,shape), alpha) end
                   | E.OField(ofld, e2, alpha)
                     => E.OField(ofld, apply(e2,shape), alpha)
                   | E.Value _ => raise Fail "expression before expand"

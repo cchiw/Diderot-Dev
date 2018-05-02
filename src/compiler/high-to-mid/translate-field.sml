@@ -29,7 +29,7 @@ structure translateField : sig
             val _ = ("\n\n with args:"^String.concatWith "," (List.map IR.Var.name  args))
 *)
             in (case ofld
-            of E.PolyWrap _   => PolyEin.transform(y, ein, args)
+            of E.CFExp _   => PolyEin.transform(y, ein, args)
                 | E.DataFem _     => BF.scan_evaluate(y, IR.EINAPP(ein, args))
                 | E.BuildFem _    => BF.scan_evaluate(y, IR.EINAPP(ein, args))
                 | E.ManyPointerBuildFem _    => BF.scan_evaluate(y, IR.EINAPP(ein, args))
@@ -41,7 +41,7 @@ structure translateField : sig
             val _ = ("\n\n with args:"^String.concatWith "," (List.map IR.Var.name  args))
 *)
             in (case ofld
-                of E.PolyWrap _   => PolyEin.transform(y, ein, args)
+                of E.CFExp _   => PolyEin.transform(y, ein, args)
                 | E.DataFem _     => BF.sum_evaluate (y, IR.EINAPP(ein, args))
                 | E.BuildFem _    => BF.sum_evaluate (y, IR.EINAPP(ein, args))
                 | E.ManyPointerBuildFem _    => BF.sum_evaluate(y, IR.EINAPP(ein, args))

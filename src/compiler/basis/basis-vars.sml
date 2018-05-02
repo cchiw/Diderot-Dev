@@ -1700,6 +1700,7 @@ end))
         [f0,t1, t2, t3] --> f1
         end
         ))
+
 (* ---------------------------------- print IR ------------------------------------------*)
     val fn_printIR_ts = polyVar (Atom.atom "$printIR", all([SK],
         fn [Ty.SHAPE ddT] => let
@@ -1957,6 +1958,11 @@ val fn_tensorfunctionspace = polyVar (N.fn_tensorfunctionspace, all([],
         in
         [Ty.T_Int, f,f, f, f,f,f] --> f
         end))
+
+
+
+
+
 (* ************************************* Push FEM op to surface ************************************* *)
     val sp_getCell =  polyVar (N.sp_getCell, all([DK, NK, SK, SK],
         fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.SHAPE ddT] => let

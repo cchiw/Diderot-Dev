@@ -151,7 +151,9 @@ structure MkOperators : sig
     val divergence : dim * shape -> Ein.ein
  
  
-    val poly: shape*shape list -> Ein.ein
+    val cfexp: shape * shape list -> Ein.ein
+    val cfexpMix: shape list * shape * shape list -> Ein.ein
+ 
     val polyProbe: shape * dim * shape list -> Ein.ein
     val polyProbe2: shape * dim * shape list -> Ein.ein
     val ofieldfem: dim*shape -> Ein.ein
@@ -1294,7 +1296,7 @@ structure MkOperators : sig
     
     (***************************** field definitions ****************************)
     (* other definitions for fields *)
-    fun poly (falpha, talphas) = let
+    fun cfexp (falpha, talphas) = let
         val expindex = specialize(falpha, 0)
         val n = length(talphas)
         val fldtem = E.Tensor(0, expindex)
@@ -1303,10 +1305,38 @@ structure MkOperators : sig
           E.EIN {
             params = [mkTEN falpha]@(List.map (fn talpha => mkNoSubstTEN  talpha)  talphas),
             index = falpha,
-            body = E.OField(E.PolyWrap tterm, fldtem , [])
+            body = E.OField(E.CFExp ([],tterm), fldtem , [])
                     (*Tensor term ids, expression, derivative indices*)
             }
         val _ = (String.concat["\n mk-operators- poly term: ",EinPP.toString(e1)])
+        in
+            e1
+        end
+    
+    fun cfexpMix (alphas_tt, alpha_f, alphas_tf) =
+        let
+            val n_tf = length(alphas_tf)
+            val n_tt = length(alphas_tt)
+            
+            val tterm_tt = List.tabulate(n_tf, fn id => id+1)
+            val shift_tf = n_tt+1
+            val tterm_tf = List.tabulate(n_tf, fn id => id+shift_tf)
+            
+            
+            val fldtem = E.Tensor(0, specialize(alpha_f, 0))
+            val bodyterm  = E.OField(E.CFExp (tterm_tt,tterm_tf), fldtem , [])
+           
+           val param_f = [mkTEN alpha_f]
+           val param_tf = List.map (fn talpha => mkNoSubstTEN  talpha)  alphas_tf
+           val param_tt = List.map (fn talpha => mkNoSubstTEN  talpha)  alphas_tt
+                      
+            val e1 =
+                E.EIN {
+                    params = param_tf@param_f@param_tf,
+                    index  = alpha_f,
+                    body   = bodyterm
+                }
+            val _ = (String.concat["\n mk-operators- poly term: ",EinPP.toString(e1)])
         in
             e1
         end

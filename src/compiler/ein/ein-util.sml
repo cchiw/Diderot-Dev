@@ -66,8 +66,8 @@ structure EinUtil : sig
                 | (E.Probe(e11, e12), E.Probe(e21, e22)) => same(e11, e21) andalso same(e12, e22)
                 | (E.Comp(e11, es1), E.Comp(e21, es2)) =>
                     same(e11,e21) andalso sameSubEin(es1, es2)
-                | (E.OField(E.PolyWrap es1, e1, ix1), E.OField(E.PolyWrap es2, e2, ix2)) =>
-                    same(e1,e2) andalso sameIndex(ix1, ix2) andalso ListPair.allEq (op =)  (es1,es2)
+                | (E.OField(E.CFExp (es1,es1B), e1, ix1), E.OField(E.CFExp (es2,es2B), e2, ix2)) =>
+                    same(e1,e2) andalso sameIndex(ix1, ix2) andalso ListPair.allEq (op =)  (es1,es2) andalso ListPair.allEq (op =)  (es1B,es2B)
                 | (E.OField(E.DataFem id1, e1, ix1), E.OField(E.DataFem id2, e2, ix2)) =>
                     same(e1,e2) andalso sameIndex(ix1, ix2) andalso (id1 = id2)
                 | (E.OField(E.BuildFem (id1,s1), e1, ix1), E.OField(E.BuildFem (id2,s2), e2, ix2)) =>

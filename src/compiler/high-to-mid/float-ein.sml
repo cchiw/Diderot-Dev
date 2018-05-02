@@ -152,7 +152,7 @@ structure FloatEin : sig
 
         val exp_pos = E.Tensor(id2,[])
         val exp_fld =(case fld
-            of E.OField(E.PolyWrap tterm, _, dx) => E.OField(E.PolyWrap tterm, A , dx)
+            of E.OField(E.CFExp tterm, _, dx) => E.OField(E.CFExp tterm, A , dx)
             | _  => A
             (*end case*))
         val exp_probe = mkProbe(E.Probe(exp_fld, exp_pos))
@@ -178,7 +178,7 @@ structure FloatEin : sig
         val E.Probe(fld, pos) = exp
         val (D, es) = (case fld
             of E.Comp e => e
-            |  E.OField(E.PolyWrap tterm,E.Comp e , dx) => e
+            |  E.OField(E.CFExp tterm,E.Comp e , dx) => e
             (*end case*))
 
 
@@ -192,7 +192,7 @@ structure FloatEin : sig
         (* inner term in composition *)
         val (A, indexA) = List.hd(es')
         val wrapA = (case fld
-            of E.OField(E.PolyWrap tterm, _, dx) => E.OField(E.PolyWrap tterm, A , dx)
+            of E.OField(E.CFExp tterm, _, dx) => E.OField(E.CFExp tterm, A , dx)
             | _  => A
             (*end case*))
 
@@ -252,7 +252,7 @@ structure FloatEin : sig
                 | E.Comp(_, []) => raise Fail "nonsupported nest"
                 | E.Comp(_, es)
                     => compn("composition", exp,params, index, sx, [],args, avail)
-                | E.OField(E.PolyWrap tterm, E.Comp _ , dx)
+                | E.OField(E.CFExp tterm, E.Comp _ , dx)
                     =>  compn("poly-wrap-composition", exp,params, index, sx, [],args, avail)
                 |  _ => (case (mkProbe exp)
                     of E.Probe _ => lift ("probe", exp, params, index, sx, args, avail)
@@ -261,7 +261,7 @@ structure FloatEin : sig
             | E.Sum(sx2, e) => (case e
                 of E.Probe(E.Comp(_, []), _) =>  raise Fail ("nonsupported nest")
                 | E.Probe(E.Comp(_, es), _) =>  compn("composition", e,params, index, sx, sx2, args, avail)
-                | E.Probe(E.OField(E.PolyWrap _, _, _),_) => let
+                | E.Probe(E.OField(E.CFExp _, _, _),_) => let
                     val (e', params', args') = rewrite (sx2@sx, e, params, args)
                     in
                         (E.Sum(sx2, e'), params', args')

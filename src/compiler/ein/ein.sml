@@ -65,10 +65,11 @@ structure Ein =
 
     (*other field types *)
     and ofield
-        = PolyWrap of param_id list     (* input variables *)
-        | DataFem of param_id          (* param id is to data file *)
-        | BuildFem of param_id *param_id       (*param id to function space *)
+        = CFExp of param_id list  * param_id list (*input variables TT and TF*)
+        | DataFem of param_id                   (* param id is to data file *)
+        | BuildFem of param_id *param_id        (*param id to function space *)
         | ManyPointerBuildFem of param_id *param_id * param_id *param_id
+
 
     and ein_exp
     (* Basic terms *)

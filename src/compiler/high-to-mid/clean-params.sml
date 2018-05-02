@@ -48,9 +48,9 @@ structure CleanParams : sig
                   | E.Op3(_, e1, e2, e3) => walk(e3, walk(e2, walk(e1, mapp)))
                   | E.Opn(E.Swap id, es) => List.foldl walk (ISet.add(mapp, id)) es
                   | E.Opn(_, es) => List.foldl walk mapp es
-                  | E.OField(E.PolyWrap ids, e2, _) =>
+                  | E.OField(E.CFExp (ids_tt, ids_ft), e2, _) =>
                         let
-                            val es= List.map (fn id => E.Tensor(id,[])) ids
+                            val es= List.map (fn id => E.Tensor(id,[])) (ids_tt@ids_ft)
                         in walk (e2, (List.foldl walk mapp es))
                         end
                   | E.OField(E.DataFem id, e2, _) => walk (e2, ISet.add(mapp, id))
@@ -106,8 +106,8 @@ structure CleanParams : sig
                   | E.Opn(E.Swap id, es) => E.Opn(E.Swap (getId id), List.map rewrite es)
                   | E.Opn(opn, es) => E.Opn(opn, List.map rewrite es)
                   | E.Poly(id, ix, n, alpha) => E.Poly(getId id, ix, n, alpha)
-                  | E.OField(E.PolyWrap es, e2, dx)
-                    => E.OField(E.PolyWrap (List.map getId es), rewrite e2, dx)
+                  | E.OField(E.CFExp (es1,es2), e2, dx)
+                    => E.OField(E.CFExp (List.map getId es1,List.map getId es2), rewrite e2, dx)
                   | E.OField(E.DataFem id, e2, dx)
                     => E.OField(E.DataFem (getId id), rewrite e2, dx)
                   | E.OField(E.BuildFem (id,s), e2, dx)
