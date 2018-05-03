@@ -123,10 +123,10 @@ structure PolyEin : sig
             in (args, params, mapp) end
 
         (*iterate over all the poly variable expressions *)
-        fun iter_TF(_, args, params, [], e) = (args, params,e)
+        fun iter_TF([], args, params, [], e) = (args, params,e)
             | iter_TF (pid::es, args, params, idx::idxs,e) =
             let
-                val _ = print(String.concat["\n replacing param id:",Int.toString(pid),"with idx:",Int.toString(idx)])
+                val _ = print(String.concat["\n iter TF replacing param id:",Int.toString(pid),"with idx:",Int.toString(idx)])
                 val (args, params, mapp) = replaceArg(args, params, idx, pid)
                 (* get dimension of vector that is being broken into components*)
                 val param_pos = List.nth(params, pid)
@@ -152,11 +152,13 @@ structure PolyEin : sig
         fun iTos(name,es) = String.concat[name ,String.concatWith","(List.map (fn e1=> String.concat[Int.toString(e1)]) es)]
         val _ = print(String.concat["\n\n",
             EinPP.expToString(e),
-            "\n",
+            "\n\n",
             iTos("pargs_TT:",pargs_TT),
+"\n",
             iTos("pargs_TF:",pargs_TF),
+"\n",
             iTos("probe_idxs:",probe_ids),
-            "\n",
+            "\n\n",
             "Argsl:", Int.toString(length(args)),
             "Paramsl:", Int.toString(length(params))])
 
@@ -307,6 +309,11 @@ structure PolyEin : sig
                 |  E.Opn(E.Add,ps) => List.map (fn E.Tensor(tid,_) => tid) ps
                 (*end case*))
 
+            val n_pargs = length(pargs_TT)+length(pargs_TF)
+            val n_probe = length(start_idxs)
+            val _ = if(not(n_pargs =n_probe))
+                    then raise  Fail(concat[" n_pargs:", Int.toString( n_pargs),"n_probe:",Int.toString(n_probe)])
+                    else 1
             val (args, params, e) = polyArgs(args, params, pargs_TT,pargs_TF, start_idxs, e)
             val ein = Ein.EIN{body=e, index=index, params=params}
             val _ = print(String.concat["\n\n   polyArgs\n:",MidIR.Var.name(y),"=", EinPP.toString(ein),"-",ll(args,0)])

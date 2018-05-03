@@ -52,7 +52,9 @@ structure BasisNames =
     val fn_comp = Atom.atom "compose"
 
     (* ofields math functions *)
-    val fn_cfe = Atom.atom "cfexp"
+    val fn_poly = Atom.atom "cfexp"
+    val fn_poly_12 = Atom.atom "cfexpOne"
+    val fn_poly_21 = Atom.atom "cfexpTwo"
     val fn_inst = Atom.atom "inst"
     val fn_convert = Atom.atom "FEM"
     val fn_convertTracker = Atom.atom "convertTracker"

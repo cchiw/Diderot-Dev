@@ -60,7 +60,7 @@ structure EinPP : sig
                 concat ["[", expToString e2 , concat ["{", shp2s n1, "}"],  "]", iter(es)]
                 in concat ["Cmp(", expToString e1,")", (iter(es))] end
             | E.OField(E.CFExp(es1, es2), e1, [])
- => concat ["CFExp[ids:", String.concatWithMap " ," i2s  es1,"ids:", String.concatWithMap " ," i2s  es2,  "](exp:",expToString e1,")"]
+ => concat ["CFExp[Tids:", String.concatWithMap " ," i2s  es1,"Fids:", String.concatWithMap " ," i2s  es2,  "](exp:",expToString e1,")"]
             | E.OField(E.CFExp(es1,es2), e1, alpha)
                 => concat [  expToString(E.OField(E.CFExp(es1,es2), e1, [])) ,"dx",multiIndex2s alpha, ")"]
             | E.OField(E.DataFem id, e1, alpha) => concat ["DataFEM(",expToString e1,")_",i2s id, deriv alpha, ")"]
@@ -127,7 +127,8 @@ structure EinPP : sig
                end
                
           (* end case *))
-    fun paramToString (i, E.TEN(t, shp)) = concat["T", i2s i, "[", shp2s shp, "]"]
+    fun paramToString (i, E.TEN(true, shp)) = concat["t", i2s i, "[", shp2s shp, "]"]
+      | paramToString (i, E.TEN(t, shp)) = concat["T", i2s i, "[", shp2s shp, "]"]
           | paramToString (i, E.FLD (d,shp)) = concat["F", i2s i, "[", shp2s shp, "]"]
           | paramToString (i, E.KRN) = "H" ^ i2s i
           | paramToString (i, E.IMG(d, shp)) = concat["V", i2s i, "(", i2s d, ")[", shp2s shp, "]"]

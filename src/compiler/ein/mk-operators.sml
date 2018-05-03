@@ -1333,28 +1333,29 @@ structure MkOperators : sig
     
     fun cfexpMix (alphas_tt, alpha_f, alphas_tf) =
         let
-            val n_tf = length(alphas_tf)
+        
             val n_tt = length(alphas_tt)
+            val tterm_tt = List.tabulate(n_tt, fn id => id)
             
-            val tterm_tt = List.tabulate(n_tf, fn id => id+1)
+            
+            val n_tf = length(alphas_tf)
             val shift_tf = n_tt+1
             val tterm_tf = List.tabulate(n_tf, fn id => id+shift_tf)
             
             
-            val fldtem = E.Tensor(0, specialize(alpha_f, 0))
+            val fldtem = E.Tensor(n_tt, specialize(alpha_f, 0))
             val bodyterm  = E.OField(E.CFExp (tterm_tt,tterm_tf), fldtem , [])
            
            val param_f = [mkTEN alpha_f]
-           val param_tf = List.map (fn talpha => mkNoSubstTEN  talpha)  alphas_tf
            val param_tt = List.map (fn talpha => mkNoSubstTEN  talpha)  alphas_tt
-                      
+           val param_tf = List.map (fn talpha => mkNoSubstTEN  talpha)  alphas_tf
             val e1 =
                 E.EIN {
-                    params = param_tf@param_f@param_tf,
+                    params = param_tt@param_f@param_tf,
                     index  = alpha_f,
                     body   = bodyterm
                 }
-            val _ = (String.concat["\n mk-operators- poly term: ",EinPP.toString(e1)])
+            val _ = print(String.concat["\n mk-operators- poly term: ",EinPP.toString(e1)])
         in
             e1
         end
