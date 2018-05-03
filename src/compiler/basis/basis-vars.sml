@@ -1665,7 +1665,7 @@ val f0 = Ty.T_Tensor(Ty.ShapeVar ddF)
 val k0 = Ty.DiffVar(k, 0)
 val f1 = Ty.T_Field{diff = k0, dim = Ty.DimVar d, shape = Ty.ShapeVar ddF}
 in
-[t0,t1,f0,t2] --> f1
+[f0, t0,t1,t2] --> f1
 end
 ))
 
@@ -1680,7 +1680,7 @@ val k0 = Ty.DiffVar(k, 0)
 val f0 = Ty.T_Tensor(Ty.ShapeVar ddF)
 val f1 = Ty.T_Field{diff = k0, dim = Ty.DimVar d, shape = Ty.ShapeVar ddF}
 in
-[t0, f0, t1, t2] --> f1
+[f0, t0,t1, t2] --> f1
 end
 ))
 

@@ -1335,7 +1335,7 @@ structure MkOperators : sig
         let
         
             val n_tt = length(alphas_tt)
-            val tterm_tt = List.tabulate(n_tt, fn id => id)
+            val tterm_tt = List.tabulate(n_tt, fn id => id+1)
             
             
             val n_tf = length(alphas_tf)
@@ -1343,7 +1343,7 @@ structure MkOperators : sig
             val tterm_tf = List.tabulate(n_tf, fn id => id+shift_tf)
             
             
-            val fldtem = E.Tensor(n_tt, specialize(alpha_f, 0))
+            val fldtem = E.Tensor(0, specialize(alpha_f, 0))
             val bodyterm  = E.OField(E.CFExp (tterm_tt,tterm_tf), fldtem , [])
            
            val param_f = [mkTEN alpha_f]
@@ -1351,7 +1351,7 @@ structure MkOperators : sig
            val param_tf = List.map (fn talpha => mkNoSubstTEN  talpha)  alphas_tf
             val e1 =
                 E.EIN {
-                    params = param_tt@param_f@param_tf,
+                    params = param_f@param_tt@param_tf,
                     index  = alpha_f,
                     body   = bodyterm
                 }
