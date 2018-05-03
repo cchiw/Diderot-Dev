@@ -1376,7 +1376,26 @@ end))
           end
 
     (*function composition*)
-    val fn_comp = polyVar(N.fn_comp , all([DK, NK, NK, SK, SK],
+    val fn_comp_t = polyVar(N.fn_comp , all([SK, SK],
+            fn [Ty.SHAPE dd0, Ty.SHAPE dd1] => let
+                val t1 = Ty.T_Tensor (Ty.ShapeVar dd0)
+                val t2 = Ty.T_Tensor (Ty.ShapeVar dd1)
+            in
+                [t1, t2] --> t1
+            end
+        ))
+
+    val op_comp_t = polyVar(N.op_comp , all([SK, SK],
+            fn [Ty.SHAPE dd0, Ty.SHAPE dd1] => let
+                val t1 = Ty.T_Tensor (Ty.ShapeVar dd0)
+                val t2 = Ty.T_Tensor (Ty.ShapeVar dd1)
+            in
+                [t1, t2] --> t1
+            end
+        ))
+
+
+    val fn_comp_f = polyVar(N.fn_comp , all([DK, NK, NK, SK, SK],
             fn [Ty.DIFF k, Ty.DIM d0, Ty.DIM d1, Ty.SHAPE dd0, Ty.SHAPE dd1] => let
                 (*val [d0] = dd1*)
                 val f1 = Ty.T_Field{diff = Ty.DiffVar(k, 0), dim = Ty.DimVar d0, shape = Ty.ShapeVar dd0}
@@ -1385,7 +1404,7 @@ end))
                 [f1, f2] --> f1
             end
         ))
-    val comp = polyVar(N.op_comp , all([DK, NK, NK, SK, SK],
+    val op_comp_f = polyVar(N.op_comp , all([DK, NK, NK, SK, SK],
         fn [Ty.DIFF k, Ty.DIM d0, Ty.DIM d1, Ty.SHAPE dd0, Ty.SHAPE dd1] => let
             (*val [d0] = dd1*)
             val f1 = Ty.T_Field{diff = Ty.DiffVar(k, 0), dim = Ty.DimVar d0, shape = Ty.ShapeVar dd0}
@@ -1404,7 +1423,7 @@ end))
         [f1, f2] --> f1
         end
         ))
-    val comp_p = polyVar(N.op_comp , all([DK, NK, NK, SK, SK],
+    val op_comp_p = polyVar(N.op_comp , all([DK, NK, NK, SK, SK],
         fn [Ty.DIFF k, Ty.DIM d0, Ty.DIM d1, Ty.SHAPE dd0, Ty.SHAPE dd1] => let
         (*val [d0] = dd1*)
         val f1 = Ty.T_OField{diff = Ty.DiffVar(k, 0), dim = Ty.DimVar d0, shape = Ty.ShapeVar dd0}
@@ -1640,10 +1659,10 @@ end))
   (* boolean and *)
     val and_b = monoVar (Atom.atom "$and", [Ty.T_Bool, Ty.T_Bool] --> Ty.T_Bool)
 
-(* ----------------------------------------------------------------------------------*)
+(* --------------------------------------Closed-Form example -----------------------------------------*)
     (*function polynomial*)
     (* below we offer different number of input variables *)
-    val fn_cfe_1 = polyVar(N.fn_cfe , all([DK, NK, SK, SK],
+    val fn_cfe_1 = polyVar(N.fn_poly , all([DK, NK, SK, SK],
         fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.SHAPE ddT] => let
 
         val k0 = Ty.DiffVar(k, 0)
@@ -1655,7 +1674,7 @@ end))
         end
         ))
 
-    val fn_cfe_2 = polyVar(N.fn_cfe , all([DK, NK, SK, SK, SK],
+    val fn_cfe_2 = polyVar(N.fn_poly , all([DK, NK, SK, SK, SK],
         fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.SHAPE ddT, Ty.SHAPE ddT2] => let
 
         val k0 = Ty.DiffVar(k, 0)
@@ -1668,7 +1687,7 @@ end))
         end
         ))
 
-    val fn_cfe_3 = polyVar(N.fn_cfe , all([DK, NK, SK, SK, SK, SK],
+    val fn_cfe_3 = polyVar(N.fn_poly , all([DK, NK, SK, SK, SK, SK],
         fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.SHAPE ddT, Ty.SHAPE ddT2, Ty.SHAPE ddT3] => let
 
         val k0 = Ty.DiffVar(k, 0)
@@ -1682,19 +1701,7 @@ end))
         end
         ))
 
-
-val fn_cfe_18 = polyVar(N.fn_cfe , all([DK, NK, SK, SK],
-fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.SHAPE ddT] => let
-
-val k0 = Ty.DiffVar(k, 0)
-val t1 = Ty.T_Tensor(Ty.ShapeVar ddT)
-val f0 = Ty.T_Tensor(Ty.ShapeVar ddF)
-val f1 = Ty.T_Field{diff = k0, dim = Ty.DimVar d, shape = Ty.ShapeVar ddF}
-in
-[f0,t1] --> f1
-end
-))
-
+(* ---------------------------------- print IR ------------------------------------------*)
     val fn_printIR_ts = polyVar (Atom.atom "$printIR", all([SK],
         fn [Ty.SHAPE ddT] => let
             val t1 = Ty.T_Tensor(Ty.ShapeVar ddT)
@@ -1921,13 +1928,6 @@ val fn_tensorfunctionspace = polyVar (N.fn_tensorfunctionspace, all([],
         [Ty.T_Int, f,f] --> f
         end))
 
-val fn_swap255 = polyVar(N.fn_swap, all([DK,NK,SK],
-fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE dd] => let
-val f = Ty.T_Field{diff = Ty.DiffVar(k, 0), dim = Ty.DimVar d, shape = Ty.ShapeVar dd}
-in
-[Ty.T_Int, f,f] --> f
-end))
-
     val fn_swap3 = polyVar(N.fn_swap, all([DK,NK,SK],
         fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE dd] => let
         val f = Ty.T_Field{diff = Ty.DiffVar(k, 0), dim = Ty.DimVar d, shape = Ty.ShapeVar dd}
@@ -1943,7 +1943,6 @@ end))
         [Ty.T_Int, f,f, f, f] --> f
         end))
 
-
     val fn_swap5 = polyVar(N.fn_swap, all([DK,NK,SK],
         fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE dd] => let
         val f = Ty.T_Field{diff = Ty.DiffVar(k, 0), dim = Ty.DimVar d, shape = Ty.ShapeVar dd}
@@ -1958,6 +1957,11 @@ end))
         in
         [Ty.T_Int, f,f, f, f,f,f] --> f
         end))
+
+
+
+
+
 (* ************************************* Push FEM op to surface ************************************* *)
     val sp_getCell =  polyVar (N.sp_getCell, all([DK, NK, SK, SK],
         fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.SHAPE ddT] => let

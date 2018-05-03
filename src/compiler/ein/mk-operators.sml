@@ -130,6 +130,7 @@ structure MkOperators : sig
     val concatField: int * shape *int -> Ein.ein
     val compositionF: shape * shape * int -> Ein.ein
     val compositionT: shape * shape -> Ein.ein    (*note added for cfexp*)
+     val composition: shape * shape * int -> Ein.ein
  
      val lerp3 : shape -> Ein.ein
      val lerp5 : shape -> Ein.ein
@@ -154,6 +155,7 @@ structure MkOperators : sig
     val cfexp: shape * shape list -> Ein.ein
     val cfexpMix: shape list * shape * shape list -> Ein.ein
  
+    val poly: shape*shape list -> Ein.ein
     val polyProbe: shape * dim * shape list -> Ein.ein
     val polyProbe2: shape * dim * shape list -> Ein.ein
     val ofieldfem: dim*shape -> Ein.ein
@@ -1005,7 +1007,23 @@ structure MkOperators : sig
     fun zeros shape = E.EIN{
             params = [], index = shape, body = E.Zero (specialize(shape, 0))
           }
-    
+          fun composition (shape0, shape1, dim1) = let
+          val dim0 = (case shape1
+          of [] => 1
+          | [n] => n
+          (* end case *))
+          
+          val expindex0 = specialize(shape0, 0)
+          val expindex1 = specialize(shape1, 0)
+          in
+          E.EIN{
+          params = [E.FLD (dim0, shape0), E.FLD (dim1, shape1)],
+          index = shape0,
+          body = E.Comp (E.Field(0, expindex0), [(E.Field(1, expindex1),  shape1)])
+          }
+          end
+          
+          (*^^ old *)
     fun compositionT (shape0, shape1) = let
           val dim0 = (case shape1
             of [] => 1
@@ -1340,7 +1358,22 @@ structure MkOperators : sig
         in
             e1
         end
-        
+        fun poly (falpha, talphas) = let
+        val expindex = specialize(falpha, 0)
+        val n = length(talphas)
+        val fldtem = E.Tensor(0, expindex)
+        val tterm = List.tabulate(n, fn id => id+1)
+        val e1 =
+        E.EIN {
+        params = (List.map (fn talpha => mkTEN talpha)  talphas)@[mkTEN falpha],
+        index = falpha,
+        body = E.OField(E.CFExp ([],tterm), fldtem , [])
+        }
+        val _ = print(String.concat["\n mk-operators- poly term: ",EinPP.toString(e1)])
+        in
+        e1
+        end
+        (*^ old here *)
         
         (* Probe: <F(x)>_{\alpha}   *)
                        (* for fem probe*)
