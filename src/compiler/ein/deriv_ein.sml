@@ -133,7 +133,7 @@ val differentiate: Ein.mu list * Ein.ein_exp -> Ein.ein_exp
     (*note would need to keep track of change*)
     fun differentiate (px, body) =
         let
-        val _ = (String.concat["\n\ndiff:",EinPP.expToString(body)])
+        val _ = print(String.concat["\n\ndiff:",EinPP.expToString(body)])
         val body' =(case body
             of E.Const _            => E.Const 0
             | E.ConstR _            => E.Const 0
@@ -141,8 +141,8 @@ val differentiate: Ein.mu list * Ein.ein_exp -> Ein.ein_exp
             | E.Delta _             => E.Const 0
             | E.Epsilon _           => E.Const 0
             | E.Eps2 _              => E.Const 0
-            | E.Field _             => E.Const 0
-            | E.Tensor _            => E.Const 0
+            | E.Field _             => body
+            | E.Tensor _            => body
             | E.Poly (id,c, n, dx)  => E.Poly(id, c, n, dx@px)
             | E.Lift(e1)            => E.Lift(differentiate(px, e1))
             | E.Sum(op1, e1)        => let

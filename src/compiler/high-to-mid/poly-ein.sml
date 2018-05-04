@@ -106,7 +106,7 @@ structure PolyEin : sig
                 val arg_new = List.nth(args, idx)
                 val param_new = List.nth(params, idx)
                 val arg_replaced = List.nth(args, idy)
-                val _ = print(String.concat["\n\nreplace :", IR.Var.name  arg_replaced," with new :", IR.Var.name  arg_new])
+                val _ = (String.concat["\n\nreplace :", IR.Var.name  arg_replaced," with new :", IR.Var.name  arg_new])
 
                 (*id keeps track of placement and puts it in mapp*)
                 fun findArg(_, [], newargs, _, newparams, mapp) = (List.rev newargs, List.rev newparams, mapp)
@@ -126,7 +126,7 @@ structure PolyEin : sig
         fun iter_TF([], args, params, [], e) = (args, params,e)
             | iter_TF (pid::es, args, params, idx::idxs,e) =
             let
-                val _ = print(String.concat["\n iter TF replacing param id:",Int.toString(pid),"with idx:",Int.toString(idx)])
+                val _ = (String.concat["\n iter TF replacing param id:",Int.toString(pid),"with idx:",Int.toString(idx)])
                 val (args, params, mapp) = replaceArg(args, params, idx, pid)
                 (* get dimension of vector that is being broken into components*)
                 val param_pos = List.nth(params, pid)
@@ -143,14 +143,14 @@ structure PolyEin : sig
         fun iter_TT([], args, params, _, e) = (args, params,e)
           | iter_TT(pid::es, args, params, idx::idxs,e) =
                 let
-                val _ = print(String.concat["\n iterTT replacing param id:",Int.toString(pid),"with idx:",Int.toString(idx)])
+                val _ = (String.concat["\n iterTT replacing param id:",Int.toString(pid),"with idx:",Int.toString(idx)])
                 val args = List.take(args,pid)@[List.nth(args, idx)]@List.drop(args,pid+1)
                 in iter_TT(es, args,params, idxs, e) end
 
 
         (*probe_id: start of position variables for probe operation *)
         fun iTos(name,es) = String.concat[name ,String.concatWith","(List.map (fn e1=> String.concat[Int.toString(e1)]) es)]
-        val _ = print(String.concat["\n\n",
+        val _ = (String.concat["\n\n",
             EinPP.expToString(e),
             "\n\n",
             iTos("pargs_TT:",pargs_TT),
@@ -166,10 +166,10 @@ structure PolyEin : sig
 
         val n_TT  = length(pargs_TT)
         val (args, params, e) = iter_TT(pargs_TT, args, params, probe_ids, e)
-        val _ = print(String.concat["\n\n post replacing TT:",EinPP.expToString(e),"-",ll(args,0)])
+        val _ = (String.concat["\n\n post replacing TT:",EinPP.expToString(e),"-",ll(args,0)])
 
         val (args, params, e) = iter_TF(pargs_TF, args, params, List.drop(probe_ids,n_TT), e)
-        val _ = print(String.concat["\n\n post replacing TF:",EinPP.expToString(e),"-",ll(args,0)])
+        val _ = (String.concat["\n\n post replacing TF:",EinPP.expToString(e),"-",ll(args,0)])
 
         in (args, params, e) end
     (********************************** Step 2 *******************************)
@@ -275,7 +275,7 @@ structure PolyEin : sig
 
     (*apply differentiation and clean up*)
     fun normalize (e', dx) = let
-        fun rewrite(body) = (case body
+fun rewrite(body) = (print("\nn rewite:"^EinPP.expToString(body));case body
             of E.Apply(E.Partial dx, e)     =>  rewrite(DerivativeEin.differentiate (dx, e))     (* differentiate *)
             | E.Op1(op1, e1)                =>   E.Op1(op1, rewrite e1)
             | E.Op2(op2, e1,e2)             =>   E.Op2(op2, rewrite e1, rewrite e2)
@@ -298,10 +298,13 @@ structure PolyEin : sig
 
     (********************************** main *******************************)
     (* transform ein operator *)
-    fun transform (y, ein as Ein.EIN{body,index, params}, args) =
+    fun transformBase (y, sx, ein as Ein.EIN{body,index, params}, args) =
         let
-            val E.Probe(E.OField(E.CFExp (pargs_TT,pargs_TF), e, dx), expProbe) = body
             val _ = print(String.concat["\n\n*******************\n  starting polyn:",MidIR.Var.name(y),"=", EinPP.toString(ein),"-",ll(args,0)])
+
+            val E.Probe(E.OField(E.CFExp (pargs_TT,pargs_TF), e, dx), expProbe) = body
+
+
             (********************************** Step 1 *******************************)
             (* replace polywrap args/params with probed position(s) args/params *)
             val start_idxs = (case (expProbe)
@@ -316,19 +319,21 @@ structure PolyEin : sig
                     else 1
             val (args, params, e) = polyArgs(args, params, pargs_TT,pargs_TF, start_idxs, e)
             val ein = Ein.EIN{body=e, index=index, params=params}
-            val _ = print(String.concat["\n\n   polyArgs\n:",MidIR.Var.name(y),"=", EinPP.toString(ein),"-",ll(args,0)])
+            val _ = print(String.concat["\n\n   post polyArgs\n:",MidIR.Var.name(y),"=", EinPP.toString(ein),"-",ll(args,0)])
 
             (********************************** Step 2 *******************************)
             (* need to flatten before merging polynomials in product *)
             val e = mergeD(e)
-            val _ = (String.concat["\n\n   mergeD->", EinPP.expToString(e)])
+            val _ = print(String.concat["\n\n   mergeD->", EinPP.expToString(e)])
  
            (********************************** Step 3 *******************************)
             (* normalize ein by cleaning it up and differntiating*)
-            val e = normalize(e, dx)
-            val _ = (String.concat["\n\n   normalize->", EinPP.expToString(e),"********"])
+            val e = case sx
+                of [] => normalize(e, dx)
+                |  _  => E.Sum(sx,normalize(e, dx))
+            val _ = print(String.concat["\n\n   normalize->", EinPP.expToString(e),"********"])
             val _ = (String.concat["\n\n*******************\n"])
-            val newbie = (y, IR.EINAPP(Ein.EIN{body=e, index=index, params=params}, args))
+            val newbie = (y, IR.EINAPP(Ein.EIN{body= e, index=index, params=params}, args))
 
             val stg_poly = Controls.get Ctl.stgPoly
             val _ =  if(stg_poly) then ScanE.readIR_Single(newbie,"tmp-poly") else 1
@@ -336,6 +341,14 @@ structure PolyEin : sig
         in
                [newbie]
         end
+
+
+
+       fun transform (y, ein as Ein.EIN{body,params,index}, args) = (case body
+             of E.Sum(sx,body) => transformBase(y, sx, Ein.EIN{body=body, params=params, index=index}, args)
+             | _ => transformBase(y, [], ein, args)
+        (* end case *))
+
 
 
 

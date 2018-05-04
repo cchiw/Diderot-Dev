@@ -253,21 +253,25 @@ structure FloatEin : sig
                 | E.Comp(_, es)
                     => compn("composition", exp,params, index, sx, [],args, avail)
                 | E.OField(E.CFExp tterm, E.Comp _ , dx)
-                    =>  compn("poly-wrap-composition", exp,params, index, sx, [],args, avail)
+                     => raise Fail "cfexp of a composition not allowed"
+                    (* compn("poly-wrap-composition", exp,params, index, sx, [],args, avail)*)
                 |  _ => (case (mkProbe exp)
                     of E.Probe _ => lift ("probe", exp, params, index, sx, args, avail)
                     | exp       => rewrite(sx, exp, params, args))
                     (* end case*))
-            | E.Sum(sx2, e) => (case e
+| E.Sum(sx2, e) => (print("\n Mark A Sum exp:"^EinPP.expToString(exp));case e
                 of E.Probe(E.Comp(_, []), _) =>  raise Fail ("nonsupported nest")
-                | E.Probe(E.Comp(_, es), _) =>  compn("composition", e,params, index, sx, sx2, args, avail)
-                | E.Probe(E.OField(E.CFExp _, _, _),_) => let
+                 | E.Probe(E.Comp(_, es), _) =>  compn("composition", e,params, index, sx, sx2, args, avail)
+(*
+                 | E.Probe(E.OField(E.CFExp _, _, _),_) => let
                     val (e', params', args') = rewrite (sx2@sx, e, params, args)
                     in
                         (E.Sum(sx2, e'), params', args')
                     end
-                | E.Probe ( _, _) => lift ("sumprobe", e, params, index, sx, args, avail)
-                | _ => let
+*)
+| E.Probe ( _, _) => (print"\nMark C";lift ("sumprobe", exp, params, index, sx, args, avail))
+                 | _ => let
+                    val _ = print"\nMark D"
                     val (e', params', args') = rewrite (sx2@sx, e, params, args)
                     in
                         (E.Sum(sx2, e'), params', args')
