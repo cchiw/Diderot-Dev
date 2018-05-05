@@ -304,15 +304,16 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
                   TranslateBasis.translate (lhs, f, tyArgs, args')
                 end
             | S.E_Tensor(args, Ty.T_Tensor shape) =>
-               [IR.ASSGN(lhs, IR.CONS(List.map (lookup env) args, IR.Var.ty lhs))]
-               (* FIXME  Why did we add this?
+           [IR.ASSGN(lhs, IR.CONS(List.map (lookup env) args, IR.Var.ty lhs))]
+           (*
+               (* Added for cfexp of matrices*)
               let
                 val rator  = MkOperators.concatTensor(List.tl shape,List.length(args))
                 val ein = IR.EINAPP(rator,List.map (lookup env) args)
               in
                 [IR.ASSGN(lhs, ein)]
               end
-              *)
+   *)
             | S.E_Field(args, Ty.T_Field{diff, dim, shape}) =>
                 let
                     val rator  = MkOperators.concatField(dim, List.tl shape,List.length(args))
