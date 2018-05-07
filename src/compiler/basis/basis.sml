@@ -155,6 +155,10 @@ structure Basis : sig
           (N.fn_poly, [BV.fn_poly_1, BV.fn_poly_2, BV.fn_poly_3]),
           (N.fn_poly_21, [BV.fn_poly_21]),
           (N.fn_poly_12, [BV.fn_poly_12]),
+          (N.fn_diff,    [BV.fn_diff]),
+(*
+          (N.fn_expression,    [BV.fn_expression_ttt]),
+*)
           (N.fn_inst, [BV.fn_inst_1_FT,BV.fn_inst_1_TF, BV.fn_inst_2, BV.fn_inst_3]),
           (N.op_D,     [BV.op_D, BV.op_D_p]),
           (N.op_Dotimes,   [BV.op_Dotimes, BV.op_Dotimes_p]),

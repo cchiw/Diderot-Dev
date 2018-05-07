@@ -759,22 +759,25 @@ structure ScanPP : sig
                     val name =  concat(["\nIf ",cname,"\n\t then ", s2, "\n\t else ",s3])
                     in (name, alpha2) end
 
-                | E.OField(E.CFExp(_,ids), e2, [])
+                | E.OField(E.CFExp(ids), e2, E.Partial [])
                     => 
                     let
                         fun iter ([],rest) = rest
-                          | iter (id::es, rest) = let
+                          | iter ((id,E.T)::es, rest) = let
                                 val s0 =  cvtId(args,id)
-                                in iter (es, String.concat[rest,",",s0]) end
+                                in iter (es, String.concat[rest,",t_",s0]) end
+                            | iter ((id,E.F)::es, rest) = let
+                                val s0 =  cvtId(args,id)
+                                in iter (es, String.concat[rest,",f_",s0]) end
                             
                         val s1 =  iter(ids,"")
                         val (s2, alpha2) = getAlpha (e2)
                         val s3 = concat ["CFExp[var:",s1, "](exp:",s2,")"]
                         in (s3,alpha2) end
-                | E.OField(E.CFExp(ids_tt,ids), e2, dx)
+                | E.OField(E.CFExp(ids), e2, E.Partial dx)
                     =>  
                     let
-                        val (s2, alpha2) = getAlpha(E.OField(E.CFExp(ids_tt,ids), e2, []))
+                        val (s2, alpha2) = getAlpha(E.OField(E.CFExp(ids), e2, E.Partial []))
                         val s3 = concat [cvtdx(op_n, dx), " ",s2]
                     in 
                         (s3, alpha2@dx)

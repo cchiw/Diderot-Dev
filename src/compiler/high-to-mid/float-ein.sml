@@ -58,7 +58,7 @@ structure FloatEin : sig
             val IR.EINAPP(ein, args) = CleanParams.clean (body1, Rparams, sizes1, argsOrig@[y])
             (* shift indices in probe body from constant to variable *)
             val Ein.EIN{
-                body = E.Probe(E.OField(ofield, E.Tensor(V, alpha), dx), pos),
+                body = E.Probe(E.OField(ofield, E.Tensor(V, alpha), E.Partial dx), pos),
                 index = index0,
                 params = params0
                 } = ein
@@ -72,7 +72,7 @@ structure FloatEin : sig
 
             val dxn = length(dx)
             val dx = List.tabulate(dxn, fn i=> E.V (i+alphan))
-            val unshiftedBody = E.Probe(E.OField(ofield, E.Tensor(V, alpha), dx), pos)
+            val unshiftedBody = E.Probe(E.OField(ofield, E.Tensor(V, alpha), E.Partial  dx), pos)
 
             val _ = (String.concat["\n\n   unshiftedBody:",EinPP.expToString( unshiftedBody)])
             (* clean to get body indices in order *)

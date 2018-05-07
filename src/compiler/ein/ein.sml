@@ -63,9 +63,11 @@ structure Ein =
 
     and compare = GT of ein_exp * ein_exp| LT of ein_exp * ein_exp | Bool of param_id
 
+    and inputTy = T | F (*treat as a tensor or field during differentiaton *)
+
     (*other field types *)
     and ofield
-        = CFExp of param_id list  * param_id list (*input variables TT and TF*)
+        = CFExp of (param_id*inputTy) list      (* input variables TT and TF*)
         | DataFem of param_id                   (* param id is to data file *)
         | BuildFem of param_id *param_id        (*param id to function space *)
         | ManyPointerBuildFem of param_id *param_id * param_id *param_id
@@ -89,7 +91,8 @@ structure Ein =
       | Apply of ein_exp * ein_exp
       | Probe of ein_exp * ein_exp
       | Comp of ein_exp * subEIN list
-      | OField of ofield * ein_exp * alpha (*field arg T, exp, dx*)
+      (*| OField of ofield * ein_exp * alpha (*field arg T, exp, dx*)*)
+      | OField of ofield * ein_exp * ein_exp (*field arg T, exp, E.Partial dx*)
       | Poly of param_id*alpha * int* alpha  (*  T_[alpha]^n dx*)
     (* Mid-IL Terms *)
       | Value of index_id (* Lift index *)

@@ -22,6 +22,8 @@ structure EinPP : sig
     val i2s = Int.toString
     val shp2s = String.concatWithMap " " i2s
 
+    fun ti2s (id, E.T) = "t_"^Int.toString(id)
+      | ti2s (id, E.F) = "f_"^Int.toString(id)
     fun index2s (E.C cx) = concat["'", i2s cx, "'"]
       | index2s (E.V ix) = "i" ^ i2s ix
 
@@ -59,13 +61,13 @@ structure EinPP : sig
                 | iter ((e2, n1)::es) =
                 concat ["[", expToString e2 , concat ["{", shp2s n1, "}"],  "]", iter(es)]
                 in concat ["Cmp(", expToString e1,")", (iter(es))] end
-            | E.OField(E.CFExp(es1, es2), e1, [])
- => concat ["CFExp[Tids:", String.concatWithMap " ," i2s  es1,"Fids:", String.concatWithMap " ," i2s  es2,  "](exp:",expToString e1,")"]
-            | E.OField(E.CFExp(es1,es2), e1, alpha)
-                => concat [  expToString(E.OField(E.CFExp(es1,es2), e1, [])) ,"dx",multiIndex2s alpha, ")"]
-            | E.OField(E.DataFem id, e1, alpha) => concat ["DataFEM(",expToString e1,")_",i2s id, deriv alpha, ")"]
-            | E.OField(E.BuildFem (id,id2), e1, alpha) => concat ["BuildFEM(",expToString e1,")_", i2s id, "[",i2s id2,"]",deriv alpha, ")"]
-            | E.OField(E.ManyPointerBuildFem(id,id2, id3, id4), e1, alpha) => concat ["ManyPtr(",expToString e1,")_", i2s id, "[",i2s id2,"|",i2s id3,"|",i2s id4,"]",deriv alpha, ")"]
+            | E.OField(E.CFExp es, e1,  E.Partial [])
+                => concat ["CFExp[Tids:", String.concatWithMap " ," ti2s  es, "](exp:",expToString e1,")"]
+            | E.OField(E.CFExp(es), e1,  E.Partial alpha)
+                => concat [  expToString(E.OField(E.CFExp(es), e1, E.Partial  [])) ,"dx",multiIndex2s alpha, ")"]
+            | E.OField(E.DataFem id, e1,  E.Partial alpha) => concat ["DataFEM(",expToString e1,")_",i2s id, deriv alpha, ")"]
+            | E.OField(E.BuildFem (id,id2), e1,  E.Partial alpha) => concat ["BuildFEM(",expToString e1,")_", i2s id, "[",i2s id2,"]",deriv alpha, ")"]
+            | E.OField(E.ManyPointerBuildFem(id,id2, id3, id4), e1,  E.Partial alpha) => concat ["ManyPtr(",expToString e1,")_", i2s id, "[",i2s id2,"|",i2s id3,"|",i2s id4,"]",deriv alpha, ")"]
             (* | E.Poly(tid, cx, 1, []) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")"]*)
             | E.Poly(tid, cx, 1, dx) => concat [deriv dx,"(P", i2s tid,"_", multiIndex2s  cx, ")"]
             | E.Poly(tid, cx, n, dx) => concat [deriv dx,"(P", i2s tid,"_", multiIndex2s  cx, ")^",  i2s n]
@@ -171,8 +173,8 @@ structure EinPP : sig
         | E.Apply(e1, e2) => "∂/∂x"
         | E.Probe(e1, e2) => concat ["Probe"]
         | E.Comp(e1,es) => concat ["Cmp"]
-        | E.OField(E.CFExp _, e1, []) => concat ["PolyWrap"]
-        | E.OField(E.CFExp _, e1, alpha)  => concat ["PolyWrap"]
+        | E.OField(E.CFExp _, e1,  E.Partial []) => concat ["PolyWrap"]
+        | E.OField(E.CFExp _, e1,  E.Partial alpha)  => concat ["PolyWrap"]
         | E.Poly(tid, cx, 1, []) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")"]
         | E.Poly(tid, cx, 1, dx) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ") dx",multiIndex2s  dx]
         | E.Poly(tid, cx, n, []) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")^",  i2s n]

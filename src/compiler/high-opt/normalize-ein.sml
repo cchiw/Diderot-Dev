@@ -9,7 +9,7 @@
 structure NormalizeEin : sig
 
   (* normalize an Ein function; if there are no changes, then NONE is returned. *)
-    val transform : Ein.ein -> Ein.ein option
+    val transform : Ein.ein * HighIR.var list -> Ein.ein option
 
   end = struct
 
@@ -147,7 +147,7 @@ return (E.Op3(op3, E.Probe(e1, x), E.Probe(e2, x), E.Probe(e3, x)))
         end
 
   (* rewrite body of EIN *)
-    fun transform (ein as Ein.EIN{params, index, body}) = let
+    fun transform (ein as Ein.EIN{params, index, body}, args) = let
           (* DEBUG val _ = print(String.concat["\ntransform", EinPP.expToString(body)])*)
           fun filterProd args = (case EinFilter.mkProd args
                  of SOME e => (ST.tick cntFilter; e)
@@ -192,6 +192,23 @@ return (E.Op3(op3, E.Probe(e1, x), E.Probe(e2, x), E.Probe(e3, x)))
                           | NONE => E.Apply(E.Partial d1, e1)
                         (* end case *)
                       end
+                  (*sets one of the variables as a fld term *)
+
+                  | E.Apply(E.Tensor (id,_), exp) => (case rewrite(exp)
+                    of E.OField(E.CFExp tterms, fldtem, dx) => let
+                        val varg = List.nth(args,id)
+
+                        fun iter([]) = raise Fail("term isn't an input")
+                        | iter ((e1,inputTy)::es) =
+                            if (HighIR.Var.same(List.nth(args,e1), varg))
+                            then (e1, E.F)::es (*change to field type*)
+                            else (e1, inputTy)::iter(es)
+                        val tterms = iter(tterms)
+                        val body = E.OField(E.CFExp tterms, fldtem, dx)
+                        in (ST.tick cntApplyPartial; body) end
+
+                    | _ => body
+                    (* end case*))
                   | E.Apply _ => err "Ill-formed Apply expression"
                 (************** min|max **************)
                  | E.Op2(E.Min, e1, e2)     =>
