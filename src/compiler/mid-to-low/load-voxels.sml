@@ -21,7 +21,7 @@ structure LoadVoxels : sig
     val expand : {
             lhs : LowIR.var,
             info : ImageInfo.t,
-            s : int,
+            ss : int list,
             img : LowIR.var,
             idx : LowIR.var
           } -> LowIR.assign list
@@ -35,7 +35,7 @@ structure LoadVoxels : sig
     val expandWithCtl : {
             lhs : LowIR.var,
             info : ImageInfo.t,
-            s : int,
+            ss : int list,
             ctl : IndexCtl.t,
             img : LowIR.var,
             idx : LowIR.var
@@ -165,17 +165,17 @@ structure LoadVoxels : sig
    * the function f gets called with a list of indices [idx1, ..., idxn],
    * where idx1 varies the fastest and idxn varies the slowest.
    *)
-    fun gridIterate (avail, n, s) (f : int list -> IR.var) = let
-          fun iter (0, idxs) = f idxs
-            | iter (i, idxs) = let
+    fun gridIterate (avail, n, ss) (f : int list -> IR.var) = let
+          fun iter (0, idxs, _) = f idxs
+            | iter (i, idxs, s::ss) = let
                 fun lp (j, xs) = if (j < s)
-                      then lp (j+1, iter(i-1, j::idxs) :: xs)
+                      then lp (j+1, iter(i-1, j::idxs,ss) :: xs)
                       else assignCons (avail, voxName idxs, List.rev xs)
                 in
                   lp (0, [])
                 end
           in
-            iter (n, [])
+            iter (n, [],List.rev ss)
           end
 
   (* `shapeIterate avail shp f` generates code to construct a tensor with
@@ -201,7 +201,8 @@ structure LoadVoxels : sig
             y
           end
 
-    fun expand {lhs, info, s, img, idx} = let
+    fun expand {lhs, info, ss, img, idx} = let
+
           val avail = AvailRHS.new ()
           val (dim, baseIdxs) = loadIndices (avail, idx)
           val voxelAddr = voxelAddress (avail, info, img, fn (axis, ix) => ix)
@@ -210,13 +211,14 @@ structure LoadVoxels : sig
                 Op.LoadVoxel info,
                 voxelAddr (offset, baseIdxs, idxs))
           val result = shapeIterate avail (ImageInfo.voxelShape info)
-                (fn offset => gridIterate (avail, dim, s) (load offset))
+                (fn offset => gridIterate (avail, dim, ss) (load offset))
           in
             AvailRHS.addAssignToList (avail, (lhs, IR.VAR result));
             List.rev (AvailRHS.getAssignments avail)
           end
 
-    fun expandWithCtl {lhs, info, s, ctl, img, idx} = let
+    fun expandWithCtl {lhs, info, ss, ctl, img, idx} = let
+    
           val avail = AvailRHS.new ()
           val (dim, baseIdxs) = loadIndices (avail, idx)
         (* add check of index for border control *)
@@ -229,7 +231,7 @@ structure LoadVoxels : sig
                 Op.LoadVoxel info,
                 voxelAddr (offset, baseIdxs, idxs))
           val result = shapeIterate avail (ImageInfo.voxelShape info)
-                (fn offset => gridIterate (avail, dim, s) (load offset))
+                (fn offset => gridIterate (avail, dim, ss) (load offset))
           in
             AvailRHS.addAssignToList (avail, (lhs, IR.VAR result));
             List.rev (AvailRHS.getAssignments avail)

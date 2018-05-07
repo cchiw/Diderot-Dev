@@ -103,8 +103,8 @@ structure CheckOps : OPERATOR_TY = struct
                     then (Ty.TensorTy[], [Ty.ImageTy info])
                     else (Ty.TensorTy[dim], [Ty.ImageTy info])
                 end
-            | Op.LoadVoxels(info, s) => loadVoxelsSig (info, s)
-            | Op.LoadVoxelsWithCtl(info, s, _) => loadVoxelsSig (info, s)
+            | Op.LoadVoxels(info, [s]) => loadVoxelsSig (info, s)
+            | Op.LoadVoxelsWithCtl(info, [s], _) => loadVoxelsSig (info, s)
             | Op.Inside(info, _) => (Ty.BoolTy, [Ty.vecTy(ImageInfo.dim info), Ty.ImageTy info])
             | Op.IndexInside(info, _) => (Ty.BoolTy, [indexType info, Ty.ImageTy info])
             | Op.ImageDim(info, _) => (Ty.IntTy, [Ty.ImageTy info])

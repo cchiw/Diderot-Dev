@@ -78,9 +78,19 @@ structure ProbeEin : sig
                 ])
           (* end case *))
 
-    fun getKernelDst hArg = (case IR.Var.getDef hArg
-           of IR.OP(Op.Kernel(h, _), _) => h
-            | rhs => raise Fail (String.concat[
+    fun getKernelDst (hArg) = (case (IR.Var.getDef hArg)
+        of IR.OP(Op.Kernel(h, _),_) => h
+        | rhs => raise Fail (String.concat[
+        "expected kernel for ", IR.Var.toString hArg,
+        " but found ", IR.RHS.toString rhs
+        ])
+        (* end case *))
+    fun getKernelDsts (hArg,dim) = (case (dim, IR.Var.getDef(hArg))
+           of (_,IR.OP(Op.Kernel(h, _), _))               => List.tabulate(dim, fn _ => h)
+           | (2, IR.OP(Op.KrnMultipleTwoD, [x,y]))        => List.map getKernelDst [x,y]
+           | (3, IR.OP(Op.KrnMultipleThreeD, [x,y, z]))   => List.map getKernelDst [x,y,z]
+           | (4, IR.OP(Op.KrnMultipleFourD, [x,y, z ,a])) => List.map getKernelDst [x,y,z,a]
+           | (_, rhs) => raise Fail (String.concat[
                   "expected kernel for ", IR.Var.toString hArg,
                   " but found ", IR.RHS.toString rhs
                 ])
@@ -106,6 +116,7 @@ structure ProbeEin : sig
   (* lifted Kernel expressions
    * args are axis, ein index_ids that represent differentiation, image dimension,
    * kernel, fractional position, support
+   * dir is current dimension. we can get h associated with dimension
    *)
     fun liftKrn (avail, dir, dx, dim, h, vF, s) = let
           val axis = axis dir
@@ -149,21 +160,25 @@ structure ProbeEin : sig
    *        s           -- half the support of the reconstruction kernel
    *        border      -- optional border control
    *)
-    fun mkLdVoxel (avail, vI, vN, info, alpha, shape, dim, s, border) = let
-       (* creates lb int *)
-          val vLb = AvailRHS.addAssign (avail, "lit", Ty.intTy,
-                IR.LIT(Literal.Int(IntInf.fromInt(1 - s))))
+    fun mkLdVoxel (avail, vI, vN, info, alpha, shape, dim, ss, border) = let
         (* the index argument to LoadVoxels; this is a single integer for 1D images *)
           val idxs = if (dim = 1)
-                then AvailRHS.addAssign (avail, "idx", Ty.intTy, IR.OP(Op.IAdd, [vN, vLb]))
+                then let
+                (* creates lb int *)
+                    val s = List.nth(ss,0)
+                    val vLb = AvailRHS.addAssign (avail, "lit", Ty.intTy, IR.LIT(Literal.Int(IntInf.fromInt(1 - s))))
+                    in AvailRHS.addAssign (avail, "idx", Ty.intTy, IR.OP(Op.IAdd, [vN, vLb]))
+                    end
                 else let
                   val seqTy = Ty.SeqTy(Ty.intTy, SOME dim)
                (* create sequence n_0 +lb .. n_1+lb *)
-                  fun f i = let
+                  fun f dir = let
+                        val s = List.nth(ss,dir)
+                        val vLb = AvailRHS.addAssign (avail, "lit", Ty.intTy, IR.LIT(Literal.Int(IntInf.fromInt(1 - s))))
                         val vA = AvailRHS.addAssign (
-                              avail, "idx", Ty.intTy, IR.LIT(Literal.Int (IntInf.fromInt i)))
+                              avail, "idx", Ty.intTy, IR.LIT(Literal.Int (IntInf.fromInt dir)))
                         val vB = AvailRHS.addAssign (
-                              avail, concat["n", axis i, "_"],
+                              avail, concat["n", axis dir, "_"],
                               Ty.intTy, IR.OP(Op.Subscript seqTy, [vN, vA]))
                         in
                           AvailRHS.addAssign (avail, "idx", Ty.intTy, IR.OP(Op.IAdd, [vB, vLb]))
@@ -173,13 +188,8 @@ structure ProbeEin : sig
                     AvailRHS.addAssign (avail, "seq", seqTy, IR.SEQ(vNs, seqTy))
                   end
         (* image positions *)
-          val s'= 2*s
-(* DEBUG
-         fun f es = String.concatWithMap "," Int.toString es
-         fun g es = String.concatWithMap ","
-                (fn (E.V e) => "v"^Int.toString e | E.C(c) => "c"^Int.toString c) es
-*)
-          val supportshape = List.tabulate (dim, fn _ => s')
+          val s'= List.map (fn e=>2*e) ss
+        val supportshape =  List.rev s'
           val ldty = Ty.TensorTy(shape @ supportshape)
           val op1 = (case border
                  of NONE => Op.LoadVoxels (info, s')
@@ -192,40 +202,43 @@ structure ProbeEin : sig
   (* fieldReconstruction expands the body for the probed field *)
     fun fieldReconstruction (avail, sx, alpha, shape, dx,  Vid, Vidnew, kid, hid, tid, args) = let
           val (vI, vH, vN, vF, vP, info, border, dim) = handleArgs (avail, Vid, hid, tid, args)
-          val h = getKernelDst vH
-          val s = Kernel.support h
-        (* creating summation Index *)
-          val vs = List.tabulate (dim, fn i => (i +sx))
-          val esum = List.map (fn i => (i, 1-s, s)) vs
-        (* represent image in ein expression with tensor *)
-          val imgexp = E.Img(Vidnew, alpha, List.map (fn i=> E.Value i)  vs, s)
-        (* create load voxel operator for image *)
-          val vLd = mkLdVoxel (avail, vI, vN, info, alpha, shape, dim, s, border)
-(* DEBUG
-          fun f es = String.concatWithMap "," Int.toString es
-          fun g es = String.concatWithMap ","
-                (fn (E.V e) => "v"^Int.toString e | E.C(c) => "c"^Int.toString c) es
-          val Ty.TensorTy cat = V.ty vLd
-          val _ = (String.concat[
-                  "\n","after load voxel ", f cat, " = ", V.name(vLd),
-                  " alpha = ", g alpha, " dim:", f[dim]," support: ", f[s]
-                ])
-*)
-        (* create kernel body *)
-          fun createKrn (0,  krnexp, vAs) = (krnexp, vAs)
-            | createKrn (dir, krnexp, vAs) = let
+       
+         (* create kernel body *)
+          fun createKrn (0,  krnexp, vAs,_,esum_binds,ss) =
+            (krnexp, vAs,List.rev esum_binds, ss)
+          | createKrn (dir, krnexp, vAs, h::hs,esum_binds,ss) = let
                 val dir' = dir-1
               (* ein expression *)
                 val deltas = List.map (fn e => (E.C dir', e)) dx
                 val kexp0 = E.Krn(kid+dir, deltas, dir)
               (* evalkernel operators *)
+                val s = Kernel.support h
                 val vA = liftKrn (avail, dir', dx, dim, h, vF, s)
+                val esum_bind = (dir +sx, 1-s, s)
                 in
-                  createKrn (dir', kexp0::krnexp, vA::vAs)
+                createKrn (dir', kexp0::krnexp, vA::vAs, hs,esum_bind::esum_binds,s::ss)
                 end
-        (* final ein expression body to represent field reconstruction *)
-          val (krnexp, vKs) = createKrn (dim, [], [])
+
+          val hs = getKernelDsts (vH,dim)
+          (* final ein expression body to represent field reconstruction *)
+          val (krnexp, vKs, esum_binds,ss) = createKrn (dim, [], [],List.rev hs,[],[])
+          
+
+          (* creating summation Index *)
+          val vs = List.tabulate (dim, fn i => (i +sx))
+          
+          (* (* represent image in ein expression with tensor *)
+           val esum = List.map (fn i => (i, 1-s, s)) vs
+           val imgexp = E.Img(Vidnew, alpha, List.map (fn i=> E.Value i)  vs, s)
           val exp =  E.Sum(esum, E.Opn(E.Prod, imgexp::krnexp))
+          *)
+          
+          val imgexp = E.Img(Vidnew, alpha, List.map (fn i=> E.Value i)  vs, ss)
+          val exp =  E.Sum(esum_binds, E.Opn(E.Prod, imgexp::krnexp))
+          
+          (* create load voxel operator for image *)
+          val vLd = mkLdVoxel (avail, vI, vN, info, alpha, shape, dim, ss, border)
+          
           in
            (vLd::vKs, vP,  exp)
           end

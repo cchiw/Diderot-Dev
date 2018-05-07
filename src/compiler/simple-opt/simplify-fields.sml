@@ -149,10 +149,16 @@ NONE)
               | S.E_Apply _ => NONE
               | S.E_Prim(rator, _, args, _) =>
                   if Var.same(rator, B.convolve_vk)
-then (print" conv-vk";let val [img, kern] = args in convolve (img, kern) end)
+                    then (print" conv-vk";let val [img, kern] = args in convolve (img, kern) end)
                   else if Var.same(rator, B.convolve_kv)
                     then (print" conv-kv";let val [kern, img] = args in convolve (img, kern) end)
+                 else if Var.same(rator, B.kernels_kkk)
+                    then (print" kernel-kk";let val [xx,yy,zz] = args in (setSupport(lhs, getSupport xx); NONE) end)
+
+
 (* TODO: handle probes for conditional fields
+
+
                   else if Var.same(rator, B.op_probe)
                     then ??
 *)

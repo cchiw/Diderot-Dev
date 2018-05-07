@@ -122,6 +122,7 @@ structure Main : sig
           val mid = PhaseTimer.withTimer Timers.timeMid MidOptimizer.optimize mid
           val _ = verbose["done\n"];
         (***** TRANSLATION TO LOW IR *****)
+  val _ =print "\n\n translating to  mid to low "
           val _ = verbose["translating to LowIR ... "]
           val low = PhaseTimer.withTimer Timers.timeMidToLow MidToLow.translate mid
           val _ = verbose["done\n"]
@@ -130,12 +131,12 @@ structure Main : sig
           val low = LowOptimizer.checkAfter ("mid-to-low translation", low)
           val _ = verbose["done\n"]
         (***** LOW-IR OPTIMIZATION *****)
-  val _ = "\n\n low-opt"
+  val _ = print"\n\n low-opt"
           val _ = verbose["optimizing LowIR ... "]
           val low = PhaseTimer.withTimer Timers.timeLow LowOptimizer.optimize low
           val _ = verbose["done\n"]
         (***** TRANSLATION TO TREE IR *****)
-  val _ = "\n\n translating to tree "
+  val _ = print"\n\n translating to tree "
           val _ = verbose["translating to TreeIR ... "]
           val tree = PhaseTimer.withTimer Timers.timeLowToTree LowToTree.translate (low, info)
           val _ = verbose["done\n"]

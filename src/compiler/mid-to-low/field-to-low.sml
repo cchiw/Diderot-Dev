@@ -63,79 +63,116 @@ structure FieldToLow : sig
     *)
  
   (* evaluate image Ein expression *)
-    fun imgToArgs (avail, mapp, sx, (Vid, alpha, vs, s), args) = let
+    fun imgToArgs (avail, mapp, sx, (Vid, alpha, vs, ss), args) = let
           val vI = List.nth(args, Vid)
           val beta = List.map (fn id => Mk.lookupMu(mapp, id)) alpha
-          val range = 2*s
+          val rangeV = 2*List.nth(ss,0) (*Size of projected tensors *)
+          fun tt es = String.concatWith"-" (List.map Int.toString es)
+ 
         (* Index tensor with image shape and position v_beta[n0,n1,n2]*)
         (* change here depending on data layout created by load voxel*)
           fun getIX idxs = (case beta @ idxs
                  of [] => vI
                   | idxs' =>
                     AvailRHS.addAssign (
-                      avail, "projIx", Ty.TensorTy[range],
+                    avail, "projIx"^tt(idxs')^"T", Ty.TensorTy[rangeV],
                       IR.OP(Op.ProjectLast(IR.Var.ty vI, idxs'), [vI]))
                 (* end case *))
         (* fold f over the integers from 0 to 2*s-1 *)
-          fun loop f init = let
-                fun lp (i, acc) = if (i < range) then lp (i+1, f(i, acc)) else acc
+          fun loop_d2 f init = let
+                val s = List.nth(ss,1) (*fix me here*)
+                val rangeL = 2*s
+                (*size of the numebr of tensors to make of that size*)
+ 
+                fun lp (i, acc) = if (i < rangeL) then lp (i+1, f(i, acc)) else acc
                 in
                   lp (0, init)
+                end
+          fun loop_d3 f init = let
+                val s = List.nth(ss,2) (*fix me here*)
+                val rangeL = 2*s
+                (*size of the numebr of tensors to make of that size*)
+                
+                fun lp (i, acc) = if (i < rangeL) then lp (i+1, f(i, acc)) else acc
+                in
+                lp (0, init)
                 end
           in
           (* note that the length of vs is the dimension of the image *)
             case vs
              of [_] => [getIX []]
-              | [_,_] => loop (fn (i, acc) => getIX [i] :: acc) []
-              | [_, _, _] => loop (fn (i, acc) => loop (fn (j, acc) => getIX [i, j] :: acc) acc) []
+              | [_,_] => loop_d2 (fn (i, acc) => getIX [i] :: acc) []
+              | [_, _, _] => loop_d3 (fn (i, acc) => loop_d2 (fn (j, acc) => getIX [i, j] :: acc) acc) []
               | _ => raise Fail "unsupported image dimension (not 1, 2, or 3)"
            (* end case *)
           end
 
   (* Convolution product of Image and Kernel *)
-    fun prodImgKrn (avail, imgArg, krnArg, s) = let
+    fun prodImgKrn (avail, imgArg, krnArg, ss) = let
         (* Number of arguments for Cons *)
-          val range1 = 2*s
-          val range0 = range1-1
-          fun mkConsInt args = let
-                val ty = Ty.TensorTy [range1]
+
+          fun mkConsInt(args,range) = let
+                val ty = Ty.TensorTy [range]
                 val rhs = IR.CONS(args, ty)
                 in
                   AvailRHS.addAssign (avail, "cons"^"_", ty, rhs)
                 end
-          fun mkDotVec (a, b) = Mk.vecDot(avail, range1, a, b)
-          fun mul2d ([], rest, hy) = mkConsInt (List.rev rest)
+    
+          fun mkDotVec (a, b, id) =  let
+                val sx = List.nth(ss,id)
+                val range = 2*sx
+                in Mk.vecDot(avail, range, a, b) end
+          fun mkDotVecX (a, b) = mkDotVec (a, b, 0)
+          fun mkDotVecY (a, b) = mkDotVec (a, b, 1)
+          fun mkDotVecZ (a, b) = mkDotVec (a, b, 2)
+          fun mkDotVecF (a, b) = Mk.vecDot(avail, 9, a, b)
+          
+          fun mul2d ([], rest, hy) = let
+                in mkConsInt (List.rev rest, length(rest))end
             | mul2d (e::es, rest, hy) = let
-                val vA = mkDotVec (hy, e)
+                val vA = mkDotVecX(hy, e)
+                (*vdot{0}==VDot<size>[kevalX,projIX]*)
                 in
                   mul2d (es, vA::rest, hy)
                 end
-          fun mul3d ([], _ , _, rest, hz) = rest
-            | mul3d (e1::es, rest, 0, consrest, hz) = let
-                val vA = mkDotVec (hz, e1)
-                val vD = mkConsInt (rest@[vA])
+                
+          fun mul2d_Z ([], rest, hy) = let
+                in mkConsInt (List.rev rest,length(rest))end
+            | mul2d_Z(e::es, rest, hy) = let
+                val vA = mkDotVecY(hy, e)
+                (*vdot{0}==VDot<size>[kevalX,projIX]*)
+                    in
+                    mul2d_Z (es, vA::rest, hy)
+                    end
+          fun mul3d ([], _ , _, rest, hz,_) = rest
+            | mul3d (e1::es, rest, 0, consrest, hz,starter_range) = let
+                val vA = mkDotVecX (hz, e1)
+                val args = rest@[vA]
+                val vD = mkConsInt (args, length(args))
                 in
-                  mul3d (es, [], range0, consrest@[vD], hz)
+                  mul3d (es, [], starter_range, consrest@[vD], hz,starter_range)
                 end
-            | mul3d (e1::es, rest, n, consrest, hz) = let
-                val vA = mkDotVec (hz, e1)
+            | mul3d (e1::es, rest, n, consrest, hz,starter_range) = let
+                val vA = mkDotVecX (hz, e1)
                 in
-                  mul3d (es, rest@[vA], n-1, consrest, hz)
+                  mul3d (es, rest@[vA], n-1, consrest, hz,starter_range)
                 end
         (* create Product by doing case analysis of the dimension*)
           in
             case (krnArg, imgArg)
-             of ([h0], [i]) => mkDotVec (i, h0)   (*1-D case*)
+             of ([h0], [i]) => mkDotVecX (i, h0)   (*1-D case*)
               | ([h0, h1], _) => let
                   val vA = mul2d (imgArg, [], h0)
                   in
-                    mkDotVec (h1, vA)
+                    mkDotVecY (h1, vA)
                   end
               | ([h0, h1, h2], _) => let
-                  val restZ = mul3d (imgArg, [], range0, [], h0)
-                  val restY = mul2d (restZ, [], h1)
+                  val sx = List.nth(ss,1)
+                  val starter_range = (2*sx)-1
+                  val restZ = mul3d (imgArg, [], starter_range, [], h0,starter_range)
+                  val restY = mul2d_Z (restZ, [], h1)
                   in
-                    mkDotVec (h2, restY)
+                    mkDotVecZ (h2, restY)
                   end
               | _ =>  raise Fail "Kernel dimensions not between 1-3"
            (* end case *)

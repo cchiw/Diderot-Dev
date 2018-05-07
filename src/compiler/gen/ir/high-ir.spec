@@ -91,6 +91,9 @@ Strands : ty * StrandSets.t : 1 : 0 :
 #
 # image/field operations
 Kernel       : Kernel.t * int  : 1 : 0 : Kernel<h, k>, where h is the kernel and k is level of differentiation
+KrnMultipleTwoD : : 1 : 2  : Multiple Kernels for each dimension
+KrnMultipleThreeD : : 1 : 3  : Multiple Kernels for each dimension
+KrnMultipleFourD : : 1 : 4  : Multiple Kernels for each dimension
 # Inside<I,s>(n,V) -- tests to see if the index sequence n is inside the domain of V.
 # I is the image info for V, s is the size of the sample to be loaded (see LoadVoxels)
 Inside : ImageInfo.t * int : 1 : 2 :

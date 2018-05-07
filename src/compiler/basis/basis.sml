@@ -152,13 +152,11 @@ structure Basis : sig
           (N.fn_concat, [BV.fn_concat_fv2, BV.fn_concat_fm2, BV.fn_concat_ft2, BV.fn_concat_fs3, BV.fn_concat_fm3, BV.fn_concat_ft3,BV.fn_concat_pv2, BV.fn_concat_pm2, BV.fn_concat_pt2, BV.fn_concat_ps3, BV.fn_concat_pm3, BV.fn_concat_pt3]),
           (N.fn_comp, [BV.fn_comp,BV.fn_comp_p]),
           (N.op_comp, [BV.comp,BV.comp_p]),
+          (N.fn_krns, [(*BV.kernels_kk, *) BV.kernels_kkk]),
           (N.fn_poly, [BV.fn_poly_1, BV.fn_poly_2, BV.fn_poly_3]),
           (N.fn_poly_21, [BV.fn_poly_21]),
           (N.fn_poly_12, [BV.fn_poly_12]),
           (N.fn_diff,    [BV.fn_diff]),
-(*
-          (N.fn_expression,    [BV.fn_expression_ttt]),
-*)
           (N.fn_inst, [BV.fn_inst_1_FT,BV.fn_inst_1_TF, BV.fn_inst_2, BV.fn_inst_3]),
           (N.op_D,     [BV.op_D, BV.op_D_p]),
           (N.op_Dotimes,   [BV.op_Dotimes, BV.op_Dotimes_p]),

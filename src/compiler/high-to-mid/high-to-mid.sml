@@ -260,6 +260,9 @@ of IR.EINAPP (ein, es) => (("\n ein:"^EinPP.toString(ein));List.foldl (fn (x,acc
               | SrcOp.BuildSpace => assign (DstOp.BuildSpace)
               | SrcOp.sp_getCell => BuildFem.getCell(y, Env.renameList(env, args))
               | SrcOp.printIR =>  (ScanEin.expand(y, List.map getRHS args);dummy())
+              | SrcOp.KrnMultipleTwoD =>  assign (DstOp.KrnMultipleTwoD)
+              | SrcOp.KrnMultipleThreeD =>  assign (DstOp.KrnMultipleThreeD)
+              | SrcOp.KrnMultipleFourD =>  assign (DstOp.KrnMultipleFourD)
               | rator => raise Fail("bogus operator " ^ SrcOp.toString rator)
             (* end case *)
           end

@@ -808,7 +808,16 @@ structure TranslateBasis : sig
                 (BV.fn_printIR_so , fn (y, _, [s,f]) =>
                                         assign(y, Op.printIR,[f,s])),
                 (BV.fn_printIR_o , fn (y, _, xs) =>
-                                        assign(y, Op.printIR, xs))
+                                        assign(y, Op.printIR, xs)),
+(*
+                (BV.kernels_kk,  fn (y, _, xs) =>
+                                        assign(y, Op.KrnMultipleTwoD, xs)),
+*)
+                (BV.kernels_kkk,  fn (y, _, xs) =>
+                                        assign(y, Op.KrnMultipleThreeD, xs))
+(*
+                (BV.kernels_kkkk,  fn (y, _, xs) =>
+                                        assign(y, Op.KrnMultipleFourD, xs))*)
               ];
             tbl
           end

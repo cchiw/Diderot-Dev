@@ -63,7 +63,7 @@ fun ti2s (id, E.T) = "t_"^Int.toString(id)
             | E.Poly(tid, cx, n, dx) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")^",  i2s n, deriv  dx]
             | E.Value ix => "i" ^ i2s ix
             | E.Img(fid, alpha, pos, s) => concat [
-                  "V", i2s fid, multiIndex2s alpha, "(", i2s s, ")[",
+                  "V", i2s fid, multiIndex2s alpha, "(",shp2s s, ")[",
                   String.concatWithMap "," expToString pos, "]"
                 ]
             | E.Krn(tid, [], dim) => concat["H", i2s tid, "(", Int.toString dim, ")"]

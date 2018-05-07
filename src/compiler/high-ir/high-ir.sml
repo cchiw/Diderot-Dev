@@ -98,6 +98,9 @@ structure HighOps =
       | NumStrands of StrandSets.t
       | Strands of ty * StrandSets.t
       | Kernel of Kernel.t * int
+      | KrnMultipleTwoD
+      | KrnMultipleThreeD
+      | KrnMultipleFourD
       | Inside of ImageInfo.t * int
       | ImageDim of ImageInfo.t * int
       | BorderCtlDefault of ImageInfo.t
@@ -164,6 +167,9 @@ structure HighOps =
       | resultArity (NumStrands _) = 1
       | resultArity (Strands _) = 1
       | resultArity (Kernel _) = 1
+      | resultArity KrnMultipleTwoD = 1
+      | resultArity KrnMultipleThreeD = 1
+      | resultArity KrnMultipleFourD = 1
       | resultArity (Inside _) = 1
       | resultArity (ImageDim _) = 1
       | resultArity (BorderCtlDefault _) = 1
@@ -230,6 +236,9 @@ structure HighOps =
       | arity (NumStrands _) = 0
       | arity (Strands _) = 0
       | arity (Kernel _) = 0
+      | arity KrnMultipleTwoD = 2
+      | arity KrnMultipleThreeD = 3
+      | arity KrnMultipleFourD = 4
       | arity (Inside _) = 2
       | arity (ImageDim _) = 1
       | arity (BorderCtlDefault _) = 2
@@ -305,6 +314,9 @@ structure HighOps =
       | same (NumStrands(a0), NumStrands(b0)) = StrandSets.same(a0, b0)
       | same (Strands(a0,a1), Strands(b0,b1)) = samety(a0, b0) andalso StrandSets.same(a1, b1)
       | same (Kernel(a0,a1), Kernel(b0,b1)) = Kernel.same(a0, b0) andalso sameint(a1, b1)
+      | same (KrnMultipleTwoD, KrnMultipleTwoD) = true
+      | same (KrnMultipleThreeD, KrnMultipleThreeD) = true
+      | same (KrnMultipleFourD, KrnMultipleFourD) = true
       | same (Inside(a0,a1), Inside(b0,b1)) = ImageInfo.same(a0, b0) andalso sameint(a1, b1)
       | same (ImageDim(a0,a1), ImageDim(b0,b1)) = ImageInfo.same(a0, b0) andalso sameint(a1, b1)
       | same (BorderCtlDefault(a0), BorderCtlDefault(b0)) = ImageInfo.same(a0, b0)
@@ -372,26 +384,29 @@ structure HighOps =
       | hash (NumStrands(a0)) = 0w193 + StrandSets.hash a0
       | hash (Strands(a0,a1)) = 0w197 + hashty a0 + StrandSets.hash a1
       | hash (Kernel(a0,a1)) = 0w199 + Kernel.hash a0 + hashint a1
-      | hash (Inside(a0,a1)) = 0w211 + ImageInfo.hash a0 + hashint a1
-      | hash (ImageDim(a0,a1)) = 0w223 + ImageInfo.hash a0 + hashint a1
-      | hash (BorderCtlDefault(a0)) = 0w227 + ImageInfo.hash a0
-      | hash (BorderCtlClamp(a0)) = 0w229 + ImageInfo.hash a0
-      | hash (BorderCtlMirror(a0)) = 0w233 + ImageInfo.hash a0
-      | hash (BorderCtlWrap(a0)) = 0w239 + ImageInfo.hash a0
-      | hash (LoadSeq(a0,a1)) = 0w241 + hashty a0 + hashstring a1
-      | hash (LoadImage(a0,a1)) = 0w251 + hashty a0 + hashstring a1
-      | hash KillAll = 0w257
-      | hash StabilizeAll = 0w263
-      | hash (Print(a0)) = 0w269 + hashtys a0
-      | hash (MathFn(a0)) = 0w271 + MathFns.hash a0
-      | hash (BuildMesh(a0)) = 0w277 + hashmesh a0
-      | hash (BuildElement(a0)) = 0w281 + hashelement a0
-      | hash BuildSpace = 0w283
-      | hash (InsideFEM(a0)) = 0w293 + hashint a0
-      | hash (InsideBASE(a0)) = 0w307 + hashint a0
-      | hash (InsidePtr(a0)) = 0w311 + hashint a0
-      | hash sp_getCell = 0w313
-      | hash printIR = 0w317
+      | hash KrnMultipleTwoD = 0w211
+      | hash KrnMultipleThreeD = 0w223
+      | hash KrnMultipleFourD = 0w227
+      | hash (Inside(a0,a1)) = 0w229 + ImageInfo.hash a0 + hashint a1
+      | hash (ImageDim(a0,a1)) = 0w233 + ImageInfo.hash a0 + hashint a1
+      | hash (BorderCtlDefault(a0)) = 0w239 + ImageInfo.hash a0
+      | hash (BorderCtlClamp(a0)) = 0w241 + ImageInfo.hash a0
+      | hash (BorderCtlMirror(a0)) = 0w251 + ImageInfo.hash a0
+      | hash (BorderCtlWrap(a0)) = 0w257 + ImageInfo.hash a0
+      | hash (LoadSeq(a0,a1)) = 0w263 + hashty a0 + hashstring a1
+      | hash (LoadImage(a0,a1)) = 0w269 + hashty a0 + hashstring a1
+      | hash KillAll = 0w271
+      | hash StabilizeAll = 0w277
+      | hash (Print(a0)) = 0w281 + hashtys a0
+      | hash (MathFn(a0)) = 0w283 + MathFns.hash a0
+      | hash (BuildMesh(a0)) = 0w293 + hashmesh a0
+      | hash (BuildElement(a0)) = 0w307 + hashelement a0
+      | hash BuildSpace = 0w311
+      | hash (InsideFEM(a0)) = 0w313 + hashint a0
+      | hash (InsideBASE(a0)) = 0w317 + hashint a0
+      | hash (InsidePtr(a0)) = 0w331 + hashint a0
+      | hash sp_getCell = 0w337
+      | hash printIR = 0w347
 
     fun toString IAdd = "IAdd"
       | toString ISub = "ISub"
@@ -438,6 +453,9 @@ structure HighOps =
       | toString (NumStrands(a0)) = concat["NumStrands<", StrandSets.toString a0, ">"]
       | toString (Strands(a0,a1)) = concat["Strands<", tyToString a0, ",", StrandSets.toString a1, ">"]
       | toString (Kernel(a0,a1)) = concat["Kernel<", Kernel.toString a0, ",", intToString a1, ">"]
+      | toString KrnMultipleTwoD = "KrnMultipleTwoD"
+      | toString KrnMultipleThreeD = "KrnMultipleThreeD"
+      | toString KrnMultipleFourD = "KrnMultipleFourD"
       | toString (Inside(a0,a1)) = concat["Inside<", ImageInfo.toString a0, ",", intToString a1, ">"]
       | toString (ImageDim(a0,a1)) = concat["ImageDim<", ImageInfo.toString a0, ",", intToString a1, ">"]
       | toString (BorderCtlDefault(a0)) = concat["BorderCtlDefault<", ImageInfo.toString a0, ">"]

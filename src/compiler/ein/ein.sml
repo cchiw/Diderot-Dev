@@ -96,7 +96,7 @@ structure Ein =
       | Poly of param_id*alpha * int* alpha  (*  T_[alpha]^n dx*)
     (* Mid-IL Terms *)
       | Value of index_id (* Lift index *)
-      | Img of param_id * alpha * pos list * int
+      | Img of param_id * alpha * pos list * int list
       | Krn of param_id * (mu * mu) list * int
       | If of compare * ein_exp * ein_exp
     (* Ops *)

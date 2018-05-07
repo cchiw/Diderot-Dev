@@ -109,6 +109,9 @@ EvalKernel : int * Kernel.t * int : 1 : 1 : evaluate a kernel function applicati
 #
 # Kernel<h,k>() -- represents the k'th derivative of the kernel h.
 Kernel    : Kernel.t * int  : 1 : 0 :
+KrnMultipleTwoD : : 1 : 2  : Multiple Kernels for each dimension
+KrnMultipleThreeD : : 1 : 3  : Multiple Kernels for each dimension
+KrnMultipleFourD : : 1 : 4  : Multiple Kernels for each dimension
 #
 Transform  : ImageInfo.t : 1 : 1 : Pulls transformation matrix from image.
 Translate  : ImageInfo.t : 1 : 1 : Pulls translation vector from image.
@@ -118,11 +121,11 @@ Translate  : ImageInfo.t : 1 : 1 : Pulls translation vector from image.
 # n is a sequence of integer indices that specifies the corner of the loaded tensor.
 # If V has the type "image(d)[shp]", then n has type "int[n]" and the resulting tensor
 # has the type "tensor[shp,s^d]".
-LoadVoxels : ImageInfo.t * int : 1 : 2 : load a cube of voxels
+LoadVoxels : ImageInfo.t * intList : 1 : 2 : load a cube of voxels
 #
 # LoadVoxelsWithCtl<I,s,ctl>(V,n) -- like LoadVoxels, but it also uses the specified
 # index control to deal with out-of-bounds indices.
-LoadVoxelsWithCtl : ImageInfo.t * int * idxctl : 1 : 2 : load a cube of voxels
+LoadVoxelsWithCtl : ImageInfo.t * intList * idxctl : 1 : 2 : load a cube of voxels
 #
 # Inside<I,s>(x,V) -- tests to see if the image-space position x is inside the domain of V.
 # I is the image info for V, s is the size of the sample to be loaded (see LoadVoxels)

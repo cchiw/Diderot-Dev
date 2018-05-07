@@ -72,8 +72,8 @@ structure EinPP : sig
             | E.Poly(tid, cx, 1, dx) => concat [deriv dx,"(P", i2s tid,"_", multiIndex2s  cx, ")"]
             | E.Poly(tid, cx, n, dx) => concat [deriv dx,"(P", i2s tid,"_", multiIndex2s  cx, ")^",  i2s n]
             | E.Value ix => "i" ^ i2s ix
-            | E.Img(fid, alpha, pos, s) => concat [
-                  "V", i2s fid, multiIndex2s alpha, "(", i2s s, ")[",
+            | E.Img(fid, alpha, pos, ss) => concat [
+                  "V", i2s fid, multiIndex2s alpha, "(", shp2s ss, ")[",
                   String.concatWithMap "," expToString pos, "]"
                 ]
             | E.Krn(tid, [], dim) => concat["H", i2s tid, "(", Int.toString dim, ")"]
@@ -82,7 +82,7 @@ structure EinPP : sig
                 ]
              | E.Sum(sx, e) => let
                 val sx = List.map
-                      (fn (v, lb, ub) => concat ["(i", i2s v, (*"=", i2s lb, "..", i2s ub, *)")"])
+                      (fn (v, lb, ub) => concat ["(i", i2s v, "=", i2s lb, "..", i2s ub, ")"])
                         sx
                 in
                   concat ("ΣΣ" :: sx @ ["(", expToString e, ")Σ"]@sx)
@@ -180,8 +180,8 @@ structure EinPP : sig
         | E.Poly(tid, cx, n, []) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")^",  i2s n]
         | E.Poly(tid, cx, n, dx) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")^",  i2s n, " dx", multiIndex2s  dx]
         | E.Value ix => "i" ^ i2s ix
-        | E.Img(fid, alpha, pos, s) => concat [
-            "V", i2s fid, multiIndex2s alpha, "(", i2s s, ")[-]#"
+        | E.Img(fid, alpha, pos, ss) => concat [
+            "V", i2s fid, multiIndex2s alpha, "(", shp2s ss, ")[-]#"
             ]
         | E.Krn(tid, [], dim) => concat["H", i2s tid, "(", Int.toString dim, ")"]
         | E.Krn(tid, betas, dim) => concat[

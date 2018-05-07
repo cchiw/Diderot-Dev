@@ -393,6 +393,24 @@ end
           in
             [fld, Ty.T_Int] --> fld
           end))
+(*
+    (* multiple kernels *)
+    val kernels_kk = polyVar (N.fn_krns, all([DK, DK], fn [Ty.DIFF k1, Ty.DIFF k2] => let
+        val k1 = Ty.DiffVar(k1, 0)
+        val k2 = Ty.DiffVar(k2, 0)
+        in
+        [Ty.T_Kernel k1, Ty.T_Kernel k2, Ty.T_Kernel k2] --> Ty.T_Kernel k2
+        end))
+*)
+    val kernels_kkk = polyVar (N.fn_krns, all([DK, DK, DK], fn [Ty.DIFF k1, Ty.DIFF k2, Ty.DIFF k3] => let
+        val k1 = Ty.DiffVar(k1, 0)
+        val k2 = Ty.DiffVar(k2, 0)
+        val k3 = Ty.DiffVar(k3, 0)
+        in
+            [Ty.T_Kernel k1, Ty.T_Kernel k2, Ty.T_Kernel k3] --> Ty.T_Kernel k2
+        end))
+
+
     val convolve_vk = polyVar (N.op_convolve, all([DK, NK, SK], fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE dd] => let
           val k = Ty.DiffVar(k, 0)
           val d = Ty.DimVar d

@@ -48,14 +48,14 @@ structure LowToString =
         (* end case *))
     fun useCount (LowIR.V{useCnt, ...}) = Int.toString(!useCnt)
     fun stringArgs(args) =
-String.concat(List.map (fn e1 => (String.concat["\n\t",LowTypes.toString(V.ty(e1)),V.name(e1),"{", useCount(e1),"}"])) args)
+String.concat(List.map (fn e1 => (String.concat["\n\t\t",LowTypes.toString(V.ty(e1)),V.name(e1),"{", useCount(e1),"}"])) args)
 
     fun toStringAssgn(IR.ASSGN (x,  A))=(case A
         of  IR.OP(opss,args)=> String.concat [stringArgs[x],"==",Op.toString opss,
         " : ",(stringArgs args)]
         | IR.LIT(Literal.Int d)=> String.concat[V.toString  x,"= Literal_Int",IntInf.toString( d)]
         | IR.LIT lit=> String.concat[V.toString  x,"==...Literal", (Literal.toString lit)]
-        | IR.CONS  _ =>  String.concat[(V.toString  x),"== Type:","--"]
+        | IR.CONS  (args,ty) =>  String.concat[(V.toString  x),"== Type:",LowTypes.toString(ty),(stringArgs args)]
         |  _ => String.concat[V.toString  x,"==","Etc",toStringRHS x]
         (*end case*))
     | toStringAssgn _ = raise Fail "Non-assignment operator"

@@ -139,10 +139,13 @@ fun stringListsToString e = "string list list "
       | BuildPos of int
       | EvalKernel of int * Kernel.t * int
       | Kernel of Kernel.t * int
+      | KrnMultipleTwoD
+      | KrnMultipleThreeD
+      | KrnMultipleFourD
       | Transform of ImageInfo.t
       | Translate of ImageInfo.t
-      | LoadVoxels of ImageInfo.t * int
-      | LoadVoxelsWithCtl of ImageInfo.t * int * idxctl
+      | LoadVoxels of ImageInfo.t * intList
+      | LoadVoxelsWithCtl of ImageInfo.t * intList * idxctl
       | Inside of ImageInfo.t * int
       | IndexInside of ImageInfo.t * int
       | ImageDim of ImageInfo.t * int
@@ -232,6 +235,9 @@ fun stringListsToString e = "string list list "
       | resultArity (BuildPos _) = 1
       | resultArity (EvalKernel _) = 1
       | resultArity (Kernel _) = 1
+      | resultArity KrnMultipleTwoD = 1
+      | resultArity KrnMultipleThreeD = 1
+      | resultArity KrnMultipleFourD = 1
       | resultArity (Transform _) = 1
       | resultArity (Translate _) = 1
       | resultArity (LoadVoxels _) = 1
@@ -325,6 +331,9 @@ fun stringListsToString e = "string list list "
       | arity (BuildPos _) = 1
       | arity (EvalKernel _) = 1
       | arity (Kernel _) = 0
+      | arity KrnMultipleTwoD = 2
+      | arity KrnMultipleThreeD = 3
+      | arity KrnMultipleFourD = 4
       | arity (Transform _) = 1
       | arity (Translate _) = 1
       | arity (LoadVoxels _) = 2
@@ -427,10 +436,13 @@ fun stringListsToString e = "string list list "
       | same (BuildPos(a0), BuildPos(b0)) = sameint(a0, b0)
       | same (EvalKernel(a0,a1,a2), EvalKernel(b0,b1,b2)) = sameint(a0, b0) andalso Kernel.same(a1, b1) andalso sameint(a2, b2)
       | same (Kernel(a0,a1), Kernel(b0,b1)) = Kernel.same(a0, b0) andalso sameint(a1, b1)
+      | same (KrnMultipleTwoD, KrnMultipleTwoD) = true
+      | same (KrnMultipleThreeD, KrnMultipleThreeD) = true
+      | same (KrnMultipleFourD, KrnMultipleFourD) = true
       | same (Transform(a0), Transform(b0)) = ImageInfo.same(a0, b0)
       | same (Translate(a0), Translate(b0)) = ImageInfo.same(a0, b0)
-      | same (LoadVoxels(a0,a1), LoadVoxels(b0,b1)) = ImageInfo.same(a0, b0) andalso sameint(a1, b1)
-      | same (LoadVoxelsWithCtl(a0,a1,a2), LoadVoxelsWithCtl(b0,b1,b2)) = ImageInfo.same(a0, b0) andalso sameint(a1, b1) andalso sameidxctl(a2, b2)
+      | same (LoadVoxels(a0,a1), LoadVoxels(b0,b1)) = ImageInfo.same(a0, b0) andalso sameintList(a1, b1)
+      | same (LoadVoxelsWithCtl(a0,a1,a2), LoadVoxelsWithCtl(b0,b1,b2)) = ImageInfo.same(a0, b0) andalso sameintList(a1, b1) andalso sameidxctl(a2, b2)
       | same (Inside(a0,a1), Inside(b0,b1)) = ImageInfo.same(a0, b0) andalso sameint(a1, b1)
       | same (IndexInside(a0,a1), IndexInside(b0,b1)) = ImageInfo.same(a0, b0) andalso sameint(a1, b1)
       | same (ImageDim(a0,a1), ImageDim(b0,b1)) = ImageInfo.same(a0, b0) andalso sameint(a1, b1)
@@ -521,47 +533,50 @@ fun stringListsToString e = "string list list "
       | hash (BuildPos(a0)) = 0w229 + hashint a0
       | hash (EvalKernel(a0,a1,a2)) = 0w233 + hashint a0 + Kernel.hash a1 + hashint a2
       | hash (Kernel(a0,a1)) = 0w239 + Kernel.hash a0 + hashint a1
-      | hash (Transform(a0)) = 0w241 + ImageInfo.hash a0
-      | hash (Translate(a0)) = 0w251 + ImageInfo.hash a0
-      | hash (LoadVoxels(a0,a1)) = 0w257 + ImageInfo.hash a0 + hashint a1
-      | hash (LoadVoxelsWithCtl(a0,a1,a2)) = 0w263 + ImageInfo.hash a0 + hashint a1 + hashidxctl a2
-      | hash (Inside(a0,a1)) = 0w269 + ImageInfo.hash a0 + hashint a1
-      | hash (IndexInside(a0,a1)) = 0w271 + ImageInfo.hash a0 + hashint a1
-      | hash (ImageDim(a0,a1)) = 0w277 + ImageInfo.hash a0 + hashint a1
-      | hash (BorderCtlDefault(a0)) = 0w281 + ImageInfo.hash a0
-      | hash (BorderCtlClamp(a0)) = 0w283 + ImageInfo.hash a0
-      | hash (BorderCtlMirror(a0)) = 0w293 + ImageInfo.hash a0
-      | hash (BorderCtlWrap(a0)) = 0w307 + ImageInfo.hash a0
-      | hash (LoadSeq(a0,a1)) = 0w311 + hashty a0 + hashstring a1
-      | hash (LoadImage(a0,a1)) = 0w313 + hashty a0 + hashstring a1
-      | hash KillAll = 0w317
-      | hash StabilizeAll = 0w331
-      | hash (Print(a0)) = 0w337 + hashtys a0
-      | hash (MathFn(a0)) = 0w347 + MathFns.hash a0
-      | hash (BuildMesh(a0)) = 0w349 + hashmesh a0
-      | hash (BuildElement(a0)) = 0w353 + hashelement a0
-      | hash BuildSpace = 0w359
-      | hash Dimension = 0w367
-      | hash NumCells = 0w373
-      | hash GetTracker = 0w379
-      | hash BasisData = 0w383
-      | hash CellToNode = 0w389
-      | hash NodeToPoint = 0w397
-      | hash NodeToCoord = 0w401
-      | hash Coordinates = 0w409
-      | hash (makeTranslateCoordinates(a0,a1,a2,a3,a4)) = 0w419 + hashfnspace a0 + hashint a1 + hashrealList a2 + hashstringList a3 + hashstringLists a4
-      | hash (makeFindCellExpand(a0,a1,a2,a3,a4)) = 0w421 + hashfnspace a0 + hashstring a1 + hashint a2 + hashint a3 + hashint a4
-      | hash (makeBasisEvaluation(a0,a1,a2,a3)) = 0w431 + hashfnspace a0 + hashstringList a1 + hashint a2 + hashstringList a3
-      | hash (makeFindCellPush(a0,a1)) = 0w433 + hashint a0 + hashstring a1
-      | hash GetCell = 0w439
-      | hash GetPos = 0w443
-      | hash GetNode = 0w449
-      | hash ProbeNodeB = 0w457
-      | hash ProbeNodeC = 0w461
-      | hash (EvalFem(a0,a1,a2,a3)) = 0w463 + hashfnspace a0 + hashint a1 + hashint a2 + hashintList a3
-      | hash checkCell = 0w467
-      | hash sp_getCell = 0w479
-      | hash printIR = 0w487
+      | hash KrnMultipleTwoD = 0w241
+      | hash KrnMultipleThreeD = 0w251
+      | hash KrnMultipleFourD = 0w257
+      | hash (Transform(a0)) = 0w263 + ImageInfo.hash a0
+      | hash (Translate(a0)) = 0w269 + ImageInfo.hash a0
+      | hash (LoadVoxels(a0,a1)) = 0w271 + ImageInfo.hash a0 + hashintList a1
+      | hash (LoadVoxelsWithCtl(a0,a1,a2)) = 0w277 + ImageInfo.hash a0 + hashintList a1 + hashidxctl a2
+      | hash (Inside(a0,a1)) = 0w281 + ImageInfo.hash a0 + hashint a1
+      | hash (IndexInside(a0,a1)) = 0w283 + ImageInfo.hash a0 + hashint a1
+      | hash (ImageDim(a0,a1)) = 0w293 + ImageInfo.hash a0 + hashint a1
+      | hash (BorderCtlDefault(a0)) = 0w307 + ImageInfo.hash a0
+      | hash (BorderCtlClamp(a0)) = 0w311 + ImageInfo.hash a0
+      | hash (BorderCtlMirror(a0)) = 0w313 + ImageInfo.hash a0
+      | hash (BorderCtlWrap(a0)) = 0w317 + ImageInfo.hash a0
+      | hash (LoadSeq(a0,a1)) = 0w331 + hashty a0 + hashstring a1
+      | hash (LoadImage(a0,a1)) = 0w337 + hashty a0 + hashstring a1
+      | hash KillAll = 0w347
+      | hash StabilizeAll = 0w349
+      | hash (Print(a0)) = 0w353 + hashtys a0
+      | hash (MathFn(a0)) = 0w359 + MathFns.hash a0
+      | hash (BuildMesh(a0)) = 0w367 + hashmesh a0
+      | hash (BuildElement(a0)) = 0w373 + hashelement a0
+      | hash BuildSpace = 0w379
+      | hash Dimension = 0w383
+      | hash NumCells = 0w389
+      | hash GetTracker = 0w397
+      | hash BasisData = 0w401
+      | hash CellToNode = 0w409
+      | hash NodeToPoint = 0w419
+      | hash NodeToCoord = 0w421
+      | hash Coordinates = 0w431
+      | hash (makeTranslateCoordinates(a0,a1,a2,a3,a4)) = 0w433 + hashfnspace a0 + hashint a1 + hashrealList a2 + hashstringList a3 + hashstringLists a4
+      | hash (makeFindCellExpand(a0,a1,a2,a3,a4)) = 0w439 + hashfnspace a0 + hashstring a1 + hashint a2 + hashint a3 + hashint a4
+      | hash (makeBasisEvaluation(a0,a1,a2,a3)) = 0w443 + hashfnspace a0 + hashstringList a1 + hashint a2 + hashstringList a3
+      | hash (makeFindCellPush(a0,a1)) = 0w449 + hashint a0 + hashstring a1
+      | hash GetCell = 0w457
+      | hash GetPos = 0w461
+      | hash GetNode = 0w463
+      | hash ProbeNodeB = 0w467
+      | hash ProbeNodeC = 0w479
+      | hash (EvalFem(a0,a1,a2,a3)) = 0w487 + hashfnspace a0 + hashint a1 + hashint a2 + hashintList a3
+      | hash checkCell = 0w491
+      | hash sp_getCell = 0w499
+      | hash printIR = 0w503
 
     fun toString IAdd = "IAdd"
       | toString ISub = "ISub"
@@ -614,10 +629,13 @@ fun stringListsToString e = "string list list "
       | toString (BuildPos(a0)) = concat["BuildPos<", intToString a0, ">"]
       | toString (EvalKernel(a0,a1,a2)) = concat["EvalKernel<", intToString a0, ",", Kernel.toString a1, ",", intToString a2, ">"]
       | toString (Kernel(a0,a1)) = concat["Kernel<", Kernel.toString a0, ",", intToString a1, ">"]
+      | toString KrnMultipleTwoD = "KrnMultipleTwoD"
+      | toString KrnMultipleThreeD = "KrnMultipleThreeD"
+      | toString KrnMultipleFourD = "KrnMultipleFourD"
       | toString (Transform(a0)) = concat["Transform<", ImageInfo.toString a0, ">"]
       | toString (Translate(a0)) = concat["Translate<", ImageInfo.toString a0, ">"]
-      | toString (LoadVoxels(a0,a1)) = concat["LoadVoxels<", ImageInfo.toString a0, ",", intToString a1, ">"]
-      | toString (LoadVoxelsWithCtl(a0,a1,a2)) = concat["LoadVoxelsWithCtl<", ImageInfo.toString a0, ",", intToString a1, ",", idxctlToString a2, ">"]
+      | toString (LoadVoxels(a0,a1)) = concat["LoadVoxels<", ImageInfo.toString a0, ",", intListToString a1, ">"]
+      | toString (LoadVoxelsWithCtl(a0,a1,a2)) = concat["LoadVoxelsWithCtl<", ImageInfo.toString a0, ",", intListToString a1, ",", idxctlToString a2, ">"]
       | toString (Inside(a0,a1)) = concat["Inside<", ImageInfo.toString a0, ",", intToString a1, ">"]
       | toString (IndexInside(a0,a1)) = concat["IndexInside<", ImageInfo.toString a0, ",", intToString a1, ">"]
       | toString (ImageDim(a0,a1)) = concat["ImageDim<", ImageInfo.toString a0, ",", intToString a1, ">"]

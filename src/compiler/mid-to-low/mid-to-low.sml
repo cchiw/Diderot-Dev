@@ -157,15 +157,15 @@ structure MidToLow : sig
               | SrcOp.Kernel _ => dummy()
               | SrcOp.Transform img => assign (DstOp.Transform img)
               | SrcOp.Translate img => assign (DstOp.Translate img)
-              | SrcOp.LoadVoxels(info, s) => (case args'
+              | SrcOp.LoadVoxels(info, ss) => (case args'
                    of [img, idx] => LoadVoxels.expand {
-                          lhs = y, info = info, s = s, img = img, idx = idx
+                          lhs = y, info = info, ss = ss, img = img, idx = idx
                         }
                     | _ => raise Fail("bogus operator " ^ SrcOp.toString rator)
                   (* end case *))
-              | SrcOp.LoadVoxelsWithCtl(info, s, ctl) => (case args'
+              | SrcOp.LoadVoxelsWithCtl(info, ss, ctl) => (case args'
                    of [img, idx] => LoadVoxels.expandWithCtl {
-                          lhs = y, info = info, s = s, ctl = ctl, img = img, idx = idx
+                          lhs = y, info = info, ss = ss, ctl = ctl, img = img, idx = idx
                         }
                     | _ => raise Fail("bogus operator " ^ SrcOp.toString rator)
                   (* end case *))
@@ -207,6 +207,9 @@ structure MidToLow : sig
               | SrcOp.EvalFem es => assign (DstOp.EvalFem es)
               | SrcOp.checkCell =>  assign (DstOp.checkCell)
               | SrcOp.sp_getCell => assign(DstOp.sp_getCell)
+              | SrcOp.KrnMultipleTwoD => dummy()
+              | SrcOp.KrnMultipleThreeD => dummy()
+              | SrcOp.KrnMultipleFourD => dummy()
               | rator => raise Fail("bogus operator " ^ SrcOp.toString rator)
             (* end case *)
           end

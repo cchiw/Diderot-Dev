@@ -26,7 +26,9 @@ structure HandleEin : sig
 
     fun prntNewbies(newbies, id) = let
         val _ = (id)
-        in  List.map (fn (lhs,DstIR.EINAPP(e,a))=>print (concat["\n\n ->:", MidTypes.toString(DstIR.Var.ty lhs)," ",DstIR.Var.name(lhs),"=",EinPP.toString(e) ,"-",ll(a,0),"---->"])  | _ =>print "") newbies
+        in  List.map (fn (lhs,DstIR.EINAPP(e,a))=>print (concat["\n\n ->:", MidTypes.toString(DstIR.Var.ty lhs)," ",DstIR.Var.name(lhs),"=",EinPP.toString(e) ,"-",ll(a,0),"---->"])
+| (lhs,rhs) => print(concat["\n\n -->:",DstIR.Var.name(lhs),"=",DstIR.RHS.toString rhs])
+            ) newbies
         end
     val flagmatch = true
 
