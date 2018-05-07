@@ -48,10 +48,10 @@ structure CleanParams : sig
                   | E.Op3(_, e1, e2, e3) => walk(e3, walk(e2, walk(e1, mapp)))
                   | E.Opn(E.Swap id, es) => List.foldl walk (ISet.add(mapp, id)) es
                   | E.Opn(_, es) => List.foldl walk mapp es
-                  | E.OField(E.CFExp (ids_tt, ids_ft), e2, _) =>
+                  | E.OField(E.CFExp es, e2, dx) =>
                         let
-                            val es= List.map (fn id => E.Tensor(id,[])) (ids_tt@ids_ft)
-                        in walk (e2, (List.foldl walk mapp es))
+                            val es= List.map (fn (id,_) => E.Tensor(id,[])) (es)
+                        in walk(dx, walk (e2, (List.foldl walk mapp es)))
                         end
                   | E.OField(E.DataFem id, e2, _) => walk (e2, ISet.add(mapp, id))
                   | E.OField(E.BuildFem (id,s), e2, _)
@@ -106,14 +106,14 @@ structure CleanParams : sig
                   | E.Opn(E.Swap id, es) => E.Opn(E.Swap (getId id), List.map rewrite es)
                   | E.Opn(opn, es) => E.Opn(opn, List.map rewrite es)
                   | E.Poly(id, ix, n, alpha) => E.Poly(getId id, ix, n, alpha)
-                  | E.OField(E.CFExp (es1,es2), e2, dx)
-                    => E.OField(E.CFExp (List.map getId es1,List.map getId es2), rewrite e2, dx)
+                  | E.OField(E.CFExp es, e2, dx)
+                    => E.OField(E.CFExp (List.map (fn (id, inputTy)=>(getId id, inputTy)) es), rewrite e2, rewrite  dx)
                   | E.OField(E.DataFem id, e2, dx)
-                    => E.OField(E.DataFem (getId id), rewrite e2, dx)
+                    => E.OField(E.DataFem (getId id), rewrite e2, rewrite  dx)
                   | E.OField(E.BuildFem (id,s), e2, dx)
-                    => E.OField(E.BuildFem (getId id, getId s), rewrite e2, dx)
+                    => E.OField(E.BuildFem (getId id, getId s), rewrite e2,rewrite  dx)
                   | E.OField(E.ManyPointerBuildFem(mid, sid, nid, pid), e2, dx)
-                    => E.OField(E.ManyPointerBuildFem (getId mid, getId sid, getId nid, getId pid), rewrite e2, dx)
+                    => E.OField(E.ManyPointerBuildFem (getId mid, getId sid, getId nid, getId pid), rewrite e2, rewrite  dx)
                   | E.Probe(e1, e2) => E.Probe(rewrite e1, rewrite e2)
                   | E.If(E.GT(e1, e2), e3, e4)
                     => E.If(E.GT(rewrite e1, rewrite e2), rewrite e3, rewrite e4)

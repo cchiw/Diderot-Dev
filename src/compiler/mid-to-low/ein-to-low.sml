@@ -286,8 +286,8 @@ structure EinToLow : sig
           
     fun expand (y, ein as Ein.EIN{params, index, body}, args) = let
 
-        val _ = print("\n\n *********************** Starting expand************** ")
-        val _ = print( String.concat["\n\n ",LowToString.stringArgs[y],"=",EinPP.toString(ein),(LowToString.stringArgs args), "Args:",Int.toString(length(args))])
+        val _ = ("\n\n *********************** Starting expand************** ")
+        val _ = ( String.concat["\n\n ",LowToString.stringArgs[y],"=",EinPP.toString(ein),(LowToString.stringArgs args), "Args:",Int.toString(length(args))])
 
 (* DEBUG
           val _ = (case Var.ty y
@@ -308,9 +308,9 @@ structure EinToLow : sig
                 | (_, asgn)::rest => let
                     val es = List.revMap LowIR.ASSGN ((y, asgn)::rest)
            
-                    val _ = print("\n\n ************* translated to ******* \n\n ")
-                    val _ = List.map (fn e1 => print("\n\t"^LowToString.toStringAssgn(e1))) es
-                    val _ = print("\n\n ***************************************** \n\n ")
+                    val _ = ("\n\n ************* translated to ******* \n\n ")
+                    val _ = List.map (fn e1 => ("\n\t"^LowToString.toStringAssgn(e1))) es
+                    val _ = ("\n\n ***************************************** \n\n ")
    
                     in
                         es

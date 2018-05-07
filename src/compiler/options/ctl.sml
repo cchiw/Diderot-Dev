@@ -238,9 +238,16 @@ default = false
 }
 
 
+val expressionFlag = C.genControl {
+name = "expressionFlag",
+pri = [2, 2, 0],
+obscurity = 5,
+help = "terms in expression are set to tensors",
+default = false
+}
 
         val optimizeControls = [
-        inline, highVN, midVN, midContract, lowVN, lowContract, treeContract,sliceFlag, fullSplitFlag, scaFlag ,replaceFlag,readEin,readEin1, readEin2, readEin3, readEin4,readEin5, repMultiple,readEinSplit,formatUni,formatTex,formatWrd,repEin, stgPoly, savePDF,devF]
+        inline, highVN, midVN, midContract, lowVN, lowContract, treeContract,sliceFlag, fullSplitFlag, scaFlag ,replaceFlag,readEin,readEin1, readEin2, readEin3, readEin4,readEin5, repMultiple,readEinSplit,formatUni,formatTex,formatWrd,repEin, stgPoly, savePDF,devF,expressionFlag]
 
 
     val dumpPT = C.genControl {

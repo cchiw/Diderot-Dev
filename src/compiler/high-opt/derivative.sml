@@ -269,7 +269,7 @@ structure Derivative : sig
               | E.Op2(op2, e1, e2) => SOME(applyOp2(op2, e1, e2, dx))
               | E.Op3(op3, e1, e2, e3) => SOME zero (*assume clamp is not lifted*)
               | E.Opn(opn, es) => SOME(applyOpn(opn, es, dx))
-              | E.OField(ofld, e2, alpha) => SOME(E.OField(ofld, e2, alpha@dx))
+              | E.OField(ofld, e2,  E.Partial alpha) => SOME(E.OField(ofld, e2,  E.Partial (alpha@dx)))
               | E.If(comp, e3, e4) => SOME(E.If(comp, E.Apply(px, e3), E.Apply(px, e4)))
             (* end case *)
           end

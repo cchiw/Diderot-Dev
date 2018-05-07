@@ -65,11 +65,12 @@ fun ll ([],cnt) = ""
  (* doNormalize : EIN -> EIN
   * Orders EIN, normalizes it, then cleans the summation
   *)
-    fun doNormalize e' = let
+(*mkfield cfexp  needs args *)
+fun doNormalize (e',args:HighIR.var list) = let
           val ordered = Reorder.transform e'
    (* val _ = (String.concat["\n\npost do normalize:",EinPP.toString(e'),"--->"])*)
 
-          val rtn = case NormalizeEin.transform ordered
+          val rtn = case NormalizeEin.transform(ordered,args)
              of NONE => ordered
               | SOME e => EinSums.clean e
             (* end case *)
@@ -124,7 +125,7 @@ val _ = print(String.concat["\n\n***********************************************
 
             fun rewrite (false, _, _, [], _) = (NONE)
               | rewrite (true, einOp, _, [], args') =(
-                SOME[(lhs, IR.EINAPP(doNormalize einOp, args'))])
+                SOME[(lhs, IR.EINAPP(doNormalize (einOp,args'), args'))])
               | rewrite (changed, einOp, place, x::xs, args') = let
 val _  = print(String.concat["\n\tPlace:",Int.toString(place)])
                 in case getEinApp x

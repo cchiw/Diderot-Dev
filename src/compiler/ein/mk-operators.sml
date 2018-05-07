@@ -127,6 +127,7 @@ structure MkOperators : sig
     val sliceT : bool list * int list * Ein.index_bind list * int list -> Ein.ein
     val sliceF : bool list * int list * Ein.index_bind list * int -> Ein.ein
     val concatTensor: shape *int -> Ein.ein
+    val concatTensorBody: shape *int *int -> Ein.ein_exp
     val concatField: int * shape *int -> Ein.ein
     val compositionF: shape * shape * int -> Ein.ein
     val compositionT: shape * shape -> Ein.ein    (*note added for cfexp*)
@@ -152,10 +153,11 @@ structure MkOperators : sig
     val divergence : dim * shape -> Ein.ein
  
  
-    val cfexp: shape * shape list -> Ein.ein
+    val cfexp: shape * shape list * Ein.inputTy -> Ein.ein
     val cfexpMix: shape list * shape * shape list -> Ein.ein
+    val diff_value: dim * int  list * int list -> Ein.ein
  
-    val poly: shape*shape list -> Ein.ein
+
     val polyProbe: shape * dim * shape list -> Ein.ein
     val polyProbe2: shape * dim * shape list -> Ein.ein
     val ofieldfem: dim*shape -> Ein.ein
@@ -1182,19 +1184,19 @@ structure MkOperators : sig
           
           
           
-    fun concatTensor (shape, nflds) = let
+    fun concatTensorBody (shape, nflds, idshift) = let
           val expindex = specialize(shape, 1)
-          val params = List.tabulate (nflds, fn _=> mkTEN shape)
-          val exps = List.tabulate (nflds, fn n =>  E.Opn(E.Prod, [E.Tensor(n, expindex), E.Delta(E.C n, E.V 0)]))
+          val exps = List.tabulate (nflds, fn n =>  E.Opn(E.Prod, [E.Tensor(n+idshift, expindex), E.Delta(E.C n, E.V 0)]))
+          in E.Opn(E.Add, exps) end
           
-          val einop =
-          E.EIN{
-          params = params,
-          index = nflds::shape,
-          body = E.Opn(E.Add, exps)
+    fun concatTensor(shape, nflds) =
+        E.EIN{
+            params =List.tabulate (nflds, fn _=> mkTEN shape),
+            index = nflds::shape,
+            body = concatTensorBody (shape, nflds, 0)
           }
           
-          in einop end
+
           
           
     fun concatField (dim, shape, nflds) = let
@@ -1274,6 +1276,7 @@ structure MkOperators : sig
             index = [],
             body = E.Apply(E.Partial [(E.C 0)], E.Field(0, []))
           }
+          
 
   (*< d F /  d_i>_i  *)
       fun grad (alpha as a::_) = let
@@ -1314,16 +1317,18 @@ structure MkOperators : sig
     
     (***************************** field definitions ****************************)
     (* other definitions for fields *)
-    fun cfexp (falpha, talphas) = let
+    fun cfexp (falpha, talphas, setting) = let
         val expindex = specialize(falpha, 0)
         val n = length(talphas)
         val fldtem = E.Tensor(0, expindex)
-        val tterm = List.tabulate(n, fn id => id+1)
+
+        val tterms = List.tabulate(n, fn id => (id+1, setting)) (*treat as tensors*)
         val e1 =
           E.EIN {
             params = [mkTEN falpha]@(List.map (fn talpha => mkNoSubstTEN  talpha)  talphas),
             index = falpha,
-            body = E.OField(E.CFExp ([],tterm), fldtem , [])
+            (*Note fixme- tterm or tfterm*)
+            body = E.OField(E.CFExp tterms, fldtem , E.Partial [])
                     (*Tensor term ids, expression, derivative indices*)
             }
         val _ = (String.concat["\n mk-operators- poly term: ",EinPP.toString(e1)])
@@ -1335,16 +1340,16 @@ structure MkOperators : sig
         let
         
             val n_tt = length(alphas_tt)
-            val tterm_tt = List.tabulate(n_tt, fn id => id+1)
+            val tterm_tt = List.tabulate(n_tt, fn id => (id+1,E.T))
             
             
             val n_tf = length(alphas_tf)
             val shift_tf = n_tt+1
-            val tterm_tf = List.tabulate(n_tf, fn id => id+shift_tf)
+            val tterm_tf = List.tabulate(n_tf, fn id => (id+shift_tf, E.F))
             
             
             val fldtem = E.Tensor(0, specialize(alpha_f, 0))
-            val bodyterm  = E.OField(E.CFExp (tterm_tt,tterm_tf), fldtem , [])
+            val bodyterm  = E.OField(E.CFExp (tterm_tt@tterm_tf), fldtem ,  E.Partial [])
            
            val param_f = [mkTEN alpha_f]
            val param_tt = List.map (fn talpha => mkNoSubstTEN  talpha)  alphas_tt
@@ -1359,22 +1364,8 @@ structure MkOperators : sig
         in
             e1
         end
-        fun poly (falpha, talphas) = let
-        val expindex = specialize(falpha, 0)
-        val n = length(talphas)
-        val fldtem = E.Tensor(0, expindex)
-        val tterm = List.tabulate(n, fn id => id+1)
-        val e1 =
-        E.EIN {
-        params = (List.map (fn talpha => mkTEN talpha)  talphas)@[mkTEN falpha],
-        index = falpha,
-        body = E.OField(E.CFExp ([],tterm), fldtem , [])
-        }
-        val _ = print(String.concat["\n mk-operators- poly term: ",EinPP.toString(e1)])
-        in
-        e1
-        end
-        (*^ old here *)
+        
+
         
         (* Probe: <F(x)>_{\alpha}   *)
                        (* for fem probe*)
@@ -1412,15 +1403,26 @@ structure MkOperators : sig
           }
         end
       
-              
-
+      (* ---------------------------- *)
+    (*just set variable as a field id*)
+    fun diff_value(dim, fshape, tshape) = let
+      val expindex = specialize(fshape, 0)
+      in
+          E.EIN{
+            params = [E.FLD(dim,fshape), mkNoSubstTEN(tshape)],
+            index = fshape,
+            body = E.Apply(E.Tensor(1,[]), E.Field(0, expindex))
+          }
+      end
+      (*A different way of using apply instead of making a new thing *)
+(* ---------------------------- *)
     fun ofieldfem (dim, alpha) = let
 	val _ = (Int.toString dim)
         val expindex = specialize(alpha, 0)
         val e1 =
             E.EIN {
             params = [E.FLD (dim, alpha), E.DATA], index = alpha,
-            body = E.OField(E.DataFem (1), E.Tensor(0, expindex), [])
+            body = E.OField(E.DataFem (1), E.Tensor(0, expindex),  E.Partial [])
             }
         (*val _ = (String.concat["\n created fem term: ",EinPP.toString(e1)])*)
         in e1
@@ -1433,7 +1435,7 @@ structure MkOperators : sig
         val e1 =
         E.EIN {
         params = [E.FLD (dim, alpha), E.FNCSPACE, E.FNCSPACE], index = alpha,
-        body = E.OField(E.BuildFem(1, 2), E.Tensor(0, expindex), [])
+        body = E.OField(E.BuildFem(1, 2), E.Tensor(0, expindex),  E.Partial [])
         }
        (* val _ = (String.concat["\n created fem term: ",EinPP.toString(e1)])*)
         in e1
@@ -1444,7 +1446,7 @@ structure MkOperators : sig
         val e1 =
         E.EIN {
         params = [E.FLD (dim, alpha), E.FNCSPACE,E.FNCSPACE,E.FNCSPACE, E.FNCSPACE], index = alpha,
-        body = E.OField(E.ManyPointerBuildFem(1, 2,3,4), E.Tensor(0, expindex), [])
+        body = E.OField(E.ManyPointerBuildFem(1, 2,3,4), E.Tensor(0, expindex),  E.Partial [])
         }
         val _ = (String.concat["\n created fem term: ",EinPP.toString(e1)])
         in e1

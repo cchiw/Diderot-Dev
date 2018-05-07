@@ -59,7 +59,7 @@ structure BuildFem : sig
     fun translate(body, vp, args) =
         let
             val _ = "\n\nbefore BF translate"
-            val E.OField(ofield, E.Tensor(fid, _), dx) = body
+            val E.OField(ofield, E.Tensor(fid, _), E.Partial  dx) = body
 
             (*get components of fem field (element, mesh, datafile)*)
             val (vfs, mesh, element, datafile) = DF.defineField(ofield, args)
@@ -84,7 +84,7 @@ structure BuildFem : sig
     let
         (*deconstruct body *)
         val E.Probe(fld, E.Tensor(pid,_)) = body
-        val E.Probe(E.OField(ofield, E.Tensor(fid, _), dx) , E.Tensor(pid,_)) = body
+        val E.Probe(E.OField(ofield, E.Tensor(fid, _), E.Partial  dx) , E.Tensor(pid,_)) = body
         val vp = List.nth(args, pid)
 
         val body = fld
@@ -107,8 +107,8 @@ structure BuildFem : sig
 
     fun sum_evaluate (y, rhs as IR.EINAPP(ein as E.EIN{body,index,params}, args)) =
         let
-            val E.Sum(sx, E.Probe(E.OField(ofield,E.Tensor(fid, alpha), dx),pos)) = body
-            fun cvtTerm (alpha, dx) = E.Probe(E.OField(ofield,E.Tensor(fid, alpha), dx), pos)
+            val E.Sum(sx, E.Probe(E.OField(ofield,E.Tensor(fid, alpha), E.Partial  dx),pos)) = body
+            fun cvtTerm (alpha, dx) = E.Probe(E.OField(ofield,E.Tensor(fid, alpha), E.Partial  dx), pos)
             val E.FLD(dim, shape) = List.nth(params, fid)
             val (sid, lb, ub) = (case sx
                 of [e1] => e1
@@ -164,7 +164,7 @@ structure BuildFem : sig
         let
 
 
-        val E.Probe(E.OField(ofield, E.Tensor(fid, alpha), dx), pos) = body
+        val E.Probe(E.OField(ofield, E.Tensor(fid, alpha), E.Partial dx), pos) = body
         val E.FLD(dim, shape) = List.nth(params, fid)
 
 
@@ -180,7 +180,7 @@ structure BuildFem : sig
         val size = fsize@dxsize
         (*evaluate ofields*)
         val einF = E.EIN{
-            body=E.Probe(E.OField(ofield,E.Tensor(fid, fbeta), dxbeta), pos),
+            body=E.Probe(E.OField(ofield,E.Tensor(fid, fbeta), E.Partial  dxbeta), pos),
             index=size,
             params=params
             }
@@ -206,7 +206,7 @@ structure BuildFem : sig
 
     fun scan_evaluate (y, rhs as IR.EINAPP(ein as E.EIN{body,index,params}, args)) =
         let
-            val E.Probe(E.OField(ofield, E.Tensor(fid, alpha), dx), pos) = body
+            val E.Probe(E.OField(ofield, E.Tensor(fid, alpha), E.Partial  dx), pos) = body
         in  (case (List.find (fn E.C _ => true |  _ => false)  (alpha@dx))
             of NONE     =>  evaluate (y, rhs)
             | SOME _    =>  slice_evaluate (y, rhs)

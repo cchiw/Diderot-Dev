@@ -106,7 +106,7 @@ structure CleanIndex : sig
                   | E.Op3(_, e1, e2, e3) => shape (e1, shape(e2, shape(e3, ixs)))
                   | E.Opn(_, es) => List.foldl shape ixs es
                   | E.Comp(e1, _) => shape(e1, ixs)
-                  | E.OField(_,e2,alpha) => shape (e2, addMus(ixs, alpha))
+                  | E.OField(_,e2,E.Partial  alpha) => shape (e2, addMus(ixs, alpha))
                   | E.Poly (_,_,_, alpha) => addMus(ixs, alpha)
                   | E.If(E.GT(e1, e2), e3, e4) =>
                     shape (e1,shape (e2, shape (e3, shape(e4, ixs))))
@@ -166,7 +166,7 @@ structure CleanIndex : sig
                   | E.Opn(E.Prod, es) => shape' (es, ixs)
                    | E.Opn(E.Swap _, e::_) => shape(e, ixs)
                   | E.Comp(e1, _) => shape(e1, ixs)
-                  | E.OField(_,e2,alpha) => shape(e2, alpha@ ixs)
+                  | E.OField(_,e2,E.Partial  alpha) => shape(e2, alpha@ ixs)
                   | E.Poly(_,_,_,alpha) => alpha@ ixs
                   | E.If(E.GT(e1, e2), e3, e4) =>
                     shape' ([e1, e2, e3, e4], ixs)
@@ -301,7 +301,7 @@ structure CleanIndex : sig
                   | E.Op3(op3, e1, e2, e3) => E.Op3(op3, rewrite e1, rewrite e2, rewrite e3)
                   | E.Opn(opn, es) => E.Opn(opn, List.map rewrite es)
                   | E.Comp(e1, es) => E.Comp(rewrite e1, es)
-                  | E.OField (opn, e1,  dx) =>  E.OField (opn, rewrite e1,  getAlpha  dx)
+                  | E.OField (opn, e1,  E.Partial  dx) =>  E.OField (opn, rewrite e1,  E.Partial (getAlpha  dx))
                   | E.Poly(id,alpha,n,dx) => E.Poly(id,getAlpha alpha, n, getAlpha dx)
                   | E.If(E.GT(e1, e2), e3, e4) =>
                     E.If(E.GT(rewrite e1, rewrite e2), rewrite e3, rewrite e4)
