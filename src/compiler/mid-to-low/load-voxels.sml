@@ -212,9 +212,14 @@ structure LoadVoxels : sig
                 voxelAddr (offset, baseIdxs, idxs))
           val result = shapeIterate avail (ImageInfo.voxelShape info)
                 (fn offset => gridIterate (avail, dim, ss) (load offset))
+        
+          val n = AvailRHS.addAssignToList (avail, (lhs, IR.VAR result));
+          val rst = List.rev (AvailRHS.getAssignments avail)
+                val _ = print("\n\n ************* image expand to ******* \n\n ")
+                val _ = List.map (fn e1 => print("\n\t"^LowToString.toStringAssgn(LowIR.ASSGN e1))) rst
+                val _ = print("\n\n ***************************************** \n\n ")
           in
-            AvailRHS.addAssignToList (avail, (lhs, IR.VAR result));
-            List.rev (AvailRHS.getAssignments avail)
+            rst
           end
 
     fun expandWithCtl {lhs, info, ss, ctl, img, idx} = let

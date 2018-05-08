@@ -153,7 +153,9 @@ NONE)
                   else if Var.same(rator, B.convolve_kv)
                     then (print" conv-kv";let val [kern, img] = args in convolve (img, kern) end)
                  else if Var.same(rator, B.kernels_kkk)
-                    then (print" kernel-kk";let val [xx,yy,zz] = args in (setSupport(lhs, getSupport xx); NONE) end)
+                    then (setSupport(lhs, getSupport (List.hd(args))); NONE)
+                else if Var.same(rator, B.kernels_kk)
+                    then (setSupport(lhs, getSupport (List.hd(args))); NONE)
 
 
 (* TODO: handle probes for conditional fields

@@ -89,7 +89,7 @@ structure FieldToLow : sig
                   lp (0, init)
                 end
           fun loop_d3 f init = let
-                val s = List.nth(ss,2) (*fix me here*)
+                val s = List.nth(ss,2)
                 val rangeL = 2*s
                 (*size of the numebr of tensors to make of that size*)
                 

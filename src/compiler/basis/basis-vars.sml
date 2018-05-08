@@ -380,36 +380,49 @@ end
         [t, s] --> f
         end))
 
+
+
+
   (* power; we distinguish between integer and real exponents to allow x^2 to be compiled
    * as x*x.  The power operation of fields is restricted by the typechecker to constant
-   * integer arguments.
+   * integer arguments. pow_si
    *)
     val pow_ri = monoVar(N.op_pow, [Ty.realTy, Ty.T_Int] --> Ty.realTy)
     val pow_rr = monoVar(N.op_pow, [Ty.realTy, Ty.realTy] --> Ty.realTy)
     val pow_si = polyVar (N.op_pow, all([DK, NK], fn [Ty.DIFF k, Ty.DIM d] => let
-          val k = Ty.DiffVar(k, 0)
-          val d = Ty.DimVar d
-          val fld = field(k, d, Ty.Shape[])
-          in
+            val k = Ty.DiffVar(k, 0)
+            val d = Ty.DimVar d
+            val fld = field(k, d, Ty.Shape[])
+        in
             [fld, Ty.T_Int] --> fld
+        end))
+
+    val kernels_kkk = polyVar (N.fn_krns, all([DK, DK, DK], fn [Ty.DIFF k1, Ty.DIFF k2, Ty.DIFF k3] => let
+            val k1 = Ty.DiffVar(k1, 0)
+            val k2 = Ty.DiffVar(k2, 0)
+            val k3 = Ty.DiffVar(k3, 0)
+          in
+            [Ty.T_Kernel k1,Ty.T_Kernel k2,Ty.T_Kernel k3] -->Ty.T_Kernel  k1
           end))
-(*
-    (* multiple kernels *)
+
     val kernels_kk = polyVar (N.fn_krns, all([DK, DK], fn [Ty.DIFF k1, Ty.DIFF k2] => let
         val k1 = Ty.DiffVar(k1, 0)
         val k2 = Ty.DiffVar(k2, 0)
+
         in
-        [Ty.T_Kernel k1, Ty.T_Kernel k2, Ty.T_Kernel k2] --> Ty.T_Kernel k2
-        end))
-*)
-    val kernels_kkk = polyVar (N.fn_krns, all([DK, DK, DK], fn [Ty.DIFF k1, Ty.DIFF k2, Ty.DIFF k3] => let
-        val k1 = Ty.DiffVar(k1, 0)
-        val k2 = Ty.DiffVar(k2, 0)
-        val k3 = Ty.DiffVar(k3, 0)
-        in
-            [Ty.T_Kernel k1, Ty.T_Kernel k2, Ty.T_Kernel k3] --> Ty.T_Kernel k2
+            [Ty.T_Kernel k1, Ty.T_Kernel k2] --> Ty.T_Kernel k2
         end))
 
+(*
+val kernels_kkkk = polyVar (N.fn_krns, all([DK, DK, DK,DK], fn [Ty.DIFF k1, Ty.DIFF k2, Ty.DIFF k3,Ty.DIFF k4] => let
+val k1 = Ty.DiffVar(k1, 0)
+val k2 = Ty.DiffVar(k2, 0)
+val k3 = Ty.DiffVar(k3, 0)
+val k4 = Ty.DiffVar(k4, 0)
+in
+[Ty.T_Kernel k1,Ty.T_Kernel k2,Ty.T_Kernel k3,Ty.T_Kernel k4] -->Ty.T_Kernel  k1
+end))
+*)
 
     val convolve_vk = polyVar (N.op_convolve, all([DK, NK, SK], fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE dd] => let
           val k = Ty.DiffVar(k, 0)
@@ -418,6 +431,7 @@ end
           in
             [Ty.T_Image{dim=d, shape=dd}, Ty.T_Kernel k] --> field(k, d, dd)
           end))
+
     val convolve_kv = polyVar (N.op_convolve, all([DK, NK, SK], fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE dd] => let
           val k = Ty.DiffVar(k, 0)
           val d = Ty.DimVar d

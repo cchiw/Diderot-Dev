@@ -48,7 +48,7 @@ structure LowToString =
         (* end case *))
     fun useCount (LowIR.V{useCnt, ...}) = Int.toString(!useCnt)
     fun stringArgs(args) =
-String.concat(List.map (fn e1 => (String.concat["\n\t\t",LowTypes.toString(V.ty(e1)),V.name(e1),"{", useCount(e1),"}"])) args)
+String.concat(List.map (fn e1 => (String.concat[" ",LowTypes.toString(V.ty(e1)),V.name(e1),"{", useCount(e1),"}"])) args)
 
     fun toStringAssgn(IR.ASSGN (x,  A))=(case A
         of  IR.OP(opss,args)=> String.concat [stringArgs[x],"==",Op.toString opss,
