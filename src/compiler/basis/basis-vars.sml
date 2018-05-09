@@ -1072,7 +1072,7 @@ structure BasisVars =
 (* -------------------------------------------  closed form expression --------------------------------------- *)
 (* ----------------------------------------------------------------------------------------------------------- *)
 
-    val fn_poly_1 = polyVar(N.fn_poly , all([DK, NK, SK, SK],
+    val fn_cfe_1 = polyVar(N.fn_cfe , all([DK, NK, SK, SK],
         fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.SHAPE ddT] => let
             val k0 = Ty.DiffVar(k, 0)
             val t1 = Ty.T_Tensor(Ty.ShapeVar ddT)
@@ -1082,7 +1082,7 @@ structure BasisVars =
               [f0,t1] --> f1
             end
             ))
-    val fn_poly_2 = polyVar(N.fn_poly , all([DK, NK, SK, SK, SK],
+    val fn_cfe_2 = polyVar(N.fn_cfe , all([DK, NK, SK, SK, SK],
         fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.SHAPE ddT, Ty.SHAPE ddT2] => let
             val k0 = Ty.DiffVar(k, 0)
             val t1 = Ty.T_Tensor(Ty.ShapeVar ddT)
@@ -1093,7 +1093,7 @@ structure BasisVars =
               [f0,t1, t2] --> f1
             end
             ))
-    val fn_poly_3 = polyVar(N.fn_poly , all([DK, NK, SK, SK, SK, SK],
+    val fn_cfe_3 = polyVar(N.fn_cfe , all([DK, NK, SK, SK, SK, SK],
         fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.SHAPE ddT, Ty.SHAPE ddT2, Ty.SHAPE ddT3] => let
             val k0 = Ty.DiffVar(k, 0)
             val t1 = Ty.T_Tensor(Ty.ShapeVar ddT)
@@ -1105,7 +1105,7 @@ structure BasisVars =
               [f0,t1, t2, t3] --> f1
             end
             ))
-    val fn_poly_4 = polyVar(N.fn_poly , all([DK, NK, SK, SK, SK, SK, SK],
+    val fn_cfe_4 = polyVar(N.fn_cfe , all([DK, NK, SK, SK, SK, SK, SK],
         fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.SHAPE ddT, Ty.SHAPE ddT2, Ty.SHAPE ddT3, Ty.SHAPE ddT4] => let
             val k0 = Ty.DiffVar(k, 0)
             val t1 = Ty.T_Tensor(Ty.ShapeVar ddT)
@@ -1120,7 +1120,7 @@ structure BasisVars =
             ))
 
     (* some quick shorthands *)
-    val fn_poly_21 = polyVar(N.fn_poly_21 , all([SK,SK, DK, NK, SK, SK],
+    val fn_cfe_21 = polyVar(N.fn_cfe_21 , all([SK,SK, DK, NK, SK, SK],
         fn [Ty.SHAPE ddT0, Ty.SHAPE ddT1, Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.SHAPE ddT2] => let
             val t0 = Ty.T_Tensor(Ty.ShapeVar ddT0)
             val t1 = Ty.T_Tensor(Ty.ShapeVar ddT1)
@@ -1132,7 +1132,7 @@ structure BasisVars =
               [f0, t0,t1,t2] --> f1
             end
             ))
-    val fn_poly_12 = polyVar(N.fn_poly_12 , all([SK, DK, NK, SK, SK, SK],
+    val fn_cfe_12 = polyVar(N.fn_cfe_12 , all([SK, DK, NK, SK, SK, SK],
         fn [Ty.SHAPE ddT0, Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.SHAPE ddT1,Ty.SHAPE ddT2] => let
             val t0 = Ty.T_Tensor(Ty.ShapeVar ddT0)
             val t1 = Ty.T_Tensor(Ty.ShapeVar ddT1)
@@ -1306,7 +1306,9 @@ structure BasisVars =
 (* ----------------------------------------------------------------------------------------------------------- *)
 (* -------------------------------------------  probe field with "inst" -------------------------------------- *)
 (* ----------------------------------------------------------------------------------------------------------- *)
-    val fn_inst_1_FT = polyVar (N.fn_inst, all([DK, NK, SK, SK],
+(* probe field. Arguments are a field and 1-3 tensors *)
+
+    val fn_inst_ft = polyVar (N.fn_inst, all([DK, NK, SK, SK],
         fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.SHAPE ddT] => let
             val k = Ty.DiffVar(k, 0)
             val d = Ty.DimVar d
@@ -1316,7 +1318,7 @@ structure BasisVars =
             in
               [f, Ty.T_Tensor dT] --> Ty.T_Tensor dF
             end))
-    val fn_inst_1_TF = polyVar (N.fn_inst, all([DK, NK, SK, SK],
+    val fn_inst_tf = polyVar (N.fn_inst, all([DK, NK, SK, SK],
         fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.SHAPE ddT] => let
             val k = Ty.DiffVar(k, 0)
             val d = Ty.DimVar d
@@ -1326,7 +1328,7 @@ structure BasisVars =
             in
                 [Ty.T_Tensor dT, f] --> Ty.T_Tensor dF
             end))
-    val fn_inst_2 = polyVar (N.fn_inst, all([DK, NK, SK, SK, SK],
+    val fn_inst_ftt = polyVar (N.fn_inst, all([DK, NK, SK, SK, SK],
         fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.SHAPE ddT, Ty.SHAPE ddT2] => let
             val k = Ty.DiffVar(k, 0)
             val d = Ty.DimVar d
@@ -1337,7 +1339,7 @@ structure BasisVars =
             in
               [f, Ty.T_Tensor dT, Ty.T_Tensor d2T] --> Ty.T_Tensor dF
             end))
-    val fn_inst_3 = polyVar (N.fn_inst, all([DK, NK, SK, SK, SK, SK],
+    val fn_inst_fttt = polyVar (N.fn_inst, all([DK, NK, SK, SK, SK, SK],
         fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.SHAPE ddT, Ty.SHAPE ddT2, Ty.SHAPE ddT3] => let
             val k = Ty.DiffVar(k, 0)
             val d = Ty.DimVar d
@@ -1348,6 +1350,19 @@ structure BasisVars =
             val f =  Ty.T_Field{diff=k, dim=d, shape=dF}
             in
               [f, Ty.T_Tensor dT, Ty.T_Tensor d2T, Ty.T_Tensor d3T] --> Ty.T_Tensor dF
+            end))
+
+(* probe field. Arguments are a field, 1 tensor, and the last argument is a sequence *)
+    val fn_inst_ftd = polyVar (N.fn_inst_s, all([DK, NK, SK, SK, TK],
+        fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.SHAPE ddT1, Ty.TYPE tv] => let
+            val k = Ty.DiffVar(k, 0)
+            val d = Ty.DimVar d
+            val dF = Ty.ShapeVar ddF
+            val f =  Ty.T_Field{diff=k, dim=d, shape=dF}
+            val dT1 = Ty.ShapeVar ddT1
+            val seqTyc = dynSeq(Ty.T_Var tv)
+            in
+              [f, Ty.T_Tensor dT1, seqTyc] --> Ty.T_Tensor dF
             end))
 (* ----------------------------------------------------------------------------------------------------------- *)
 (* -------------------------------------------  Swap --------------------------------------------------------- *)

@@ -53,12 +53,13 @@ structure BasisNames =
     val fn_printIR = Atom.atom "printIR"        (*print EIN term*)
     val fn_krns = Atom.atom "KRNS"
     (* ofields math functions *)
-    val fn_poly = Atom.atom     "cfexp"        (*makes everything a field*)
-    val fn_poly_12 = Atom.atom "cfexpOne"      (* makes first var a tensor*)
-    val fn_poly_21 = Atom.atom "expression"    (*makes everything a tensor*)
+    val fn_cfe = Atom.atom     "cfexp"        (*makes everything a field*)
+    val fn_cfe_12 = Atom.atom "cfexpOne"      (* makes first var a tensor*)
+    val fn_cfe_21 = Atom.atom "expression"    (*makes everything a tensor*)
     val fn_diff = Atom.atom "setDiffVar"       (* differentiate in respect to a var *)
 
     val fn_inst = Atom.atom "inst"              (*probe field *)
+    val fn_inst_s = Atom.atom "instS"
     val fn_convert = Atom.atom "FEM"
     val fn_convertTracker = Atom.atom "convertTracker"
     val fn_insideO = Atom.atom "insideF"

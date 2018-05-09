@@ -1,3 +1,4 @@
+
 (* translate-basis.sml
  *
  * This code is part of the Diderot Project (http://diderot-language.cs.uchicago.edu)
@@ -562,25 +563,25 @@ structure TranslateBasis : sig
                                           assign(y, Op.MathFn MathFns.ROUND, args)),
                 (BV.fn_trunc_r,         fn (y, _, args) =>
                                           assign(y, Op.MathFn MathFns.TRUNC, args)),
-                (BV.fn_poly_1,              fn (y, [_,Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE ddT], xs) =>
+                (BV.fn_cfe_1,              fn (y, [_,Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE ddT], xs) =>
                                             [assignEin(y, Mk.cfexp (ddF, [ddT], Ein.F), xs)]),
-                (BV.fn_poly_2,              fn (y, [_,Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE dd1, Ty.SHAPE dd2], xs) =>
+                (BV.fn_cfe_2,              fn (y, [_,Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE dd1, Ty.SHAPE dd2], xs) =>
                                             [assignEin(y, Mk.cfexp (ddF, [dd1, dd2], Ein.F), xs)]),
-                (BV.fn_poly_3,              fn (y, [_,Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE dd1, Ty.SHAPE dd2, Ty.SHAPE dd3], xs) =>
+                (BV.fn_cfe_3,              fn (y, [_,Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE dd1, Ty.SHAPE dd2, Ty.SHAPE dd3], xs) =>
                                             [assignEin(y, Mk.cfexp (ddF, [dd1, dd2, dd3],Ein.F), xs)]),
-                (BV.fn_poly_12,              fn (y, [Ty.SHAPE ddT0,_,Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE ddT1, Ty.SHAPE ddT2], xs) =>
+                (BV.fn_cfe_12,              fn (y, [Ty.SHAPE ddT0,_,Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE ddT1, Ty.SHAPE ddT2], xs) =>
                                             [assignEin(y, Mk.cfexpMix ([ddT0],ddF,[ddT1,ddT2]), xs)]),
-                (BV.fn_poly_21,              fn (y, [Ty.SHAPE ddT0, Ty.SHAPE ddT1, _, Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE ddT2], xs) =>
+                (BV.fn_cfe_21,              fn (y, [Ty.SHAPE ddT0, Ty.SHAPE ddT1, _, Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE ddT2], xs) =>
                                             [assignEin(y, Mk.cfexp (ddF,  [ddT0, ddT1,ddT2], Ein.T), xs)]),
                 (BV.fn_diff,              fn (y, [_,Ty.DIM dim, Ty.SHAPE ddF, Ty.SHAPE tshape], xs) =>
                                         [assignEin(y, Mk.diff_value(dim, ddF, tshape), xs)]),
-                (BV.fn_inst_1_FT,               fn (y, [_, Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE ddT], args) =>
+                (BV.fn_inst_ft,               fn (y, [_, Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE ddT], args) =>
                                             [ assignEin(y, Mk.polyProbe (ddF,d1, [ddT]), args)]),
-                (BV.fn_inst_1_TF,               fn (y, [_, Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE ddT], [T,F]) =>
+                (BV.fn_inst_tf,               fn (y, [_, Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE ddT], [T,F]) =>
                                             [ assignEin(y, Mk.polyProbe (ddF,d1, [ddT]), [F, T])]),
-                (BV.fn_inst_2,               fn (y, [_, Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE ddT1, Ty.SHAPE ddT2], args) =>
+                (BV.fn_inst_ftt,               fn (y, [_, Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE ddT1, Ty.SHAPE ddT2], args) =>
                                             [ assignEin(y, Mk.polyProbe (ddF,d1, [ddT1, ddT2]), args)]),
-                (BV.fn_inst_3,               fn (y, [_, Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE ddT1, Ty.SHAPE ddT2, Ty.SHAPE ddT3], args) =>
+                (BV.fn_inst_fttt,               fn (y, [_, Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE ddT1, Ty.SHAPE ddT2, Ty.SHAPE ddT3], args) =>
                                             [ assignEin(y, Mk.polyProbe (ddF,d1, [ddT1, ddT2, ddT3]), args)]),
                 (BV.fn_convert_fp,               fn (y, [_,Ty.DIM d, Ty.SHAPE dd], [f,p]) =>
 						   [assignEin(y, Mk.ofieldfem (d, dd), [f,p])]),
