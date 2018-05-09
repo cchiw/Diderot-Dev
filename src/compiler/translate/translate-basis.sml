@@ -123,12 +123,6 @@ structure TranslateBasis : sig
                                           [assignEin(y, Mk.addTF(d, dd), [s, f])]),
                 (BV.add_tf,             fn (y, [_, Ty.DIM d, Ty.SHAPE dd], xs) =>
                                           [assignEin(y, Mk.addTF(d, dd), xs)]),
-                (BV.add_pp,             fn (y, [_, _, Ty.DIM d, Ty.SHAPE dd], xs) =>
-                                            [assignEin(y, Mk.addFF(d, dd), xs)]),
-                (BV.add_pt,             fn (y, [_, Ty.DIM d, Ty.SHAPE dd], [f, s]) =>
-                                            [assignEin(y, Mk.addTF(d, dd), [s, f])]),
-                (BV.add_tp,             fn (y, [_, Ty.DIM d, Ty.SHAPE dd], xs) =>
-                                            [assignEin(y, Mk.addTF(d, dd), xs)]),
 
                 (BV.sub_tt,             fn (y, [shp], xs) => let
                                           val ty1 as DstTy.TensorTy dd1 = shapeVarToTensor shp
@@ -142,12 +136,6 @@ structure TranslateBasis : sig
                                           [assignEin(y, Mk.subFT(d, dd), [x2, x1])]),
                 (BV.sub_tf,             fn (y, [_, Ty.DIM d, Ty.SHAPE dd], xs) =>
                                           [assignEin(y, Mk.subTF(d, dd), xs)]),
-                (BV.sub_pp,             fn (y, [_, _, Ty.DIM d, Ty.SHAPE dd], xs) =>
-                                            [assignEin(y, Mk.subFF(d, dd), xs)]),
-                (BV.sub_pt,             fn (y, [_, Ty.DIM d, Ty.SHAPE dd], [x1, x2]) =>
-                                            [assignEin(y, Mk.subFT(d, dd), [x2, x1])]),
-                (BV.sub_tp,             fn (y, [_, Ty.DIM d, Ty.SHAPE dd], xs) =>
-                                            [assignEin(y, Mk.subTF(d, dd), xs)]),
                 (BV.mul_rr,             fn (y, _, args) => [assignEin(y, Mk.mulRR, args)]),
                 (BV.mul_rt,             fn (y, [shp], xs) => let
                                           val ty1 as DstTy.TensorTy dd1 = shapeVarToTensor shp
@@ -163,32 +151,18 @@ structure TranslateBasis : sig
                                           end),
                 (BV.mul_rf,             fn (y, [_, Ty.DIM d, Ty.SHAPE dd], xs) =>
                                           [assignEin(y, Mk.mulRF(d, dd), xs)]),
-                (BV.mul_rp,             fn (y, [_, Ty.DIM d, Ty.SHAPE dd], xs) =>
-                                        [assignEin(y, Mk.mulRF(d, dd), xs)]),
                 (BV.mul_fr,             fn (y, [_, Ty.DIM d, Ty.SHAPE dd], [f, s]) =>
                                           [assignEin(y, Mk.mulRF(d, dd), [s, f])]),
-                (BV.mul_pr,             fn (y, [_, Ty.DIM d, Ty.SHAPE dd], [f, s]) =>
-                                        [assignEin(y, Mk.mulRF(d, dd), [s, f])]),
                 (BV.mul_ss,             fn (y, [_, Ty.DIM d], xs) =>
                                           [assignEin(y, Mk.mulSS d, xs)]),
-                (BV.mul_ll,             fn (y, [_, _,Ty.DIM d], xs) =>
-                                            [assignEin(y, Mk.mulSS d, xs)]),
                 (BV.mul_sf,             fn (y, [_, Ty.DIM d, Ty.SHAPE dd], xs) =>
                                           [assignEin(y, Mk.mulSF(d, dd), xs)]),
-                (BV.mul_lp,             fn (y, [_, _,Ty.DIM d, Ty.SHAPE dd], xs) =>
-                                        [assignEin(y, Mk.mulSF(d, dd), xs)]),
                 (BV.mul_fs,             fn (y, [_, Ty.DIM d, Ty.SHAPE dd], [s, f]) =>
                                           [assignEin(y, Mk.mulSF(d, dd), [f, s])]),
-                (BV.mul_pl,             fn (y, [_, _,Ty.DIM d, Ty.SHAPE dd], [s, f]) =>
-                                            [assignEin(y, Mk.mulSF(d, dd), [f, s])]),
                 (BV.mul_st,             fn (y, [_, Ty.DIM d, Ty.SHAPE dd], xs) =>
                                           [assignEin(y, Mk.mulST(d, dd), List.rev xs)]),
-                (BV.mul_lt,             fn (y, [_, Ty.DIM d, Ty.SHAPE dd], xs) =>
-                                        [assignEin(y, Mk.mulST(d, dd), List.rev xs)]),
                 (BV.mul_ts,             fn (y, [_, Ty.DIM d, Ty.SHAPE dd], xs) =>
                                           [assignEin(y, Mk.mulST(d, dd), xs)]),
-                (BV.mul_tl,             fn (y, [_, Ty.DIM d, Ty.SHAPE dd], xs) =>
-                                        [assignEin(y, Mk.mulST(d, dd), xs)]),
                 (BV.div_rr,             fn (y, _, args) => [assignEin(y, Mk.divRR, args)]),
                 (BV.div_tr,             fn (y, [shp], xs) => let
                                           val ty1 as DstTy.TensorTy dd1 = shapeVarToTensor shp
@@ -198,20 +172,12 @@ structure TranslateBasis : sig
                                           end),
                 (BV.div_fr,             fn (y, [_, Ty.DIM d, Ty.SHAPE dd], xs) =>
                                           [assignEin(y, Mk.divFR(d, dd), xs)]),
-                (BV.div_pr,             fn (y, [_, Ty.DIM d, Ty.SHAPE dd], xs) =>
-                                            [assignEin(y, Mk.divFR(d, dd), xs)]),
                 (BV.div_fs,             fn (y, [_, _, Ty.DIM d, Ty.SHAPE dd], xs) =>
                                           [assignEin(y, Mk.divFS(d, dd), xs)]),
-                (BV.div_pl,             fn (y, [_, _, Ty.DIM d, Ty.SHAPE dd], xs) =>
-                                            [assignEin(y, Mk.divFS(d, dd), xs)]),
                 (BV.div_ss,             fn (y, [_, Ty.DIM d], xs) =>
                                           [assignEin(y, Mk.divSS d, xs)]),
-                (BV.div_ll,             fn (y, [_,_, Ty.DIM d], xs) =>
-                                            [assignEin(y, Mk.divSS d, xs)]),
                 (BV.div_ts,             fn (y, [_,Ty.DIM d, Ty.SHAPE dd], xs) =>
                                           [assignEin(y, Mk.divTS(d, dd), xs)]),
-                (BV.div_tl,             fn (y, [_,Ty.DIM d, Ty.SHAPE dd], xs) =>
-                                            [assignEin(y, Mk.divTS(d, dd), xs)]),
                 (BV.pow_rr,             fn (y, _, args) => assign(y, Op.MathFn MathFns.POW, args)),
                 (BV.pow_ri,             (*simpleOp Op.Power),*)
                                         fn (y, _, [f, n]) => let
@@ -232,8 +198,6 @@ structure TranslateBasis : sig
                                           end),
                 (BV.curl2D,             simpleEOp Mk.curl2d),
                 (BV.curl3D,             simpleEOp Mk.curl3d),
-(BV.curl2D_p,             simpleEOp Mk.curl2d),
-(BV.curl3D_p,             simpleEOp Mk.curl3d),
                 (BV.convolve_vk,        fn (y, [_, Ty.DIM d, Ty.SHAPE dd], xs) =>
                                           [assignEin(y, Mk.conv(d, dd), xs)]),
                 (BV.convolve_kv,        fn (y, [_, Ty.DIM d, Ty.SHAPE dd], [k, v]) =>
@@ -246,8 +210,6 @@ structure TranslateBasis : sig
                                           end),
                 (BV.neg_f,              fn (y, [_, Ty.DIM d, Ty.SHAPE dd], xs) =>
                                           [assignEin(y, Mk.negFF(d, dd), xs)]),
-                (BV.neg_p,              fn (y, [_, Ty.DIM d, Ty.SHAPE dd], xs) =>
-                                         [assignEin(y, Mk.negFF(d, dd), xs)]),
                 (BV.op_probe,           fn (y, [_, Ty.DIM d, Ty.SHAPE dd], xs) =>
                                            (*[assignEin(y, (Mk.probe(dd, d)), xs)]),*)
                                              [assignEin(y, (Mk.polyProbe(dd, d,[[d]])), xs)]),
@@ -256,26 +218,16 @@ structure TranslateBasis : sig
                                             if (d = 2) orelse (d = 3)
                                             then [assignEin(y, Mk.grad [d], xs)]
                                             else [assignEin(y, Mk.gradConstant [d], xs)]),
-                (BV.op_D_p,               fn (y, [_, Ty.DIM d], xs) =>
-                if (d = 2) orelse (d = 3)
-                then [assignEin(y, Mk.grad [d], xs)]
-                else [assignEin(y, Mk.gradConstant [d], xs)]),
-                                (BV.op_Dotimes,         fn (y, [_, Ty.DIM d1, Ty.SHAPE dd, Ty.DIM d2], xs) =>
+                (BV.op_Dotimes,         fn (y, [_, Ty.DIM d1, Ty.SHAPE dd, Ty.DIM d2], xs) =>
                                                           [assignEin(y, Mk.dotimes(d1, dd@[d2]), xs)]),
-                (BV.op_Dotimes_p,         fn (y, [_, Ty.DIM d1, Ty.SHAPE dd, Ty.DIM d2], xs) =>
-                [assignEin(y, Mk.dotimes(d1, dd@[d2]), xs)]),
-                                (BV.op_Ddot,            fn (y, [_, Ty.DIM d1,  Ty.SHAPE dd, Ty.DIM d2], xs) =>
+                (BV.op_Ddot,            fn (y, [_, Ty.DIM d1,  Ty.SHAPE dd, Ty.DIM d2], xs) =>
                                                           [assignEin(y, Mk.divergence(d1, dd), xs)] ),
-                (BV.op_Ddot_p,            fn (y, [_, Ty.DIM d1,  Ty.SHAPE dd, Ty.DIM d2], xs) =>
-                [assignEin(y, Mk.divergence(d1, dd), xs)] ),
                 (BV.op_norm_t,          fn (y, [sv], xs) =>
                                         (case sv
                                            of  Ty.SHAPE dd => [assignEin(y, Mk.normT dd, xs)]
                                           (* end case *))),
                 (BV.op_norm_f,          fn (y, [ _,Ty.DIM d1, Ty.SHAPE dd1], xs) =>
                                            [assignEin(y, Mk.normF(d1, dd1), xs)]),
-                (BV.op_norm_p,          fn (y, [ _,Ty.DIM d1, Ty.SHAPE dd1], xs) =>
-                                            [assignEin(y, Mk.normF(d1, dd1), xs)]),
                 (BV.op_not,             simpleOp Op.BNot),
                 (BV.op_cross3_tt,       simpleEOp Mk.cross3TT),
                 (BV.op_cross2_tt,       simpleEOp Mk.cross2TT),
@@ -285,12 +237,6 @@ structure TranslateBasis : sig
                 (BV.op_cross3_ft,       simpleEOp Mk.cross3FT),
                 (BV.op_cross2_tf,       simpleEOp Mk.cross2TF),
                 (BV.op_cross3_tf,       simpleEOp Mk.cross3TF),
-                (BV.op_cross2_pp,       simpleEOp Mk.cross2FF),
-                (BV.op_cross3_pp,       simpleEOp Mk.cross3FF),
-                (BV.op_cross2_pt,       simpleEOp Mk.cross2FT),
-                (BV.op_cross3_pt,       simpleEOp Mk.cross3FT),
-                (BV.op_cross2_tp,       simpleEOp Mk.cross2TF),
-                (BV.op_cross3_tp,       simpleEOp Mk.cross3TF),
                 (BV.op_outer_tt,        fn (y, [sh1, sh2, _], xs) => let
                                           val ty1 as DstTy.TensorTy dd1 = shapeVarToTensor sh1
                                           val ty2 as DstTy.TensorTy dd2 = shapeVarToTensor sh2
@@ -309,18 +255,6 @@ structure TranslateBasis : sig
                                           end),
                 (BV.op_outer_ff,        fn (y, [_, _, Ty.DIM d, Ty.SHAPE dd1, Ty.SHAPE dd2, _], xs) =>
                                           [assignEin(y, Mk.outerFF(d, dd1, dd2), xs)]),
-                (BV.op_outer_tp,        fn (y, [_, Ty.DIM d, sh1, Ty.SHAPE dd2, _], xs) => let
-                                        val ty1 as DstTy.TensorTy dd1 = shapeVarToTensor sh1
-                                        in
-                                        [assignEin(y, Mk.outerTF(d, dd1, dd2), xs)]
-                                        end),
-                (BV.op_outer_pt,        fn (y, [_, Ty.DIM d, Ty.SHAPE dd1, sh2, _], xs) => let
-                                        val ty1 as DstTy.TensorTy dd2 = shapeVarToTensor sh2
-                                        in
-                                        [assignEin(y, Mk.outerFT(d, dd1, dd2), xs)]
-                                        end),
-                (BV.op_outer_pp,        fn (y, [_, _, Ty.DIM d, Ty.SHAPE dd1, Ty.SHAPE dd2, _], xs) =>
-                                        [assignEin(y, Mk.outerFF(d, dd1, dd2), xs)]),
                 (BV.op_inner_tt,        fn (y, [sh1, sh2, _], xs) => let
                                           val ty1 as DstTy.TensorTy dd1 = shapeVarToTensor sh1
                                           val ty2 as DstTy.TensorTy dd2 = shapeVarToTensor sh2
@@ -339,18 +273,6 @@ structure TranslateBasis : sig
                                           end),
                 (BV.op_inner_ff,        fn (y,  [_, _, Ty.DIM d, Ty.SHAPE dd1, Ty.SHAPE dd2, _], xs) =>
                                           [assignEin(y, Mk.innerFF(dd1, d, dd2), xs)]),
-                (BV.op_inner_tp,        fn (y, [_, Ty.DIM d, sh1, Ty.SHAPE dd2, _], xs) =>let
-                                        val ty1 as DstTy.TensorTy dd1 = shapeVarToTensor sh1
-                                        in
-                                        [assignEin(y, Mk.innerTF(dd1, d, dd2), xs)]
-                                        end),
-                (BV.op_inner_pt,        fn (y, [_, Ty.DIM d, Ty.SHAPE dd1, sh2, _], xs) =>let
-                                        val ty1 as DstTy.TensorTy dd2 = shapeVarToTensor sh2
-                                        in
-                                        [assignEin(y, Mk.innerFT(dd1, d, dd2), xs)]
-                                        end),
-                (BV.op_inner_pp,        fn (y,  [_, _, Ty.DIM d, Ty.SHAPE dd1, Ty.SHAPE dd2, _], xs) =>
-                                        [assignEin(y, Mk.innerFF(dd1, d, dd2), xs)]),
                 (BV.op_colon_tt,        fn (y, [sh1, sh2, _], xs) => let
                                           val ty1 as DstTy.TensorTy dd1 = shapeVarToTensor sh1
                                           val ty2 as DstTy.TensorTy dd2 = shapeVarToTensor sh2
@@ -363,12 +285,6 @@ structure TranslateBasis : sig
                                           [assignEin(y, Mk.colonTF(d, dd1, dd2), xs)]),
                 (BV.op_colon_ff,        fn (y, [_, Ty.SHAPE dd1, Ty.DIM d, Ty.SHAPE dd2, _], xs) =>
                                           [assignEin(y, Mk.colonFF(d, dd1, dd2), xs)]),
-                (BV.op_colon_pt,        fn (y, [_, Ty.SHAPE dd1, Ty.DIM d, Ty.SHAPE dd2, _], xs) =>
-                                    [assignEin(y, Mk.colonFT(d, dd1, dd2), xs)]),
-                (BV.op_colon_tp,        fn (y, [_, Ty.SHAPE dd1, Ty.DIM d, Ty.SHAPE dd2, _], xs) =>
-                                    [assignEin(y, Mk.colonTF(d, dd1, dd2), xs)]),
-                (BV.op_colon_pp,        fn (y, [_, _, Ty.SHAPE dd1, Ty.DIM d, Ty.SHAPE dd2, _], xs) =>
-                                    [assignEin(y, Mk.colonFF(d, dd1, dd2), xs)]),
                 (*  modulate is vector * vector pointwise multiplication *)
                 (BV.fn_modulate_tt,     fn (y, [Ty.DIM dd1], xs) => let
                                           in [assignEin(y, (Mk.modulateTT [dd1]),xs)]
@@ -379,12 +295,6 @@ structure TranslateBasis : sig
                                           [assignEin(y, (Mk.modulateTF([dd], d1)),xs)]),
                 (BV.fn_modulate_ft,     fn (y,[ _,Ty.DIM d1, Ty.DIM dd], xs) =>
                                           [assignEin(y, (Mk.modulateFT ([dd],d1)),xs)]),
-                (BV.fn_modulate_pp,     fn (y,[ _,_,Ty.DIM d1, Ty.DIM dd], xs) =>
-                                    [assignEin(y, (Mk.modulateFF ([dd],d1)),xs)]),
-                (BV.fn_modulate_tp,     fn (y,[ _,Ty.DIM d1, Ty.DIM dd], xs) =>
-                                    [assignEin(y, (Mk.modulateTF([dd], d1)),xs)]),
-                (BV.fn_modulate_pt,     fn (y,[ _,Ty.DIM d1, Ty.DIM dd], xs) =>
-                                    [assignEin(y, (Mk.modulateFT ([dd],d1)),xs)]),
                 (BV.fn_normalize_t,     fn (y, [shp], xs) => let
                                           val DstTy.TensorTy dd1 = shapeVarToTensor shp
                                           in
@@ -397,22 +307,14 @@ structure TranslateBasis : sig
                                            of ([], [arg0]) => raise Fail "fn_normalize_f on scalar"
                                             | (_, [arg0]) => [assignEin(y, Mk.normalizeFF(d1, dd1), xs@xs)]
                                           (* end case *))),
-                (BV.fn_normalize_p,     fn (y, [ _,Ty.DIM d1, Ty.SHAPE dd1], xs) => (case (dd1, xs)
-                                            of ([], [arg0]) => raise Fail "fn_normalize_f on scalar"
-                                            | (_, [arg0]) => [assignEin(y, Mk.normalizeFF(d1, dd1), xs@xs)]
-                                            (* end case *))),
                 (BV.fn_trace_t,         fn (y, [Ty.DIM d], xs) =>
                                           [assignEin(y, (Mk.traceT d), xs)]),
                 (BV.fn_trace_f,         fn (y, [_, Ty.DIM d, Ty.DIM d2, Ty.SHAPE dd], xs) =>
                                           [assignEin(y, Mk.traceF(d, d2, dd), xs)]),
-                (BV.fn_trace_p,         fn (y, [_, Ty.DIM d, Ty.DIM d2, Ty.SHAPE dd], xs) =>
-                                        [assignEin(y, Mk.traceF(d, d2, dd), xs)]),
                 (BV.fn_transpose_t,     fn (y, [Ty.DIM d1, Ty.DIM d2], xs) =>
                                           [assignEin(y, (Mk.transposeT [d1, d2]), xs)]),
                 (BV.fn_transpose_f,     fn (y, [_, Ty.DIM d1, Ty.DIM d2, Ty.DIM d3], xs) =>
                                           [assignEin(y, (Mk.transposeF (d1, d2, d3)), xs)]),
-                (BV.fn_transpose_p,     fn (y, [_, Ty.DIM d1, Ty.DIM d2, Ty.DIM d3], xs) =>
-                                        [assignEin(y, (Mk.transposeF (d1, d2, d3)), xs)]),
                 (BV.fn_concat_fv2,       fn (y, [_, Ty.DIM d1], xs) =>
                                             [assignEin(y, (Mk.concatField(d1, [], 2)), xs)]),
                 (BV.fn_concat_fm2,       fn (y, [_, Ty.DIM d1,  Ty.DIM dd1], xs) =>
@@ -425,28 +327,12 @@ structure TranslateBasis : sig
                                             [assignEin(y, (Mk.concatField(d1, [dd1],3)), xs)]),
                 (BV.fn_concat_ft3,       fn (y, [_, Ty.DIM d1,  Ty.DIM dd1, Ty.DIM dd2], xs) =>
                                                 [assignEin(y, (Mk.concatField(d1, [dd1, dd2],3)), xs)]),
-                (BV.fn_concat_pv2,       fn (y, [_, _, Ty.DIM d1], xs) =>
-                                                [assignEin(y, (Mk.concatField(d1, [], 2)), xs)]),
-                (BV.fn_concat_pm2,       fn (y, [_, _,Ty.DIM d1,  Ty.DIM dd1], xs) =>
-                                                [assignEin(y, (Mk.concatField(d1, [dd1],2)), xs)]),
-                (BV.fn_concat_pt2,       fn (y, [_, _,Ty.DIM d1,  Ty.DIM dd1, Ty.DIM dd2], xs) =>
-                                                [assignEin(y, (Mk.concatField(d1, [dd1,dd2],2)), xs)]),
-                (BV.fn_concat_ps3,       fn (y, [_, Ty.DIM d1], xs) =>
-                                                [assignEin(y, (Mk.concatField(d1, [],3)), xs)]),
-                (BV.fn_concat_pm3,       fn (y, [_, Ty.DIM d1, Ty.DIM dd1], xs) =>
-                                                [assignEin(y, (Mk.concatField(d1, [dd1],3)), xs)]),
-                (BV.fn_concat_pt3,       fn (y, [_, Ty.DIM d1,  Ty.DIM dd1, Ty.DIM dd2], xs) =>
-                                                [assignEin(y, (Mk.concatField(d1, [dd1, dd2],3)), xs)]),
                 (BV.fn_det2_t,          simpleEOp Mk.det2T),
                 (BV.fn_det3_t,          simpleEOp Mk.det3T),
                 (BV.fn_det2_f,          fn (y, [_,Ty.DIM d1], xs) =>
                                           [assignEin(y, (Mk.det2F (d1)), xs)]),
                 (BV.fn_det3_f,          fn (y, [_,Ty.DIM d1], xs) =>
                                           [assignEin(y, (Mk.det3F (d1)), xs)]),
-(BV.fn_det2_p,          fn (y, [_,Ty.DIM d1], xs) =>
-[assignEin(y, (Mk.det2F (d1)), xs)]),
-(BV.fn_det3_p,          fn (y, [_,Ty.DIM d1], xs) =>
-[assignEin(y, (Mk.det3F (d1)), xs)]),
                 (BV.fn_inv2_t,          simpleEOp Mk.inv2T),
                 (BV.fn_inv3_t,          fn (y, _ , [x]) => let
                                           val shape = [3, 3]
@@ -482,8 +368,6 @@ structure TranslateBasis : sig
                                           ] end),
                 (BV.fn_inv2_f,          fn (y, [_, Ty.DIM dim], xs) =>
                                           [assignEin(y, Mk.inv2F dim, xs)]),
-(BV.fn_inv2_p,          fn (y, [_, Ty.DIM dim], xs) =>
-[assignEin(y, Mk.inv2F dim, xs)]),
                 (BV.fn_inv3_f,          fn (y, [_, Ty.DIM dim], [x]) => let
                                           val shape = [3, 3]
                                           val l = 3
@@ -518,104 +402,45 @@ structure TranslateBasis : sig
                                             assignEin(denom, Mk.det3F dim, [x]),
                                             assignEin(y, Mk.divFS(dim, shape), [num, denom])
                                           ] end),
-            (BV.fn_inv3_p,          fn (y, [_, Ty.DIM dim], [x]) => let
-                                        val shape = [3, 3]
-                                        val l = 3
-                                        val fty = DstTy.FieldTy
-                                        val trace = IR.Var.new("t1", fty)
-                                        val trace_sq = IR.Var.new("t2", fty)
-                                        val dotT = IR.Var.new("t3", fty)
-                                        val dot_trace = IR.Var.new("t4", fty)
-                                        val t5 = IR.Var.new("t5", fty)
-                                        val t6 = IR.Var.new("t6", fty)
-                                        val t7 = IR.Var.new("t7", fty)
-                                        val t8 = IR.Var.new("t8", fty)
-                                        val t9 = IR.Var.new("t9", fty)
-                                        val id = IR.Var.new("t9", fty)
-                                        val num = IR.Var.new("t10", fty)
-                                        val denom = IR.Var.new("t11", fty)
-                                        val trace_op = Mk.traceF(dim, l, [])
-                                        val scaleSF = Mk.mulSF(dim, shape)
-                                        val scaleSS = Mk.mulSS dim
-                                        val subSS  = Mk.subFF(dim, [])
-                                        in [
-                                        assignEin(trace, trace_op, [x]),
-                                        assignEin(trace_sq, scaleSS, [trace, trace]),
-                                        assignEin(dotT, Mk.innerFF(shape,dim, shape), [x, x]),
-                                        assignEin(dot_trace, trace_op, [dotT]),
-                                        assignEin(t5, subSS, [trace_sq, dot_trace]),
-                                        assignEin(t6, Mk.scaleIdF(dim, l), [t5]),
-                                        assignEin(t7, Mk.halfF(dim, l), [t6]),
-                                        assignEin(t8, scaleSF, [trace, x]),
-                                        assignEin(t9, Mk.subFF(dim, shape), [t7, t8]),
-                                        assignEin(num, Mk.addFF(dim, shape), [t9, dotT]),
-                                        assignEin(denom, Mk.det3F dim, [x]),
-                                        assignEin(y, Mk.divFS(dim, shape), [num, denom])
-                                        ] end),
-
                 (BV.fn_comp,          fn (y,[_,Ty.DIM d1, Ty.DIM d2, Ty.SHAPE dd0, Ty.SHAPE dd1],xs) =>
                                           [assignEin(y, Mk.composition(dd0, dd1, d1), xs)]),
                 (BV.comp,          fn (y,[_,Ty.DIM d1, Ty.DIM d2, Ty.SHAPE dd0, Ty.SHAPE dd1],xs) =>
                                          [assignEin(y, Mk.composition(dd0, dd1, d1), xs)]),
-                (BV.fn_comp_p,          fn (y,[_,Ty.DIM d1, Ty.DIM d2, Ty.SHAPE dd0, Ty.SHAPE dd1],xs) =>
-                                        [assignEin(y, Mk.composition(dd0, dd1, d1), xs)]),
-                (BV.comp_p,          fn (y,[_,Ty.DIM d1, Ty.DIM d2, Ty.SHAPE dd0, Ty.SHAPE dd1],xs) =>
-                                        [assignEin(y, Mk.composition(dd0, dd1, d1), xs)]),
                 (BV.fn_sqrt_r,          fn (y, _, xs) =>
                                           [assignEin(y, Mk.sqrtR, xs)]),
                 (BV.fn_sqrt_s,          fn (y, [_, Ty.DIM d1], xs) =>
-                                          [assignEin(y, Mk.sqrtF d1, xs)]),
-                (BV.fn_sqrt_p,          fn (y, [_, Ty.DIM d1], xs) =>
                                           [assignEin(y, Mk.sqrtF d1, xs)]),
                 (BV.fn_cos_r,           fn (y, _, xs) =>
                                           [assignEin(y, Mk.cosR, xs)]),
                 (BV.fn_cos_s,           fn (y, [_, Ty.DIM d1], xs) =>
                                           [assignEin(y, Mk.cosF d1, xs)]),
-                (BV.fn_cos_p,           fn (y, [_, Ty.DIM d1], xs) =>
-                                        [assignEin(y, Mk.cosF d1, xs)]),
                 (BV.fn_acos_r,           fn (y, _, xs) =>
                                           [assignEin(y, Mk.acosR, xs)]),
                 (BV.fn_acos_s,          fn (y, [_, Ty.DIM d1], xs) =>
                                           [assignEin(y, Mk.acosF d1, xs)]),
-                (BV.fn_acos_p,          fn (y, [_, Ty.DIM d1], xs) =>
-                                           [assignEin(y, Mk.acosF d1, xs)]),
                 (BV.fn_sin_r,           fn (y, _, xs) =>
                                           [assignEin(y, Mk.sinR, xs)]),
                 (BV.fn_sin_s,           fn (y, [_, Ty.DIM d1], xs) =>
-                                          [assignEin(y, Mk.sinF d1, xs)]),
-               (BV.fn_sin_p,           fn (y, [_, Ty.DIM d1], xs) =>
                                           [assignEin(y, Mk.sinF d1, xs)]),
                 (BV.fn_asin_r,          fn (y, _, xs) =>
                                           [assignEin(y, Mk.asinR, xs)]),
                 (BV.fn_asin_s,          fn (y, [_, Ty.DIM d1], xs) =>
                                           [assignEin(y, Mk.asinF d1, xs)]),
-                (BV.fn_asin_p,          fn (y, [_, Ty.DIM d1], xs) =>
-                                          [assignEin(y, Mk.asinF d1, xs)]),
                 (BV.fn_tan_r,           fn (y, _, xs) =>
                                           [assignEin(y, Mk.tanR, xs)]),
                 (BV.fn_tan_s,           fn (y, [_, Ty.DIM d1], xs) =>
-                                          [assignEin(y, Mk.tanF d1, xs)]),
-                (BV.fn_tan_p,           fn (y, [_, Ty.DIM d1], xs) =>
                                           [assignEin(y, Mk.tanF d1, xs)]),
                 (BV.fn_atan_r,          fn (y, _, xs) =>
                                           [assignEin(y, Mk.atanR, xs)]),
                 (BV.fn_atan_s,          fn (y, [_, Ty.DIM d1], xs) =>
                                           [assignEin(y, Mk.atanF d1, xs)]),
-                (BV.fn_atan_p,          fn (y, [_, Ty.DIM d1], xs) =>
-                                            [assignEin(y, Mk.atanF d1, xs)]),
                 (BV.fn_exp_r,           fn (y, _, xs) =>
                                           [assignEin(y, Mk.expT, xs)]),
                 (BV.fn_exp_s,           fn (y, [_, Ty.DIM d1], xs) =>
                                           [assignEin(y, Mk.expF d1, xs)]),
-                (BV.fn_exp_p,           fn (y, [_, Ty.DIM d1], xs) =>
-                                            [assignEin(y, Mk.expF d1, xs)]),
                 (BV.fn_maxF_s,           fn (y, [_, Ty.DIM d1], xs) =>
                                             [assignEin(y, Mk.maxF d1, xs)]),
                 (BV.fn_minF_s,           fn (y, [_, Ty.DIM d1], xs) =>
-                                            [assignEin(y, Mk.minF d1, xs)]),
-                (BV.fn_maxF_l,           fn (y, [_, Ty.DIM d1], xs) =>
-                                            [assignEin(y, Mk.maxF d1, xs)]),
-                (BV.fn_minF_l,           fn (y, [_, Ty.DIM d1], xs) =>
                                             [assignEin(y, Mk.minF d1, xs)]),
                 (BV.clamp_rrt,          fn (y, [sv, dv], xs) => let
                                         val Ty.SHAPE shp = sv
@@ -812,10 +637,9 @@ structure TranslateBasis : sig
                 (BV.kernels_kk,  fn (y, _, xs) =>
                                         assign(y, Op.KrnMultipleTwoD, xs)),
                 (BV.kernels_kkk,  fn (y, _, xs) =>
-                                        assign(y, Op.KrnMultipleThreeD, xs))
-(*
+                                        assign(y, Op.KrnMultipleThreeD, xs)),
                 (BV.kernels_kkkk,  fn (y, _, xs) =>
-                                        assign(y, Op.KrnMultipleFourD, xs))*)
+                                        assign(y, Op.KrnMultipleFourD, xs))
               ];
             tbl
           end

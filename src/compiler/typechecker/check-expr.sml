@@ -191,49 +191,6 @@ structure CheckExpr : sig
                         end
                     | NONE => error()
                   (* end case *))
-            (* tensor * ofield inner product *)
-            | (Ty.T_Tensor s1, Ty.T_OField{diff, dim, shape=s2}) => (case chkShape(s1, s2)
-                 of SOME shp => let
-                    val (tyArgs, Ty.T_Fun(domTy, rngTy)) = TU.instantiate(Var.typeOf BV.op_inner_tp)
-                    val resTy = Ty.T_OField{diff=diff, dim=dim, shape=shp}
-                     in
-                        if Unify.equalTypes(domTy, [ty1, ty2])
-                        andalso Unify.equalType(rngTy, resTy)
-                        then (AST.E_Prim(BV.op_inner_tp, tyArgs, [e1, e2], rngTy), rngTy)
-                        else error()
-                     end
-                | NONE => error()
-                 (* end case *))
-                 (* ofield * tensor inner product *)
-                 | (Ty.T_OField{diff, dim, shape=s1}, Ty.T_Tensor s2) => (case chkShape(s1, s2)
-                    of SOME shp => let
-                         val (tyArgs, Ty.T_Fun(domTy, rngTy)) = TU.instantiate(Var.typeOf BV.op_inner_pt)
-                         val resTy = Ty.T_OField{diff=diff, dim=dim, shape=shp}
-                         in
-                         if Unify.equalTypes(domTy, [ty1, ty2])
-                         andalso Unify.equalType(rngTy, resTy)
-                         then (AST.E_Prim(BV.op_inner_pt, tyArgs, [e1, e2], rngTy), rngTy)
-                         else error()
-                         end
-                     | NONE => error()
-                     (* end case *))
-                 (* ofield * ofield inner product *)
-                 | (Ty.T_OField{diff=k1, dim=dim1, shape=s1}, Ty.T_OField{diff=k2, dim=dim2, shape=s2}) => (
-                    case chkShape(s1, s2)
-                     of SOME shp => let
-                     val (tyArgs, Ty.T_Fun(domTy, rngTy)) = TU.instantiate(Var.typeOf BV.op_inner_pp)
-                     val resTy = Ty.T_OField{diff=k1, dim=dim1, shape=shp}
-                 in
-                    (* FIXME: the resulting differentiation should be the minimum of k1 and k2 *)
-                     if Unify.equalDim(dim1, dim2)
-                     andalso Unify.equalTypes(domTy, [ty1, ty2])
-                     andalso Unify.equalType(rngTy, resTy)
-                     then (AST.E_Prim(BV.op_inner_pp, tyArgs, [e1, e2], rngTy), rngTy)
-                     else error()
-                     end
-                 | NONE => error()
-                 (* end case *))
-
             | (ty1, ty2) => error()
             (* end case *)
           end
@@ -306,45 +263,8 @@ structure CheckExpr : sig
                             then (AST.E_Prim(BV.op_outer_ff, tyArgs, [e1, e2], rngTy), rngTy)
                             else error()
                         end
-                    | NONE => shapeError()
-                  (* end case *))
-        | (Ty.T_OField{diff=k1, dim=dim1, shape=s1}, Ty.T_OField{diff=k2, dim=dim2, shape=s2}) => (
-                 case mergeShp(s1, s2)
-                 of SOME shp => let
-                 val (tyArgs, Ty.T_Fun(domTy, rngTy)) = TU.instantiate(Var.typeOf BV.op_outer_pp)
-                 val resTy = Ty.T_OField{diff=k1, dim=dim1, shape=shp}
-                 in
-                 (* FIXME: the resulting differentiation should be the minimum of k1 and k2 *)
-                 if Unify.equalDim(dim1, dim2)
-                 andalso Unify.equalTypes(domTy, [ty1, ty2])
-                 andalso Unify.equalType(rngTy, resTy)
-                 then (AST.E_Prim(BV.op_outer_pp, tyArgs, [e1, e2], rngTy), rngTy)
-                 else error()
-                 end
                  | NONE => shapeError()
-                 (* end case *))
-    | (Ty.T_Tensor s1, Ty.T_OField{diff=diff, dim=dim, shape=s2}) => (case mergeShp(s1, s2)
-                 of SOME shp => let
-                 val (tyArgs, Ty.T_Fun(domTy, rngTy)) = TU.instantiate(Var.typeOf BV.op_outer_tp)
-                 val resTy = Ty.T_OField{diff=diff, dim=dim, shape=shp}
-                 in
-                 if Unify.equalTypes(domTy, [ty1, ty2]) andalso Unify.equalType(rngTy, resTy)
-                 then (AST.E_Prim(BV.op_outer_tp, tyArgs, [e1, e2], rngTy), rngTy)
-                 else error()
-                 end
-                 | NONE => shapeError()
-                 (* end case *))
-            | (Ty.T_OField{diff=diff, dim=dim, shape=s1},Ty.T_Tensor s2) => (case mergeShp(s1, s2)
-                 of SOME shp => let
-                 val (tyArgs, Ty.T_Fun(domTy, rngTy)) = TU.instantiate(Var.typeOf BV.op_outer_pt)
-                 val resTy = Ty.T_OField{diff=diff, dim=dim, shape=shp}
-                 in
-                 if Unify.equalTypes(domTy, [ty1, ty2]) andalso Unify.equalType(rngTy, resTy)
-                 then (AST.E_Prim(BV.op_outer_pt, tyArgs, [e1, e2], rngTy), rngTy)
-                 else error()
-                 end
-                 | NONE => shapeError()
- (* end case *))
+                (* end case *))
             | _ => error()
  (* field * field outer product *)
             (* end case *)
@@ -429,48 +349,6 @@ structure CheckExpr : sig
                         end
                     | NONE => error()
                   (* end case *))
-                 (* field * tensor colon product *)
-
-            | (Ty.T_OField{diff, dim, shape=s1}, Ty.T_Tensor s2) => (case chkShape(s1, s2)
-                 of SOME shp => let
-                     val (tyArgs, Ty.T_Fun(domTy, rngTy)) = TU.instantiate(Var.typeOf BV.op_colon_pt)
-                     val resTy = Ty.T_OField{diff=diff, dim=dim, shape=shp}
-                     in
-                        if Unify.equalTypes(domTy, [ty1, ty2]) andalso Unify.equalType(rngTy, resTy)
-                        then (AST.E_Prim(BV.op_colon_pt, tyArgs, [e1, e2], rngTy), rngTy)
-                        else error()
-                     end
-                 | NONE => error()
-                 (* end case *))
-                 (* tensor * field colon product *)
-            | (Ty.T_Tensor s1, Ty.T_OField{diff=diff, dim=dim, shape=s2}) =>
-                (case chkShape(s1, s2)
-                 of SOME shp => let
-                     val (tyArgs, Ty.T_Fun(domTy, rngTy)) = TU.instantiate(Var.typeOf BV.op_colon_tp)
-                     val resTy = Ty.T_OField{diff=diff, dim=dim, shape=shp}
-                     in
-                         if Unify.equalTypes(domTy, [ty1, ty2]) andalso Unify.equalType(rngTy, resTy)
-                         then (AST.E_Prim(BV.op_colon_tp, tyArgs, [e1, e2], rngTy), rngTy)
-                         else error()
-                     end
-                 | NONE => error()
-                 (* end case *))
-                 (* field * field colon product *)
-            | (Ty.T_OField{diff=k1, dim=dim1, shape=s1}, Ty.T_OField{diff=k2, dim=dim2, shape=s2}) => (
-                 case chkShape(s1, s2)
-                of SOME shp => let
-                     val (tyArgs, Ty.T_Fun(domTy, rngTy)) = TU.instantiate(Var.typeOf BV.op_colon_pp)
-                     val resTy = Ty.T_OField{diff=k1, dim=dim1, shape=shp}
-                     in
-                         (* FIXME: the resulting differentiation should be the minimum of k1 and k2 *)
-                         if Unify.equalDim(dim1, dim2)
-                         andalso Unify.equalTypes(domTy, [ty1, ty2])
-                         andalso Unify.equalType(rngTy, resTy)
-                         then (AST.E_Prim(BV.op_colon_pp, tyArgs, [e1, e2], rngTy), rngTy)
-                         else error()
-                        end
-                 | NONE => error()
-                 (* end case *))
               | (ty1, ty2) => error()
             (* end case *)
           end
@@ -734,8 +612,7 @@ structure CheckExpr : sig
                  val expectedTy = (case ty
                  of Ty.T_Field{diff, dim, shape=s as Ty.Shape(d2::dd2)} =>
                  Ty.T_Field{diff=diff, dim=dim, shape=s}
-                 | Ty.T_OField{diff, dim, shape=s as Ty.Shape(d2::dd2)} =>
-                 Ty.T_OField{diff=diff, dim=dim, shape=s}
+ 
                  | Ty.T_Tensor shape => TU.mkTensorTy order
                  | Ty.T_Field _ => raise Fail "unknown field type"
                  | ty => raise Fail("unexpected type for subscript: " ^ TU.toString ty)
