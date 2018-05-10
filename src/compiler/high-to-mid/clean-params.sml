@@ -38,7 +38,7 @@ structure CleanParams : sig
           fun walk (b, mapp) = (case b
                  of E.Tensor(id, _) => ISet.add(mapp, id)
                   | E.Conv(v, _, h, _) => ISet.add(ISet.add(mapp, h), v)
-                  | E.Probe(e1, e2) => walk (e2, walk (e1, mapp))
+                  | E.Probe(e1, e2, _) => walk (e1,  List.foldl walk mapp e2)
                   | E.Value _ => raise Fail "unexpected Value"
                   | E.Img _ => raise Fail "unexpected Img"
                   | E.Krn _ => raise Fail "unexpected Krn"
@@ -56,8 +56,6 @@ structure CleanParams : sig
                   | E.OField(E.DataFem id, e2, _) => walk (e2, ISet.add(mapp, id))
                   | E.OField(E.BuildFem (id,s), e2, _)
                     => walk (e2, ISet.add(ISet.add(mapp, id), s))
-                  | E.OField(E.ManyPointerBuildFem (mid, sid, nid, pid), e2, _)
-                    => walk (e2, ISet.add(ISet.add(ISet.add(ISet.add(mapp, mid), sid), nid), pid))
                   | E.Poly(id, _, _,_) =>  ISet.add(mapp, id)
                   | E.If(E.GT(e1, e2), e3, e4) =>
                     walk (e4, walk (e3, walk (e2, walk (e1, mapp))))
@@ -112,9 +110,7 @@ structure CleanParams : sig
                     => E.OField(E.DataFem (getId id), rewrite e2, rewrite  dx)
                   | E.OField(E.BuildFem (id,s), e2, dx)
                     => E.OField(E.BuildFem (getId id, getId s), rewrite e2,rewrite  dx)
-                  | E.OField(E.ManyPointerBuildFem(mid, sid, nid, pid), e2, dx)
-                    => E.OField(E.ManyPointerBuildFem (getId mid, getId sid, getId nid, getId pid), rewrite e2, rewrite  dx)
-                  | E.Probe(e1, e2) => E.Probe(rewrite e1, rewrite e2)
+                  | E.Probe(e1, e2, e3) => E.Probe(rewrite e1, List.map rewrite e2, e3)
                   | E.If(E.GT(e1, e2), e3, e4)
                     => E.If(E.GT(rewrite e1, rewrite e2), rewrite e3, rewrite e4)
                   | E.If(E.LT(e1, e2), e3, e4)

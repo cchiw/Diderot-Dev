@@ -159,10 +159,9 @@ structure MkOperators : sig
  
 
     val polyProbe: shape * dim * shape list -> Ein.ein
-    val polyProbe2: shape * dim * shape list -> Ein.ein
+    val polyProbeSeq: shape * dim  * shape-> Ein.ein
     val ofieldfem: dim*shape -> Ein.ein
     val ofieldfemBuild: dim*shape -> Ein.ein
-    val ofieldfemBuildMany: dim*shape -> Ein.ein
  
     val swap : dim * shape * int -> Ein.ein
  end = struct
@@ -1234,7 +1233,7 @@ structure MkOperators : sig
           in
             E.EIN{
                 params = [E.FLD (dim, alpha), mkNoSubstTEN [dim]], index = alpha,
-                body = E.Probe(E.Field(0, expindex), E.Tensor(1, []))
+                body = E.Probe(E.Field(0, expindex), [E.Tensor(1, [])], E.None)
               }
           end
           
@@ -1373,34 +1372,33 @@ structure MkOperators : sig
         val expindex = specialize(alpha, 0)
         val fldtem = E.Field(0, expindex)
         val n = length(talphas)
-        val tterm = List.tabulate(n, fn id => E.Tensor(id+1, []))
-        val bodyWrap = (case tterm
-            of [x] => x
-            | _ => E.Opn(E.Add, tterm)
-            (*end case*))
+        val probeterm =
+            if (n=1)
+            then [E.Tensor(1,[])]
+            else List.tabulate(n, fn id => E.Tensor(id+1, []))
+
         in
         E.EIN{
                 params = [E.FLD (dim, alpha)]@ (List.map (fn talpha => mkNoSubstTEN talpha)  talphas),
                 index = alpha,
-                body = E.Probe(fldtem, bodyWrap)
+                body = E.Probe(fldtem, probeterm,E.None)
             }
         end
-              
-    fun polyProbe2(alpha, dim, talphas) = let
-          val expindex = specialize(alpha, 0)
-          val fldtem = E.Field(0, expindex)
-          val n = length(talphas)
-          val tterm = List.tabulate(n, fn id => E.Tensor(id+1, []))
-          val bodyWrap = (case tterm
-            of [x] => x
-            | _ => E.Opn(E.Add, tterm)
-          (*end case*))
-        in
-          E.EIN{
-            params = [E.FLD (dim, alpha)]@ (List.map (fn talpha => mkNoSubstTEN talpha)  talphas),
-            index = alpha,
-            body = E.Probe(fldtem, bodyWrap)
-          }
+        
+    (*Sequences*)
+    fun polyProbeSeq(alpha, dim, seqTy) = 
+    	let
+        	val fldtem = E.Field(0,  specialize(alpha, 0))
+          	val probeterm =  [E.Tensor(1,[])]
+        	val ein = E.EIN{
+				params = [E.FLD (dim, alpha), E.SEQ(seqTy)],
+				index = alpha,
+				body = E.Probe(fldtem, probeterm,E.Seq)
+			  }
+			val es = String.concatWith "," (List.map Int.toString seqTy)
+			val _ = print(String.concat["poly probe seq:",EinPP.toString(ein),es])
+		in	
+			ein 
         end
       
       (* ---------------------------- *)
@@ -1440,17 +1438,6 @@ structure MkOperators : sig
        (* val _ = (String.concat["\n created fem term: ",EinPP.toString(e1)])*)
         in e1
     end
-    fun ofieldfemBuildMany (dim, alpha) = let
-	val _ = (Int.toString dim)
-        val expindex = specialize(alpha, 0)
-        val e1 =
-        E.EIN {
-        params = [E.FLD (dim, alpha), E.FNCSPACE,E.FNCSPACE,E.FNCSPACE, E.FNCSPACE], index = alpha,
-        body = E.OField(E.ManyPointerBuildFem(1, 2,3,4), E.Tensor(0, expindex),  E.Partial [])
-        }
-        val _ = (String.concat["\n created fem term: ",EinPP.toString(e1)])
-        in e1
-        end
         
     fun swap (dim, shape, n) =let
         val expindex = specialize(shape, 0)

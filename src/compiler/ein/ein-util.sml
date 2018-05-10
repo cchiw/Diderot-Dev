@@ -63,7 +63,7 @@ structure EinUtil : sig
                       sameIndex (alpha1, alpha2) andalso sameIndex (ix1, ix2)
                 | (E.Partial ix, E.Partial jx) => sameIndex(ix, jx)
                 | (E.Apply(e11, e12), E.Apply(e21, e22)) => same(e11, e21) andalso same(e12, e22)
-                | (E.Probe(e11, e12), E.Probe(e21, e22)) => same(e11, e21) andalso same(e12, e22)
+                | (E.Probe(e11,  e12,E.None), E.Probe(e21, e22,E.None)) => same(e11, e21) andalso sameList(e12, e22) 
                 | (E.Comp(e11, es1), E.Comp(e21, es2)) =>
                     same(e11,e21) andalso sameSubEin(es1, es2)
                 | (E.OField(E.CFExp (es1), e1, ix1), E.OField(E.CFExp (es2), e2, ix2)) =>
@@ -72,9 +72,6 @@ structure EinUtil : sig
                     same(e1,e2) andalso same(ix1, ix2) andalso (id1 = id2)
                 | (E.OField(E.BuildFem (id1,s1), e1, ix1), E.OField(E.BuildFem (id2,s2), e2, ix2)) =>
                     same(e1,e2) andalso (s1=s2) andalso same(ix1, ix2) andalso (id1 = id2)
-                | (E.OField(E.ManyPointerBuildFem (id1,s1, id13, id14), e1, ix1), E.OField(E.ManyPointerBuildFem (id2,s2, id23, id24), e2, ix2)) =>
-                    same(e1,e2) andalso (s1=s2) andalso same(ix1, ix2) andalso (id1 = id2)andalso (id13 = id23)
-                    andalso (id14 = id24)
                 | (E.Poly(id1, ix1, n1,alpha1), E.Poly(id2, ix2, n2, alpha2)) =>
                     (id1=id2)andalso  sameIndex(ix1,ix2) andalso  (n1=n2) andalso sameIndex(alpha1,alpha2)
                 | (E.Value i, E.Value j) => (i = j)
@@ -148,7 +145,7 @@ structure EinUtil : sig
                     0w37 + hashAlpha alpha + hashAlpha dx + hashInt(length dx)
                 | E.Partial alpha => 0w19+hashAlpha alpha
                 | E.Apply(e1, e2) => 0w97 + hash' e1 + hash' e2
-                | E.Probe(e1, e2) => 0w101 + hash' e1 + hash' e2
+                | E.Probe(e1, e2, e3) => 0w101 + hash' e1 + iter e2
                 | E.Comp(e1, es) =>    0w141 +hash' e1+iterS es
                 | E.OField(ofld, e2, alpha) =>    0w141 +hash' e2  + hash' alpha
                 | E.Poly(id, alpha1, n1, alpha2) =>    0w143 + hashInt id+ hashAlpha alpha1+ hashInt n1 + hashAlpha alpha2

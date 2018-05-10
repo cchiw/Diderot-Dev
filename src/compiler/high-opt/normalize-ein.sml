@@ -64,7 +64,7 @@ structure NormalizeEin : sig
           end
 
   (* build a normalized probe operation *)
-    fun mkProbe (fld, x) = let
+    fun mkProbe (fld, x, ty) = let
           fun return e = (ST.tick cntProbe; e)
           in
             case fld
@@ -76,33 +76,33 @@ structure NormalizeEin : sig
               | E.Value _          => err "Value used before expand"
               | E.Img _            => err "Probe used before expand"
               | E.Krn _            => err "Krn used before expand"
-              | E.Comp _           => E.Probe(fld, x) (* handled next stage*)
+              | E.Comp _           => E.Probe(fld, x, ty) (* handled next stage*)
               | E.Epsilon _        => return fld
               | E.Eps2 _           => return fld
               | E.Const _          => return fld
               | E.Delta _          => return fld
-              | E.Sum(sx1, e)      => return (E.Sum(sx1, E.Probe(e, x)))
-              | E.Op1(op1, e)      => return (E.Op1(op1, E.Probe(e, x)))
-              | E.Op2(op2, e1, e2) => return (E.Op2(op2, E.Probe(e1, x), E.Probe(e2, x)))
+              | E.Sum(sx1, e)      => return (E.Sum(sx1, E.Probe(e, x, ty)))
+              | E.Op1(op1, e)      => return (E.Op1(op1, E.Probe(e, x, ty)))
+              | E.Op2(op2, e1, e2) => return (E.Op2(op2, E.Probe(e1, x, ty), E.Probe(e2, x, ty)))
               | E.Op3(op3, e1, e2, e3) =>
-return (E.Op3(op3, E.Probe(e1, x), E.Probe(e2, x), E.Probe(e3, x)))
+                return (E.Op3(op3, E.Probe(e1, x, ty), E.Probe(e2, x, ty), E.Probe(e3, x, ty)))
               | E.Opn(opn, [])     => err "Probe of empty operator"
-              | E.Opn(opn, es)     => return (E.Opn(opn, List.map (fn e => E.Probe(e, x)) es))
+              | E.Opn(opn, es)     => return (E.Opn(opn, List.map (fn e => E.Probe(e, x, ty)) es))
               | E.If(comp, e3, e4)
                 =>  let
                     val comp2 =(case comp
-                    of E.GT(e1,e2) => E.GT(E.Probe(e1, x), E.Probe(e2, x))
-                     | E.LT(e1,e2) => E.LT(E.Probe(e1, x), E.Probe(e2, x))
+                    of E.GT(e1,e2) => E.GT(E.Probe(e1, x, ty), E.Probe(e2, x, ty))
+                     | E.LT(e1,e2) => E.LT(E.Probe(e1, x, ty), E.Probe(e2, x, ty))
                      | E.Bool id   => E.Bool id
                 (* end case*))
-                in (ST.tick cntProbe; (E.If(comp2, E.Probe(e3, x), E.Probe(e4, x)))) end
-              | _                  => E.Probe(fld, x)
+                in (ST.tick cntProbe; (E.If(comp2, E.Probe(e3, x, ty), E.Probe(e4, x, ty)))) end
+              | _                  => E.Probe(fld, x, ty)
             (* end case *)
           end
 
-    fun mkComp(F, es, x) = let
+    fun mkComp(F, es, x, ty) = let
         fun return e = (ST.tick cntProbe; e)
-        val probe = E.Probe(E.Comp(F, es), x)
+        val probe = E.Probe(E.Comp(F, es), x, ty)
 
 
 
@@ -122,24 +122,24 @@ return (E.Op3(op3, E.Probe(e1, x), E.Probe(e2, x), E.Probe(e3, x)))
             | E.Delta _          => return F
             | E.Sum(sx1, e)      =>
             let
-            val exp =  E.Probe(E.Comp(e, es), x)
+            val exp =  E.Probe(E.Comp(e, es), x, ty)
             val xexp = E.Sum(sx1, exp)
             in return xexp end
             | E.Op1(op1, e)      =>
             let
-            val exp =  E.Probe(E.Comp(e, es), x)
+            val exp =  E.Probe(E.Comp(e, es), x, ty)
             val xexp = E.Op1(op1, exp)
             in return xexp end
             | E.Op2(op2, e1, e2) =>
             let
-            val exp1 =  E.Probe(E.Comp(e1, es), x)
-            val exp2 =  E.Probe(E.Comp(e2, es), x)
+            val exp1 =  E.Probe(E.Comp(e1, es), x, ty)
+            val exp2 =  E.Probe(E.Comp(e2, es), x, ty)
             val xexp = E.Op2(op2, exp1, exp2)
             in return xexp end
             | E.Opn(opn, [])     => err "Probe of empty operator"
             | E.Opn(opn, es1)     =>
             let
-            val exps =  List.map (fn e1 => E.Probe(E.Comp(e1, es), x)) es1
+            val exps =  List.map (fn e1 => E.Probe(E.Comp(e1, es), x, ty)) es1
             val xexp = E.Opn(opn, exps)
             in return xexp end
             | _                  => probe
@@ -238,16 +238,16 @@ return (E.Op3(op3, E.Probe(e1, x), E.Probe(e2, x), E.Probe(e3, x)))
                     val e1' = rewrite e1
                     val es' = List.map (fn (e2, n2)=> (rewrite e2, n2)) es
                     in  E.Comp(e1', es') end
-                 | E.Probe(E.Comp(e1, es), x)  =>
+                 | E.Probe(E.Comp(e1, es), x, ty)  =>
                     let
                     val e1' = rewrite e1
                     val es' = List.map (fn (e2, n2)=> (rewrite e2, n2)) es
                     in (case (rewrite(E.Comp(e1', es')))
-                        of E.Comp(e1', es') => mkComp(e1', es', x)
+                        of E.Comp(e1', es') => mkComp(e1', es', x, ty)
                         | e => e
                         (*end case*))
                     end
-                  | E.Probe(e1, e2) => mkProbe(rewrite e1, rewrite e2)
+                  | E.Probe(e1, e2, ty) => mkProbe(rewrite e1, List.map rewrite e2, ty)
                 (************** Field Terms **************)
                   | E.Value _ => err "Value before Expand"
                   | E.Img _ => err "Img before Expand"

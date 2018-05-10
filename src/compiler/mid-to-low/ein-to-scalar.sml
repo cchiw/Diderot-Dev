@@ -135,10 +135,10 @@ val _ = (String.concat["\nin direction i:",Int.toString(i),"-",Int.toString(j)])
                           }
                     | E.Sum(sumx, e) =>
                         Mk.reduce (avail, Mk.realAdd, sumCheck (mapp, sumx, e))
-                    | E.Probe(E.Epsilon e1, e2) => gen(mapp,E.Epsilon e1)
-                    | E.Probe(E.Eps2 e1, e2) => gen(mapp,E.Eps2 e1)
-                    | E.Probe(E.Const e1, e2) => gen(mapp, E.Const e1)
-                    | E.Probe(E.Delta e1, e2) => gen(mapp, E.Delta e1)
+                    | E.Probe(E.Epsilon e1, e2,_) => gen(mapp,E.Epsilon e1)
+                    | E.Probe(E.Eps2 e1, e2,_) => gen(mapp,E.Eps2 e1)
+                    | E.Probe(E.Const e1, e2,_) => gen(mapp, E.Const e1)
+                    | E.Probe(E.Delta e1, e2,_) => gen(mapp, E.Delta e1)
                     | E.Probe e => raise Fail("probe ein-exp: " ^ EinPP.expToString body)
                     | E.Field _ => raise Fail("field should have been replaced: " ^ EinPP.expToString body)
                     | E.Poly(id, alpha, n, []) =>   let

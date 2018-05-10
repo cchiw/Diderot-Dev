@@ -27,14 +27,14 @@ structure FloatEin : sig
           val IR.EINAPP(ein, args) = CleanParams.clean (body1, Rparams, sizes1, argsOrig@[y])
         (* shift indices in probe body from constant to variable *)
           val Ein.EIN{
-                    body = E.Probe(E.Conv(V, [c1], h, dx), pos),
+                    body = E.Probe(E.Conv(V, [c1], h, dx), pos, ty),
                     index = index0,
                     params = params0
                 } = ein
         (* only called with vector fields*)
           val E.IMG(dim,[i]) = List.nth(params0,V)
           val index1 = index0@[i]
-          val unshiftedBody = E.Probe(E.Conv(V, [E.V newvx], h, dx), pos)
+          val unshiftedBody = E.Probe(E.Conv(V, [E.V newvx], h, dx), pos, ty)
         (* clean to get body indices in order *)
           val (_ , sizes2, body2) = CleanIndex.clean (unshiftedBody, index1, [])
           val ein2 = E.EIN{params = params0, index =  sizes2, body = body2}
@@ -58,7 +58,7 @@ structure FloatEin : sig
             val IR.EINAPP(ein, args) = CleanParams.clean (body1, Rparams, sizes1, argsOrig@[y])
             (* shift indices in probe body from constant to variable *)
             val Ein.EIN{
-                body = E.Probe(E.OField(ofield, E.Tensor(V, alpha), E.Partial dx), pos),
+                body = E.Probe(E.OField(ofield, E.Tensor(V, alpha), E.Partial dx), pos, ty),
                 index = index0,
                 params = params0
                 } = ein
@@ -72,7 +72,7 @@ structure FloatEin : sig
 
             val dxn = length(dx)
             val dx = List.tabulate(dxn, fn i=> E.V (i+alphan))
-            val unshiftedBody = E.Probe(E.OField(ofield, E.Tensor(V, alpha), E.Partial  dx), pos)
+            val unshiftedBody = E.Probe(E.OField(ofield, E.Tensor(V, alpha), E.Partial  dx), pos, ty)
 
             val _ = (String.concat["\n\n   unshiftedBody:",EinPP.expToString( unshiftedBody)])
             (* clean to get body indices in order *)
@@ -113,7 +113,7 @@ structure FloatEin : sig
     fun err str = raise Fail(String.concat["Ill-formed EIN Operator",str])
     fun mkProbe e = let
         val k= (case e
-        of E.Probe(fld, x) =>(
+        of E.Probe(fld, x, ty) =>(
             case fld
             of E.Tensor _        => fld (*in case cfexp of tensor*)
             | E.Lift e           => e
@@ -123,17 +123,17 @@ structure FloatEin : sig
             | E.Value _          => err "Value used before expand"
             | E.Img _            => err "Probe used before expand"
             | E.Krn _            => err "Krn used before expand"
-            | E.Comp(e1,_)       => E.Probe(fld, x) (* handled next stage*)
+            | E.Comp(e1,_)       => E.Probe(fld, x, ty) (* handled next stage*)
             | E.Epsilon _        => fld
             | E.Eps2 _           => fld
             | E.Const _          => fld
             | E.Delta _          => fld
-            | E.Sum(sx1, e)      => (E.Sum(sx1, mkProbe(E.Probe(e, x))))
-            | E.Op1(op1, e)      => (E.Op1(op1, mkProbe (E.Probe(e, x))))
-            | E.Op2(op2, e1, e2) => (E.Op2(op2, mkProbe(E.Probe(e1, x)), mkProbe(E.Probe(e2, x))))
+            | E.Sum(sx1, e)      => (E.Sum(sx1, mkProbe(E.Probe(e, x, ty))))
+            | E.Op1(op1, e)      => (E.Op1(op1, mkProbe (E.Probe(e, x, ty))))
+            | E.Op2(op2, e1, e2) => (E.Op2(op2, mkProbe(E.Probe(e1, x, ty)), mkProbe(E.Probe(e2, x, ty))))
             | E.Opn(opn, [])     => err "Probe of empty operator"
-            | E.Opn(opn, es)     => (E.Opn(opn, List.map (fn e => mkProbe (E.Probe(e, x))) es))
-            | _                  => E.Probe(fld, x)
+            | E.Opn(opn, es)     => (E.Opn(opn, List.map (fn e => mkProbe (E.Probe(e, x, ty))) es))
+            | _                  => E.Probe(fld, x, ty)
             (* end case *))
        | _ => e
       (*end case*))
@@ -155,7 +155,7 @@ structure FloatEin : sig
             of E.OField(E.CFExp tterm, _, dx) => E.OField(E.CFExp tterm, A , dx)
             | _  => A
             (*end case*))
-        val exp_probe = mkProbe(E.Probe(exp_fld, exp_pos))
+        val exp_probe = mkProbe(E.Probe(exp_fld, [exp_pos], E.None))
         val outerExp2 = (case sx2
             of [] => exp_probe
             | _   => E.Sum(sx2, exp_probe)
@@ -175,7 +175,7 @@ structure FloatEin : sig
 
 
     fun compn (name, exp, params, indexD, sx, sx2, args, avail) = let
-        val E.Probe(fld, pos) = exp
+        val E.Probe(fld, pos, ty) = exp
         val (D, es) = (case fld
             of E.Comp e => e
             |  E.OField(E.CFExp tterm,E.Comp e , dx) => e
@@ -196,7 +196,7 @@ structure FloatEin : sig
             | _  => A
             (*end case*))
 
-        val innerExp = E.EIN{params = params, index =  indexA, body = E.Probe(wrapA,pos)}
+        val innerExp = E.EIN{params = params, index =  indexA, body = E.Probe(wrapA,pos, ty)}
         val innerVar = AvailRHS.addAssign (avail, "Inner", Ty.tensorTy indexA, IR.EINAPP(innerExp, args))
         val _ = print(String.concat["\n\n",V.name(innerVar), " = ",EinPP.toString(innerExp)])
         (*other  composition *)
@@ -218,9 +218,9 @@ structure FloatEin : sig
            | _          => false
          (* end case *))
 
-    fun transform (y, ein as Ein.EIN{body=E.Probe (E.Conv _ ,_), ...}, args) =
+    fun transform (y, ein as Ein.EIN{body=E.Probe (E.Conv _ ,_, ty), ...}, args) =
           [(y, IR.EINAPP(ein, args))]
-      | transform (y, ein as Ein.EIN{body=E.Sum(_, E.Probe (E.Conv _, _)), ...}, args) =
+      | transform (y, ein as Ein.EIN{body=E.Sum(_, E.Probe (E.Conv _, _, ty)), ...}, args) =
           [(y, IR.EINAPP(ein, args))]
       | transform (y, ein as Ein.EIN{body=E.Tensor _, ...}, args) =
             [(y, IR.EINAPP(ein, args))]
@@ -241,7 +241,7 @@ structure FloatEin : sig
                   filter (es, [], params, args)
                 end
         fun rewrite (sx, exp, params, args) = (case exp
-            of E.Probe(fld, pos) => (case fld
+            of E.Probe(fld, pos, ty) => (case fld
                of E.Conv(_, [E.C _], _, [])         => cut ("cut", exp, params, index, sx, args, avail, 0)
                 | E.Conv(_, [E.C _ ], _, [E.V 0])   => cut ("cut", exp, params, index, sx, args, avail, 1)
                 | E.Conv(_, [E.C _ ], _, [E.V 0, E.V 1])
@@ -260,16 +260,16 @@ structure FloatEin : sig
                     | exp       => rewrite(sx, exp, params, args))
                     (* end case*))
 | E.Sum(sx2, e) => (print("\n Mark A Sum exp:"^EinPP.expToString(exp));case e
-                of E.Probe(E.Comp(_, []), _) =>  raise Fail ("nonsupported nest")
-                 | E.Probe(E.Comp(_, es), _) =>  compn("composition", e,params, index, sx, sx2, args, avail)
+                of E.Probe(E.Comp(_, []), _, ty) =>  raise Fail ("nonsupported nest")
+                 | E.Probe(E.Comp(_, es), _, ty) =>  compn("composition", e,params, index, sx, sx2, args, avail)
 (*
-                 | E.Probe(E.OField(E.CFExp _, _, _),_) => let
+                 | E.Probe(E.OField(E.CFExp _, _, _),_, ty) => let
                     val (e', params', args') = rewrite (sx2@sx, e, params, args)
                     in
                         (E.Sum(sx2, e'), params', args')
                     end
 *)
-| E.Probe ( _, _) => (print"\nMark C";lift ("sumprobe", exp, params, index, sx, args, avail))
+            | E.Probe ( _, _, ty) => (print"\nMark C";lift ("sumprobe", exp, params, index, sx, args, avail))
                  | _ => let
                     val _ = print"\nMark D"
                     val (e', params', args') = rewrite (sx2@sx, e, params, args)

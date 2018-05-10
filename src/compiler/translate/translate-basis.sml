@@ -583,11 +583,24 @@ structure TranslateBasis : sig
                                             [ assignEin(y, Mk.polyProbe (ddF,d1, [ddT1, ddT2]), args)]),
                 (BV.fn_inst_fttt,               fn (y, [_, Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE ddT1, Ty.SHAPE ddT2, Ty.SHAPE ddT3], args) =>
                                             [ assignEin(y, Mk.polyProbe (ddF,d1, [ddT1, ddT2, ddT3]), args)]),
+                (BV.fn_inst_fd,             fn (y, [_, Ty.DIM d1, Ty.SHAPE ddF, Ty.TY ty], args) =>
+                        (case ty        (*what is the type of sequence*)
+                            of Ty.T_Int =>  [  assignEin(y, Mk.polyProbeSeq (ddF,d1, []), args)]
+                            | _ => raise Fail ("Expects sequence in last type:"^Ty.toString(ty))
+                        (* end case*))
+                    ),
+                    (*
+               (BV.fn_inst_ftd,             fn (y, [_, Ty.DIM d1, Ty.SHAPE ddF, Ty.TY ty], args) =>
+                        (case ty        (*what is the type of sequence*)
+                            of Ty.T_Int =>  [  assignEin(y, Mk.polyProbeSeq (ddF,d1, []), args)]
+                            | _ => raise Fail ("Expects sequence in last type:"^Ty.toString(ty))
+                        (* end case*))
+                    ) ,*)
                 (BV.fn_convert_fp,               fn (y, [_,Ty.DIM d, Ty.SHAPE dd], [f,p]) =>
 						   [assignEin(y, Mk.ofieldfem (d, dd), [f,p])]),
                 (BV.fn_convert_fvp,              fn (y, [_,Ty.DIM d, Ty.SHAPE dd], [f,v,p]) =>
 						   [assignEin(y, Mk.ofieldfemBuild (d, dd), [f,v,p])]),
-		(BV.fn_convert_Tracker_rm,      fn (y, [_,Ty.DIM d, Ty.SHAPE dd], [f,s,r]) =>
+				(BV.fn_convert_Tracker_rm,      fn (y, [_,Ty.DIM d, Ty.SHAPE dd], [f,s,r]) =>
                                                    [assignEin(y, Mk.ofieldfemBuild (d, dd), [f, s,r])]),
                 (BV.fn_insideO, fn (y, [_,Ty.DIM d, Ty.SHAPE dd], xs) =>
                                                         assign(y, Op.InsideFEM d, xs)),
@@ -595,7 +608,7 @@ structure TranslateBasis : sig
                                                 assign(y, Op.InsideBASE d, xs)),
                 (BV.ms_USq,                     fn (y, _, xs) =>
 						   assign(y, Op.BuildMesh (ME.UnitSquareMesh), xs)),
-		(BV.ms_UCq,                     fn (y, _, xs) =>
+				(BV.ms_UCq,                     fn (y, _, xs) =>
 						   assign(y, Op.BuildMesh (ME.UnitCubeMesh), xs)),
                 (BV.re_Lagrange,                     fn (y, _, xs) =>
                         assign(y, Op.BuildElement (ME.Lagrange), xs)),
@@ -603,7 +616,7 @@ structure TranslateBasis : sig
                         assign(y, Op.BuildElement (ME.P), xs)),
                 (BV.fn_functionspace,           fn (y, _, xs) =>
 						   assign(y, Op.BuildSpace, xs)),
-		(BV.fn_tensorfunctionspace,           fn (y, _, xs) =>
+				(BV.fn_tensorfunctionspace,           fn (y, _, xs) =>
 						   assign(y, Op.BuildSpace, xs)),
                 (BV.fn_swap2,               fn (y, [_,Ty.DIM d, Ty.SHAPE dd], xs) =>
                                             [assignEin(y, Mk.swap(d, dd, 2), xs)]),

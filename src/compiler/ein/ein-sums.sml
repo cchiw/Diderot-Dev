@@ -61,9 +61,9 @@ structure EinSums : sig
               | E.Conv(_ , alpha, _ , dx) => findIndex (c, alpha@dx)
               | E.Partial (shape)         => findIndex (c, shape)
               | E.Apply(e1, e2)           => sort [e1, e2]
-              | E.Probe(E.Conv(_, [], _, []), E.Tensor(_, []))
+              | E.Probe(E.Conv(_, [], _, []), [E.Tensor(_, [])],_)
                                           => NONE
-              | E.Probe(e1, e2)           => sort [e1, e2]
+              | E.Probe(e1, e2,_)           => sort (e1:: e2)
               | E.Comp(e1,_)              => findSx(c,e1)
               | E.OField(_, e1, _)        => findSx(c,e1)
               | E.Poly (_,_, _,shape)           => findIndex (c, shape)
@@ -157,7 +157,7 @@ structure EinSums : sig
           fun rewriteBody body = (case body
                  of E.Lift e1             => E.Lift(rewriteBody e1)
                   | E.Apply(e1, e2)       => E.Apply(rewriteBody e1, rewriteBody e2)
-                  | E.Probe(e1, e2)       => E.Probe(e1, rewriteBody e2)
+                  | E.Probe(e1, e2, e3)       => E.Probe(e1, e2,e3)
                   | E.Comp(e1, es)        => E.Comp(rewriteBody e1, es)
                   | E.OField(ofld, e1, ix)=>E.OField(ofld, rewriteBody e1, ix)
                   | E.Value _             => raise Fail"Value before Expand"
@@ -189,7 +189,7 @@ structure EinSums : sig
           val changed = ref false
           fun constant () = raise Fail "sum of constant"
           fun rewrite b = (case b
-                 of E.Probe (e1, e2) => E.Probe(rewrite e1, rewrite e2)
+                 of E.Probe (e1, e2,e3) => E.Probe(rewrite e1, e2,e3)
                   | E.Sum(sx, E.Lift e1) => (changed := true; E.Lift(E.Sum(sx, e1)))
                   | E.Sum(sx1, E.Sum(sx2, e1)) => (changed := true; E.Sum (sx1@sx2, e1))
                   | E.Sum(sx, E.Op1(op1, e1)) => (changed := true; E.Op1(op1, E.Sum(sx, e1)))

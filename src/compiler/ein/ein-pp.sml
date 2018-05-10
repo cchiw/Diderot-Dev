@@ -55,7 +55,8 @@ structure EinPP : sig
                 end
             | E.Partial alpha => "∂/∂x" ^ multiIndex2s alpha
             | E.Apply(e1, e2) => concat [ expToString e1, "@(", expToString e2, ")"]
-            | E.Probe(e1, e2) => concat ["Probe(fld:", expToString e1, ",pos:", expToString e2, ")"]
+            | E.Probe(e1,  e2,E.None) => concat ["Probe(fld:", expToString e1, ",pos:", String.concatWithMap " ," expToString e2, ")"]
+            | E.Probe(e1,  e2,E.Seq) => concat ["Probe(fld:", expToString e1, ",{pos}:", String.concatWithMap " ," expToString e2, ")"]
             | E.Comp(e1,es) => let
                 fun iter ([]) = ""
                 | iter ((e2, n1)::es) =
@@ -67,8 +68,6 @@ structure EinPP : sig
                 => concat [  expToString(E.OField(E.CFExp(es), e1, E.Partial  [])) ,"dx",multiIndex2s alpha, ")"]
             | E.OField(E.DataFem id, e1,  E.Partial alpha) => concat ["DataFEM(",expToString e1,")_",i2s id, deriv alpha, ")"]
             | E.OField(E.BuildFem (id,id2), e1,  E.Partial alpha) => concat ["BuildFEM(",expToString e1,")_", i2s id, "[",i2s id2,"]",deriv alpha, ")"]
-            | E.OField(E.ManyPointerBuildFem(id,id2, id3, id4), e1,  E.Partial alpha) => concat ["ManyPtr(",expToString e1,")_", i2s id, "[",i2s id2,"|",i2s id3,"|",i2s id4,"]",deriv alpha, ")"]
-            (* | E.Poly(tid, cx, 1, []) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")"]*)
             | E.Poly(tid, cx, 1, dx) => concat [deriv dx,"(P", i2s tid,"_", multiIndex2s  cx, ")"]
             | E.Poly(tid, cx, n, dx) => concat [deriv dx,"(P", i2s tid,"_", multiIndex2s  cx, ")^",  i2s n]
             | E.Value ix => "i" ^ i2s ix
@@ -129,13 +128,13 @@ structure EinPP : sig
                end
                
           (* end case *))
-    fun paramToString (i, E.TEN(true, shp)) = concat["t", i2s i, "[", shp2s shp, "]"]
-      | paramToString (i, E.TEN(t, shp)) = concat["T", i2s i, "[", shp2s shp, "]"]
+    fun paramToString (i, E.TEN(t, shp)) = concat["T", i2s i, "[", shp2s shp, "]"]
           | paramToString (i, E.FLD (d,shp)) = concat["F", i2s i, "[", shp2s shp, "]"]
           | paramToString (i, E.KRN) = "H" ^ i2s i
           | paramToString (i, E.IMG(d, shp)) = concat["V", i2s i, "(", i2s d, ")[", shp2s shp, "]"]
           | paramToString (i, E.DATA) = "DATA" ^ i2s i
           | paramToString (i, E.FNCSPACE) = "FNCSPACE" ^ i2s i
+          | paramToString (i, E.SEQ shp) = concat["Sequence",i2s i,"[", shp2s shp, "]"]
     fun paramsToString (params) = String.concatWith "," (List.mapi paramToString params)
           
     fun toString (Ein.EIN{params, index, body}) = let
@@ -171,7 +170,7 @@ structure EinPP : sig
             end
         | E.Partial alpha => "∂/∂x" ^ multiIndex2s alpha
         | E.Apply(e1, e2) => "∂/∂x"
-        | E.Probe(e1, e2) => concat ["Probe"]
+        | E.Probe(e1, e2,_) => concat ["Probe"]
         | E.Comp(e1,es) => concat ["Cmp"]
         | E.OField(E.CFExp _, e1,  E.Partial []) => concat ["PolyWrap"]
         | E.OField(E.CFExp _, e1,  E.Partial alpha)  => concat ["PolyWrap"]

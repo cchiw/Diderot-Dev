@@ -46,7 +46,7 @@ fun ti2s (id, E.T) = "t_"^Int.toString(id)
                 end
             | E.Partial alpha => "\nabla" ^ multiIndex2s alpha
             | E.Apply(e1, e2) => concat [ expToString e1, "@(", expToString e2, ")"]
-            | E.Probe(e1, e2) =>  expToString e1
+            | E.Probe(e1, e2,_) =>  expToString e1
             | E.Comp(e1,es) => let
                 fun iter ([]) = ""
                 | iter ((e2, n1)::es) =
@@ -58,7 +58,6 @@ fun ti2s (id, E.T) = "t_"^Int.toString(id)
                 => concat [  expToString(E.OField(E.CFExp(es), e1, E.Partial [])) ,"dx",multiIndex2s alpha, ")"]
             | E.OField(E.DataFem id, e1, E.Partial alpha) => concat ["DataFEM(",expToString e1,")_",i2s id, deriv alpha, ")"]
             | E.OField(E.BuildFem (id,id2), e1,E.Partial  alpha) => concat ["BuildFEM(",expToString e1,")_", i2s id, "[",i2s id2,"]",deriv alpha, ")"]
-            | E.OField(E.ManyPointerBuildFem(id,id2, id3, id4), e1, E.Partial alpha) => concat ["ManyPtr(",expToString e1,")_", i2s id, "[",i2s id2,"|",i2s id3,"|",i2s id4,"]",deriv alpha, ")"]
             | E.Poly(tid, cx, 1, dx) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")",deriv dx]
             | E.Poly(tid, cx, n, dx) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")^",  i2s n, deriv  dx]
             | E.Value ix => "i" ^ i2s ix

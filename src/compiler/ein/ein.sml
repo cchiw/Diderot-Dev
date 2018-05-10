@@ -17,6 +17,7 @@ structure Ein =
       | IMG of int * int list
       | DATA
       | FNCSPACE
+      | SEQ of int list
 
     (* placement in argument list *)
     type param_id= int
@@ -69,9 +70,12 @@ structure Ein =
     and ofield
         = CFExp of (param_id*inputTy) list      (* input variables TT and TF*)
         | DataFem of param_id                   (* param id is to data file *)
-        | BuildFem of param_id *param_id        (*param id to function space *)
-        | ManyPointerBuildFem of param_id *param_id * param_id *param_id
+        | BuildFem of param_id *param_id        (* param id to function space *)
+      
 
+    and rtnType
+        = Seq
+        | None
 
     and ein_exp
     (* Basic terms *)
@@ -89,9 +93,8 @@ structure Ein =
       | Conv of param_id * alpha * param_id * alpha
       | Partial of alpha
       | Apply of ein_exp * ein_exp
-      | Probe of ein_exp * ein_exp
+      | Probe of ein_exp * ein_exp list * rtnType
       | Comp of ein_exp * subEIN list
-      (*| OField of ofield * ein_exp * alpha (*field arg T, exp, dx*)*)
       | OField of ofield * ein_exp * ein_exp (*field arg T, exp, E.Partial dx*)
       | Poly of param_id*alpha * int* alpha  (*  T_[alpha]^n dx*)
     (* Mid-IL Terms *)

@@ -156,11 +156,11 @@ structure EpsUtil : sig
                       in
                         distribute(changed, ps, E.Conv(v,alpha_betas, h ,dx_betas)::rest, nu2)
                       end
-                  | E.Probe(E.Conv(v, alpha, h, dx), t) => let
+                  | E.Probe(E.Conv(v, alpha, h, dx), t, ty) => let
                       val (changed, alpha_betas, nu1) = appDel(changed, alpha, [], mu, [])
-                      val (changed, dx_betas, nu2) = appDel(changed, dx, [], nu1, [])
+                         val (changed, dx_betas, nu2) = appDel(changed, dx, [], nu1, [])
                       in
-                        distribute(changed, ps, E.Probe(E.Conv(v,alpha_betas, h ,dx_betas),t)::rest, nu2)
+                        distribute(changed, ps, E.Probe(E.Conv(v,alpha_betas, h ,dx_betas),t,ty)::rest, nu2)
                       end
                   | E.Apply(E.Partial d, e) => let
                       val (changed, d_betas, nu) = appDel(changed,d,[],mu,[])

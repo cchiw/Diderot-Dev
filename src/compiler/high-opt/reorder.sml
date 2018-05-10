@@ -44,7 +44,7 @@ structure Reorder : sig
                         if change then changed := true else ();
                         e'
                       end
-                  | E.Probe(e1, e2) => E.Probe(order e1, order e2)
+                  | E.Probe(e1, e2, e3) => E.Probe(order e1, e2 ,e3)
                   | E.Sum(c1,E.Sum(c2, e)) => (changed:=true;E.Sum(c1@c2,order e))
                   | E.Sum(c, e1) => E.Sum(c, order e1)
                   | E.Op1(op1, e1) => E.Op1(op1,order e1)

@@ -62,7 +62,7 @@ structure Apply : sig
             | mapMu c = c 
           fun mapAlpha mx = List.map mapMu mx
           fun mapSingle i = let
-                val E.V v = if(!insideComp) then  (E.V i) else mapIndex(i, subMu, shift')
+            	val E.V v = if(!insideComp) then  (E.V i) else mapIndex(i, subMu, shift')
                 in
                   v
                 end
@@ -75,8 +75,8 @@ structure Apply : sig
               | iter(e1::es,n)=
                 (("\n"^Int.toString(n)^" -looking at:"^HighIR.Var.name(e1));
                 if(HighIR.Var.same(e1, vA))
-                then ( "->found it";n)
-                else iter(es,n+1))
+               		then ( "->found it";n)
+                	else iter(es,n+1))
             in iter(done@newArgs,0) end
 
          fun p()=if(!insideComp) then "insideCompT" else "insideCompF"
@@ -93,22 +93,23 @@ structure Apply : sig
                   | E.Conv (v, mx, h, ux) => E.Conv(mapParam v, mapAlpha mx, mapParam h, mapAlpha ux)
                   | E.Partial mx => E.Partial (mapAlpha mx)
                   | E.Apply(e1, e2) => E.Apply(apply e1, apply e2)
-                  | E.Probe(f, pos) => E.Probe(apply f, apply pos)
+                  | E.Probe(f, pos, ty) => E.Probe(apply f, List.map apply pos,ty)
                     (* does not remap indices in field *)
-                  | E.Comp(e1, es) =>  let
+                  | E.Comp(e1, es) =>  
+                  	let
                         val e1' = apply e1
                         val es' = List.map (fn(e2, n2)=> (insideComp:=true; (apply e2, n2))) es
-                        in (insideComp:=false; E.Comp(e1', es')) end
+                    in (insideComp:=false; E.Comp(e1', es')) end
                   | E.OField(E.DataFem id, e2, E.Partial alpha) => E.OField(E.DataFem(mapParam id), apply e2, E.Partial(mapAlpha alpha))
                   | E.OField(E.BuildFem (id,s), e2, E.Partial alpha)
-                        => E.OField(E.BuildFem(mapParam id, mapParam s), apply e2, E.Partial(mapAlpha alpha))
+                     => E.OField(E.BuildFem(mapParam id, mapParam s), apply e2, E.Partial(mapAlpha alpha))
                   | E.OField(E.CFExp es, e2,dx)
-                    =>  let
-                    val es =  List.map (fn (id, inputTy) => (mapParam id, inputTy)) es
-                    val e2 = apply e2
-                    val dx = apply dx
+                    =>  
+                    let
+						val es =  List.map (fn (id, inputTy) => (mapParam id, inputTy)) es
+						val e2 = apply e2
+						val dx = apply dx
                     in E.OField(E.CFExp es, e2,dx) end
-                  | E.OField(ofld, e2, E.Partial alpha) => E.OField(ofld, apply e2, E.Partial(mapAlpha alpha))
                   | E.Value _ => raise Fail "expression before expand"
                   | E.Img _ => raise Fail "expression before expand"
                   | E.Krn _ => raise Fail "expression before expand"
@@ -189,7 +190,7 @@ val _ = (String.concat["mx:",Int.toString(length mx)," shape:",Int.toString(leng
                   | E.Lift e1 => E.Lift(apply (e1, shape))
                   | E.Conv(v, mx, h, ux) => E.Conv(mapId(v, origId, 0), mx, mapId(h, origId, 0), ux)
                   | E.Apply(e1, e2) => E.Apply(apply (e1, shape), apply  (e2, shape))
-                  | E.Probe(f, pos) => E.Probe(apply (f, shape), apply (pos, shape))
+                  | E.Probe(f, pos, ty) => E.Probe(apply (f, shape), List.map (fn e1=> apply(e1, shape)) pos,ty)
                   | E.Comp(e1, es) => let
                         val fouter = apply(e1, shape)
                         val es' = List.map (fn(e2,n2)=> (insideComp:=true; (apply (e2,n2),n2))) es

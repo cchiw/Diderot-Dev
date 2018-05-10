@@ -35,8 +35,9 @@ is
   handle-ein.sml
   probe-ein.sml
   poly-ein.sml
-  expand-fem.sml
-  build-fem.sml
-  translate-field.sml
+  fem-to-mid.sml
+  ofield-to-fem.sml
+  translate-ofield.sml
   data-fem.sml
   scan-ein.sml
+  helper.sml

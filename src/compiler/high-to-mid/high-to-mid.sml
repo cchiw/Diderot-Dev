@@ -64,7 +64,7 @@ structure HighToMid : sig
         (* end case*))
 
     fun getRHSSupport x = (case IR.Var.getDef x
-of IR.EINAPP (ein, es) => (("\n ein:"^EinPP.toString(ein));List.foldl (fn (x,acc) => acc@getRHSSupport(x)) [] es)
+		of IR.EINAPP (ein, es) => (("\n ein:"^EinPP.toString(ein));List.foldl (fn (x,acc) => acc@getRHSSupport(x)) [] es)
         | IR.OP(Op.Kernel(h, _), _) => [Kernel.support h]
         | IR.OP(_, es) => List.foldl (fn (x,acc) => acc@getRHSSupport(x)) [] es
         | _ =>  []
@@ -101,7 +101,7 @@ of IR.EINAPP (ein, es) => (("\n ein:"^EinPP.toString(ein));List.foldl (fn (x,acc
    * multiplications.
    *)
     fun expandPower (env, y, [x, n]) = let
-          fun getConst x = (case SrcIR.Var.getDef x
+    		fun getConst x = (case SrcIR.Var.getDef x
                  of SrcIR.LIT(Literal.Int n) => SOME n
                   | _ => NONE
                 (* end case *))
@@ -253,12 +253,12 @@ of IR.EINAPP (ein, es) => (("\n ein:"^EinPP.toString(ein));List.foldl (fn (x,acc
               | SrcOp.LoadSeq(ty, file) => assign (DstOp.LoadSeq(cvtTy ty, file))
               | SrcOp.LoadImage(ty, file) => assign (DstOp.LoadImage(cvtTy ty, file))
               | SrcOp.MathFn e => assign (DstOp.MathFn e)
-              | SrcOp.InsideFEM dim => BuildFem.inside(y, dim, args, Env.renameList(env, args))
+              | SrcOp.InsideFEM dim => OFieldToFem.inside(y, dim, args, Env.renameList(env, args))
               | SrcOp.InsideBASE dim => expandInsideBase(env, y, dim, Env.renameList(env, args))
               | SrcOp.BuildMesh e => assign (DstOp.BuildMesh (e))
               | SrcOp.BuildElement e => assign (DstOp.BuildElement (e))
               | SrcOp.BuildSpace => assign (DstOp.BuildSpace)
-              | SrcOp.sp_getCell => BuildFem.getCell(y, Env.renameList(env, args))
+              | SrcOp.sp_getCell => OFieldToFem.getCell(y, Env.renameList(env, args))
               | SrcOp.printIR =>  (ScanEin.expand(y, List.map getRHS args);dummy())
               | SrcOp.KrnMultipleTwoD =>  assign (DstOp.KrnMultipleTwoD)
               | SrcOp.KrnMultipleThreeD =>  assign (DstOp.KrnMultipleThreeD)

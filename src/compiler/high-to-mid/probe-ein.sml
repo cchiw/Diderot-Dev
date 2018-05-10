@@ -295,7 +295,7 @@ structure ProbeEin : sig
           val Vidnew = pid+1
           val kid = Vidnew
           val _ = (concat["\nInside replaceProbe:",EinPP.expToString(probe)])
-          val E.Probe(E.Conv(Vid, alpha, hid, dx), E.Tensor(tid, _)) = probe
+          val E.Probe(E.Conv(Vid, alpha, hid, dx), [E.Tensor(tid, _)],_) = probe
           val E.IMG(dim, shape) = List.nth(params, Vid)
           val freshIndex = getsumshift (sx, length index)
           val (dx', tshape, sx', Ps) = T.imageToWorld (freshIndex, dim, dx, pid)
@@ -354,7 +354,7 @@ structure ProbeEin : sig
 
   (* floats the reconstructed field term *)
     fun liftProbe (avail, (y, IR.EINAPP(Ein.EIN{params, index, body}, args)), probe, sx) = let
-          val E.Probe(E.Conv(Vid, alpha, hid, dx), E.Tensor(tid, _)) = probe
+          val E.Probe(E.Conv(Vid, alpha, hid, dx), [E.Tensor(tid, _)],_) = probe
           val freshIndex = getsumshift(sx, length(index))
           val E.IMG(dim, shape) = List.nth(params, Vid)
         (* transform T*P*P..Ps *)
@@ -385,13 +385,13 @@ structure ProbeEin : sig
    * Looks to see if the expression has a probe. If so, replaces it.
    *)
     fun expand avail (e as (_, IR.EINAPP(Ein.EIN{body, ...}, _))) = (case body
-           of (E.Probe(E.Conv(_, _, _, []) ,_)) =>
+           of E.Probe(E.Conv(_, _, _, []) ,_,_) =>
                 replaceProbe (avail, e, body, [])
-            | (E.Probe(E.Conv(_, alpha, _, dx) ,_)) =>
+            | (E.Probe(E.Conv(_, alpha, _, dx) ,_,_)) =>
                 liftProbe (avail, e, body, []) (*scans dx for contant*)
-            | (E.Sum(sx, p as E.Probe(E.Conv(_, _, _, []), _))) =>
+            | (E.Sum(sx, p as E.Probe(E.Conv(_, _, _, []), _,_))) =>
                 replaceProbe (avail, e, p, sx)  (*no dx*)
-            | (E.Sum(sx, p as E.Probe(E.Conv(_, [], _, dx), _))) =>
+            | (E.Sum(sx, p as E.Probe(E.Conv(_, [], _, dx), _,_))) =>
                 liftProbe (avail, e, p, sx) (*scalar field*)
             | (E.Sum(sx, E.Probe p)) =>
                 replaceProbe (avail, e, E.Probe p, sx)

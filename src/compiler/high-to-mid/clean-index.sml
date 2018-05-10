@@ -96,7 +96,7 @@ structure CleanIndex : sig
                   | E.Conv(_, alpha, _, dx) => addMus(addMus(ixs, alpha), dx)
                   | E.Partial alpha => addMus(ixs, alpha)
                   | E.Apply(E.Partial alpha, e1) => shape (e1, addMus(ixs, alpha))
-                  | E.Probe(e, _) => shape (e, ixs)
+                  | E.Probe(e, _,_) => shape (e, ixs)
                   | E.Value e1 => raise Fail "Error in Ashape"
                   | E.Img _ => raise Fail "Error in Ashape"
                   | E.Krn _ => raise Fail "Error in Ashape"
@@ -154,7 +154,7 @@ structure CleanIndex : sig
 
                   | E.Partial alpha => alpha @ ixs
                   | E.Apply(E.Partial dx, e) => shape (e, dx@ixs)
-                  | E.Probe(e, _) => shape (e, ixs)
+                  | E.Probe(e, _,_) => shape (e, ixs)
                   | E.Value _ => raise Fail "unexpected Value"
                   | E.Img _ => raise Fail "unexpected Img"
                   | E.Krn _ => raise Fail "unexpected Krn"
@@ -289,9 +289,9 @@ structure CleanIndex : sig
                   | E.Conv(v, alpha, h, dx) => E.Conv (v, getAlpha alpha, h, getAlpha dx)
                   | E.Partial dx => E.Partial (getAlpha dx)
                   | E.Apply (e1, e2) => E.Apply(rewrite e1, rewrite e2)
-                  | E.Probe(E.Conv(v, alpha, h,dx), t) =>
-                      E.Probe(E.Conv(v, getAlpha alpha, h, getAlpha dx), (*rewrite*) t)
-                  | E.Probe (e1, e2) => E.Probe(rewrite e1, (*rewrite*) e2)
+                  | E.Probe(E.Conv(v, alpha, h,dx), t, ty) =>
+                      E.Probe(E.Conv(v, getAlpha alpha, h, getAlpha dx), (*rewrite*) t, ty)
+                  | E.Probe (e1, e2, ty) => E.Probe(rewrite e1, (*rewrite*) e2, ty)
                   | E.Value e1 => raise Fail "unexpected Value"
                   | E.Img _ => raise Fail "unexpected Img"
                   | E.Krn _ => raise Fail "unexpected Krn"

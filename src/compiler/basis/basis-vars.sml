@@ -1364,6 +1364,18 @@ structure BasisVars =
             in
               [f, Ty.T_Tensor dT1, seqTyc] --> Ty.T_Tensor dF
             end))
+
+    val fn_inst_fd = polyVar (N.fn_inst_s, all([DK, NK, SK, TK],
+        fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.TYPE tv] => let
+            val k = Ty.DiffVar(k, 0)
+            val d = Ty.DimVar d
+            val dF = Ty.ShapeVar ddF
+            val f =  Ty.T_Field{diff=k, dim=d, shape=dF}
+            val seqTyc = dynSeq(Ty.T_Var tv)
+            in
+              [f, seqTyc] --> Ty.T_Tensor dF
+            end))
+
 (* ----------------------------------------------------------------------------------------------------------- *)
 (* -------------------------------------------  Swap --------------------------------------------------------- *)
 (* ----------------------------------------------------------------------------------------------------------- *)

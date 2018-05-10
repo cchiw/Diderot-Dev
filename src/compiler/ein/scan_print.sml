@@ -353,11 +353,17 @@ structure ScanPP : sig
                         (* end case*))
                     in (name, alpha2@dx)
                     end
-                | E.Probe(e1,e2)            => let
+                | E.Probe(e1,[e2],_)            => let
                     val (n1, beta1) = getAlpha (e1)
                     val (n2, _) = getAlpha (e2)
                     in  (concat[n1], beta1)
                         (*(concat["(",n1,")(", (n2),")"], beta1)*)
+                    end
+                | E.Probe(e1,e2,_)            => let
+                    val (n1, beta1) = getAlpha (e1)
+                    val (n2, _) = getAlpha (E.Opn(E.Add,e2))
+                    in  (concat[n1], beta1)
+                    (*(concat["(",n1,")(", (n2),")"], beta1)*)
                     end
                 | E.Const n=> if(n<0) then     (concat["-",Int.toString(~n)],[]) else  (Int.toString(n),[])
                 | E.Lift (e1) => let
@@ -786,8 +792,6 @@ structure ScanPP : sig
                       =>  unhandled ("OField-DataFem",e)
                 | E.OField(E.BuildFem(aid,bid), e2, alpha)
                      =>  unhandled ("OField-BuildFem",e)
-                | E.OField(E.ManyPointerBuildFem (aid,bid,cid,did), e2, alpha)  
-                    =>  unhandled ("OField-ManyPointerBuildFem",e)
                 | E.Poly(param_id, alpha, n, dx)   (*  T_[alpha]^n dx*)
                     => let
                     val vP = cvtId(args,param_id)

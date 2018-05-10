@@ -170,7 +170,7 @@ structure Derivative : sig
             | E.Partial(alpha)
                                 => E.Partial (List.map (fn e => change(e)) alpha)
             | E.Apply(e1, e2)   => E.Apply(e1, rewriteIx(vk, e2))
-            | E.Probe(e1, e2)   => E.Probe(rewriteIx(vk, e1), e2)
+            | E.Probe(e1, e2, e3)   => E.Probe(rewriteIx(vk, e1), e2,e3)
             | E.Comp(e1, es) => E.Comp(rewriteIx(vk, e1), es)
             | E.Sum(sx, e1)
                                 => E.Sum(sx, rewriteIx(vk, e1))
@@ -203,7 +203,7 @@ structure Derivative : sig
 
             | E.Partial _           => NONE
             | E.Apply(e1, e2)       => findDim(e2, params)
-            | E.Probe(e1, e2)       => findDim(e1, params)
+            | E.Probe(e1, e2,_)       => findDim(e1, params)
             | E.Comp(e1, _)     => findDim(e1, params)
             | E.Sum(_, e1)          => findDim(e1, params)
             | E.Op1(_, e1)          => findDim(e1, params)
