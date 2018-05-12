@@ -585,7 +585,7 @@ structure TranslateBasis : sig
                                             [ assignEin(y, Mk.polyProbe (ddF,d1, [ddT1, ddT2, ddT3]), args)]),
                 (BV.fn_inst_fd,             fn (y, [_, Ty.DIM d1, Ty.SHAPE ddF, Ty.TY ty], args) =>
                         (case ty        (*what is the type of sequence*)
-                            of Ty.T_Int =>  [  assignEin(y, Mk.polyProbeSeq (ddF,d1, []), args)]
+                            of Ty.T_Int =>  [  assignEin(y, Mk.polyProbeSeq_N (ddF,d1, []), args)]
                             | _ => raise Fail ("Expects sequence in last type:"^Ty.toString(ty))
                         (* end case*))
                     ),

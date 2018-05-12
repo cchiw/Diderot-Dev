@@ -159,7 +159,10 @@ structure MkOperators : sig
  
 
     val polyProbe: shape * dim * shape list -> Ein.ein
-    val polyProbeSeq: shape * dim  * shape-> Ein.ein
+    val polyProbeSeq_P: shape * dim  * shape-> Ein.ein
+    val polyProbeSeq_A: shape * dim  * shape-> Ein.ein
+	val polyProbeSeq_X: shape * dim  * shape-> Ein.ein
+    val polyProbeSeq_N: shape * dim  * shape-> Ein.ein
     val ofieldfem: dim*shape -> Ein.ein
     val ofieldfemBuild: dim*shape -> Ein.ein
  
@@ -1233,7 +1236,7 @@ structure MkOperators : sig
           in
             E.EIN{
                 params = [E.FLD (dim, alpha), mkNoSubstTEN [dim]], index = alpha,
-                body = E.Probe(E.Field(0, expindex), [E.Tensor(1, [])], E.None)
+                body = E.Probe(E.Field(0, expindex), [E.Tensor(1, [])], NONE)
               }
           end
           
@@ -1381,26 +1384,29 @@ structure MkOperators : sig
         E.EIN{
                 params = [E.FLD (dim, alpha)]@ (List.map (fn talpha => mkNoSubstTEN talpha)  talphas),
                 index = alpha,
-                body = E.Probe(fldtem, probeterm,E.None)
+                body = E.Probe(fldtem, probeterm, NONE)
             }
         end
         
     (*Sequences*)
-    fun polyProbeSeq(alpha, dim, seqTy) = 
+    fun polyProbeSeq(alpha, dim, seqTy, opn) = 
     	let
         	val fldtem = E.Field(0,  specialize(alpha, 0))
           	val probeterm =  [E.Tensor(1,[])]
         	val ein = E.EIN{
 				params = [E.FLD (dim, alpha), E.SEQ(seqTy)],
 				index = alpha,
-				body = E.Probe(fldtem, probeterm,E.Seq)
+				body = E.Probe(fldtem, probeterm, SOME opn)
 			  }
 			val es = String.concatWith "," (List.map Int.toString seqTy)
 			val _ = print(String.concat["poly probe seq:",EinPP.toString(ein),es])
 		in	
 			ein 
         end
-      
+     fun polyProbeSeq_P(alpha, dim, seqTy) = polyProbeSeq(alpha, dim, seqTy, E.Prod)
+     fun polyProbeSeq_A(alpha, dim, seqTy) = polyProbeSeq(alpha, dim, seqTy, E.Add)
+     fun polyProbeSeq_X(alpha, dim, seqTy) = polyProbeSeq(alpha, dim, seqTy, E.MaxN)
+     fun polyProbeSeq_N(alpha, dim, seqTy) = polyProbeSeq(alpha, dim, seqTy, E.MinN)
       (* ---------------------------- *)
     (*just set variable as a field id*)
     fun diff_value(dim, fshape, tshape) = let

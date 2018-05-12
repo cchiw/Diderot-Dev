@@ -77,7 +77,7 @@ structure OFieldToFem : sig
     fun sum_evaluate (y, rhs as IR.EINAPP(ein as E.EIN{body,index,params}, args)) =
         let
             val E.Sum(sx, E.Probe(E.OField(ofield,E.Tensor(fid, alpha), E.Partial  dx), [pos], _)) = body
-            fun cvtTerm (alpha, dx) = E.Probe(E.OField(ofield, E.Tensor(fid, alpha), E.Partial  dx), [pos],E.None)
+            fun cvtTerm (alpha, dx) = E.Probe(E.OField(ofield, E.Tensor(fid, alpha), E.Partial  dx), [pos], NONE)
             val E.FLD(dim, shape) = List.nth(params, fid)
             val (sid, lb, ub) = (case sx
                 of [e1] => e1
@@ -138,7 +138,7 @@ structure OFieldToFem : sig
 			val size = fsize@dxsize
 			(*evaluate ofields*)
 			val einF = E.EIN{
-				body=E.Probe(E.OField(ofield,E.Tensor(fid, fbeta), E.Partial  dxbeta), [pos], E.None),
+				body=E.Probe(E.OField(ofield,E.Tensor(fid, fbeta), E.Partial  dxbeta), [pos], NONE),
 				index=size,
 				params=params
 				}

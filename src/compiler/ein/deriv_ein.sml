@@ -143,7 +143,7 @@ val differentiate: Ein.mu list * Ein.ein_exp -> Ein.ein_exp
             | E.Eps2 _              => E.Const 0
             | E.Field _             => body
             | E.Tensor _            => E.Const 0
-            | E.Poly (id,c, n, dx)  => E.Poly(id, c, n, dx@px)
+            | E.Poly (e1, n, dx)  => E.Poly(e1, n, dx@px)
             | E.Lift(e1)            => E.Lift(differentiate(px, e1))
             | E.Sum(op1, e1)        => let
                 val e2 = differentiate(px, e1)

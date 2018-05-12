@@ -21,6 +21,7 @@ structure Helper : sig
     val ll : MidIR.var list * int -> string
     val paramToString : int * Ein.param_kind -> string
     val prntNewbies: (MidIR.var * MidIR.rhs) list * 'a -> unit list
+    val line : string * MidIR.var * Ein.ein * MidIR.var list -> string
     val iterP: Ein.ein_exp list * Ein.ein_exp list -> Ein.ein_exp
     val iterA: Ein.ein_exp list * Ein.ein_exp list -> Ein.ein_exp
     
@@ -56,7 +57,8 @@ structure Helper : sig
 		            | (lhs,rhs) => print(concat["\n\n -->:",DstIR.Var.name(lhs),"=",DstIR.RHS.toString rhs])
             ) newbies
         end
-        
+     fun line(name, y, ein, args) = String.concat[name, ":",MidIR.Var.name(y),"=", EinPP.toString(ein),"-",ll(args,0)]
+          
 	 (* ------------------------------------ get RHS --------------------------------------------  *)
     fun getRHSEINSrc x = (case SrcIR.Var.getDef x
         of  SrcIR.EINAPP (ein, args) => (print"ein-app")

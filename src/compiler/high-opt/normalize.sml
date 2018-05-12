@@ -37,16 +37,16 @@ structure Normalize : sig
    * on following globals so as to avoid duplicating computation.
    *)
     fun getEinApp x = let
-fun getEinRHS (IR.EINAPP app) = (print "EINAPP";SOME app)
-| getEinRHS (IR.GLOBAL _) = (print"Global";NONE)
-| getEinRHS (IR.STATE _) = (print"state";NONE)
-| getEinRHS (IR.VAR _) = (print"var";NONE)
-| getEinRHS (IR.LIT _) = (print"lit";NONE)
-| getEinRHS (IR.OP _) = (print"op";NONE)
-| getEinRHS (IR.CONS _) = (print"cons";NONE)
-| getEinRHS (IR.SEQ _) = (print"seq";NONE)
-| getEinRHS (IR.APPLY _) = (print"apply";NONE)
-| getEinRHS (IR.MAPREDUCE _) = (print"mapreduce";NONE)
+fun getEinRHS (IR.EINAPP app) = ( "EINAPP";SOME app)
+| getEinRHS (IR.GLOBAL _) = ("Global";NONE)
+| getEinRHS (IR.STATE _) = ("state";NONE)
+| getEinRHS (IR.VAR _) = ("var";NONE)
+| getEinRHS (IR.LIT _) = ("lit";NONE)
+| getEinRHS (IR.OP _) = ("op";NONE)
+| getEinRHS (IR.CONS _) = ("cons";NONE)
+| getEinRHS (IR.SEQ _) = ("seq";NONE)
+| getEinRHS (IR.APPLY _) = ("apply";NONE)
+| getEinRHS (IR.MAPREDUCE _) = ("mapreduce";NONE)
            (* | getEinRHS _ = NONE*)
           in
             case V.ty x
@@ -98,7 +98,7 @@ fun rewriteEin (changed, params, place, newEinOp, newArgs, done, arg, orig, lhs)
                 (changed, orig, place+1, done@[arg]))
 	    | _ => (case Apply.apply (orig, place, newEinOp,newArgs,done)
                     of SOME einOp => let
-                        val _ = print(String.concat["\n\nAfter Application:",EinPP.toString(einOp), ":",ll(done @ newArgs,0)])
+                        val _ = (String.concat["\n\nAfter Application:",EinPP.toString(einOp), ":",ll(done @ newArgs,0)])
                          (* einOp is the result of the beta-reduction *)
                         in
                         (decUse arg; List.app incUse newArgs;
@@ -121,21 +121,21 @@ fun rewriteEin (changed, params, place, newEinOp, newArgs, done, arg, orig, lhs)
    *)
     fun doRHS (lhs, IR.EINAPP(ein, args)) = let
 
-val _ = print(String.concat["\n\n****************************************************\ndoRhs:",EinPP.toString(ein), ":",ll(args,0)])
+val _ = (String.concat["\n\n****************************************************\ndoRhs:",EinPP.toString(ein), ":",ll(args,0)])
 
             fun rewrite (false, _, _, [], _) = (NONE)
               | rewrite (true, einOp, _, [], args') =(
                 SOME[(lhs, IR.EINAPP(doNormalize (einOp,args'), args'))])
               | rewrite (changed, einOp, place, x::xs, args') = let
-val _  = print(String.concat["\n\tPlace:",Int.toString(place)])
+val _  = (String.concat["\n\tPlace:",Int.toString(place)])
                 in case getEinApp x
                  of NONE => (rewrite (changed, einOp, place+1, xs, args'@[x]))
                   | SOME(newE, newA) => let
                         val Ein.EIN{params, ...} = einOp
-val _ =print (String.concat["\n\n----------------------------------------\n\nBefore rewriting:",EinPP.toString(einOp), ":",ll(args'@(x::xs),0)])
+val _ = (String.concat["\n\n----------------------------------------\n\nBefore rewriting:",EinPP.toString(einOp), ":",ll(args'@(x::xs),0)])
                       val (changed, einOp', place', done') =
                             rewriteEin (changed, params, place, newE, newA, args', x, einOp, lhs)
-val _ = print(String.concat["\n\nDone rewriting:",EinPP.toString(einOp'), ":",ll(done'@xs,0)])
+val _ = (String.concat["\n\nDone rewriting:",EinPP.toString(einOp'), ":",ll(done'@xs,0)])
                       in
                         rewrite (changed, einOp', place', xs, done')
                       end

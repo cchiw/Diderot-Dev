@@ -83,6 +83,7 @@ val _ = (String.concat["\nin direction i:",Int.toString(i),"-",Int.toString(j)])
                     | E.Epsilon(i, j, k) => Mk.epsilon3 (avail, mapp, i, j, k)
                     | E.Eps2(i, j) => Mk.epsilon2 (avail, mapp, i, j)
                     | E.Tensor(id, ix) => Mk.tensorIndex (avail, mapp, List.nth(lowArgs, id), ix)
+                    | E.Seq(id, v, alpha) => Mk.seqTensorIndex (avail, mapp, List.nth(lowArgs, id), alpha, v)
                     | E.Zero _ =>  Mk.intToRealLit (avail, 0)
                     | E.Op1(op1, e1) => let
                         val arg = gen (mapp, e1)
@@ -114,6 +115,15 @@ val _ = (String.concat["\nin direction i:",Int.toString(i),"-",Int.toString(j)])
                         Mk.realClamp(avail, gen(mapp, e1), gen(mapp, e2), gen(mapp, e3))
                     | E.Opn(E.Add, es) =>
                         Mk.reduce (avail, Mk.realAdd, List.map (fn e => gen(mapp, e)) es)
+                    | E.OpR(opn, sumx, e) => 
+                    	let 
+                    	val op2 = (case opn
+								of E.Add => Mk.realAdd
+								| E.Prod => Mk.realMul
+								| E.MaxN => Mk.realMax
+								| E.MinN => Mk.realMin
+                    		(* end case *))
+                        in Mk.reduce (avail, op2, sumCheck (mapp, sumx, e)) end
                     | E.Opn(E.Prod, es) =>
                         Mk.reduce (avail, Mk.realMul, List.map (fn e => gen(mapp, e)) es)
                     | E.Opn(E.Swap id, args) =>  let
@@ -140,40 +150,42 @@ val _ = (String.concat["\nin direction i:",Int.toString(i),"-",Int.toString(j)])
                     | E.Probe(E.Const e1, e2,_) => gen(mapp, E.Const e1)
                     | E.Probe(E.Delta e1, e2,_) => gen(mapp, E.Delta e1)
                     | E.Probe e => raise Fail("probe ein-exp: " ^ EinPP.expToString body)
-                    | E.Field _ => raise Fail("field should have been replaced: " ^ EinPP.expToString body)
-                    | E.Poly(id, alpha, n, []) =>   let
-                        val t = E.Tensor(id, alpha)
-                        val ts = List.tabulate (n, fn _ => t)
+                    | E.Field _ => raise Fail("field should have been replaced: " ^ EinPP.expToString body)                        
+                    | E.Poly(e1, n, []) =>   
+                    	let
+                        	val t = e1
+                        	val ts = List.tabulate (n, fn _ => t)
                         in  gen(mapp, E.Opn(E.Prod, ts)) end
-                     | E.Poly(id, [], n, dx) => let
-                        val t = E.Tensor(id, [])
-                        val zero = E.Const 0
-                        val one = E.Const 1
-                        val ec = E.Const n
-                        val ecc = E.Const (n-1)
-                        val eccc = E.Const (n-2)
-                        val e = (case dx
-                            of [_] =>
-                                (case n
-                                    of 1 => one
-                                    | _ =>  E.Opn(E.Prod, (ec)::(List.tabulate (n-1, fn _ => t)))
-                                (* end case *))
-                            |[_,_] =>
-                                (case n
-                                    of 1 => zero
-                                    | 2  =>  ec
-                                    | _  => E.Opn(E.Prod, ec::ecc::(List.tabulate (n-2, fn _ => t)))
-                                    (* end case *))
-                            |[_,_,_] =>
-                                (case n
-                                    of 1 => zero
-                                    | 2  => zero
-                                    | 3  => E.Opn(E.Prod, [ec,ecc])
-                                    | _  => E.Opn(E.Prod, [ec,ecc,eccc]@(List.tabulate (n-3, fn _ => t)))
-                                    (* end case*))
-                            (* end case*))
+                     | E.Poly(E.Tensor(id, []), n, dx) => 
+                     	let
+							val t = E.Tensor(id, [])
+							val zero = E.Const 0
+							val one = E.Const 1
+							val ec = E.Const n
+							val ecc = E.Const (n-1)
+							val eccc = E.Const (n-2)
+							val e = (case dx
+								of [_] =>
+									(case n
+										of 1 => one
+										| _ =>  E.Opn(E.Prod, (ec)::(List.tabulate (n-1, fn _ => t)))
+									(* end case *))
+								|[_,_] =>
+									(case n
+										of 1 => zero
+										| 2  =>  ec
+										| _  => E.Opn(E.Prod, ec::ecc::(List.tabulate (n-2, fn _ => t)))
+										(* end case *))
+								|[_,_,_] =>
+									(case n
+										of 1 => zero
+										| 2  => zero
+										| 3  => E.Opn(E.Prod, [ec,ecc])
+										| _  => E.Opn(E.Prod, [ec,ecc,eccc]@(List.tabulate (n-3, fn _ => t)))
+										(* end case*))
+								(* end case*))
                         in gen(mapp,e) end
-                     | E.Poly(id, [E.C c], n, [vx]) =>   let
+                     | E.Poly(E.Tensor(id, [E.C c]), n, [vx]) =>   let
                         val dx = Mk.lookupMu (mapp, vx)
                         val _ = (String.concat["\n\t Poly1_", Int.toString(c),"^",Int.toString(n),"-dx",Int.toString(dx)])
                         val zero = E.Const 0
@@ -189,7 +201,7 @@ val _ = (String.concat["\nin direction i:",Int.toString(i),"-",Int.toString(j)])
                             else zero
                         (* here need to implement partial derivative in respect to an axis *)
                         in gen(mapp, e) end
-                    | E.Poly(id, [E.C c], n, dx as [_, _]) =>   let
+                    | E.Poly(E.Tensor(id, [E.C c]), n, dx as [_, _]) =>   let
                         val _ = (String.concat["\n\t Poly1_", Int.toString(c),"^",Int.toString(n)])
                         val ec = E.Const n
                         val ecc = E.Const (n-1)
@@ -206,7 +218,7 @@ val _ = (String.concat["\nin direction i:",Int.toString(i),"-",Int.toString(j)])
                                 if(dx=c) then iter(es) else zero
                             end
                             in gen(mapp, iter dx) end
-                    | E.Poly(id, [E.C c], n, dx as [_,_,_]) =>   let
+                    | E.Poly(E.Tensor(id, [E.C c]), n, dx as [_,_,_]) =>   let
                         val _ = (String.concat["\n\t Poly1_", Int.toString(c),"^",Int.toString(n)])
                         val zero = E.Const 0
                         val ec = E.Const n

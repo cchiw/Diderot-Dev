@@ -28,12 +28,6 @@ structure Ein =
 
     datatype ein = EIN of {
         params : param_kind list,
-        (* Parameters to equation are either tensors or fields *)
-        (* These variables are named using de Bruijn indexing *)
-(* QUESTION: why is this index_bind list and not index_id list?
-* Answer: index_bind is the range of the index_ids.
-* Both ints but ultimately different types
-*)
         index : index_bind list,        (* Index variables in the equation. *)
         body : ein_exp
       }
@@ -59,8 +53,8 @@ structure Ein =
     and binary = Sub | Div | Max | Min
 
     and ternary = Clamp
-
-    and opn = Add | Prod | Swap of param_id
+	(*Also types of items that can be reduced over some summation index*)
+    and opn = Add | Prod | Swap of param_id | MaxN | MinN
 
     and compare = GT of ein_exp * ein_exp| LT of ein_exp * ein_exp | Bool of param_id
 
@@ -72,17 +66,13 @@ structure Ein =
         | DataFem of param_id                   (* param id is to data file *)
         | BuildFem of param_id *param_id        (* param id to function space *)
       
-
-    and rtnType
-        = Seq
-        | None
-
     and ein_exp
     (* Basic terms *)
       = Const of int
 (* QUESTION: should this be RealLit.t? *)
       | ConstR of Rational.t
       | Tensor of param_id * alpha
+      | Seq of param_id * mu *  alpha 			(*ID{mu}[alpha]*)
       | Zero of alpha 
       | Delta of mu * mu
       | Epsilon of mu * mu * mu
@@ -93,10 +83,10 @@ structure Ein =
       | Conv of param_id * alpha * param_id * alpha
       | Partial of alpha
       | Apply of ein_exp * ein_exp
-      | Probe of ein_exp * ein_exp list * rtnType
+      | Probe of ein_exp * ein_exp list * opn option 
       | Comp of ein_exp * subEIN list
       | OField of ofield * ein_exp * ein_exp (*field arg T, exp, E.Partial dx*)
-      | Poly of param_id*alpha * int* alpha  (*  T_[alpha]^n dx*)
+      | Poly of ein_exp * int* alpha  (*  ein_exp^n dx*)
     (* Mid-IL Terms *)
       | Value of index_id (* Lift index *)
       | Img of param_id * alpha * pos list * int list
@@ -108,6 +98,7 @@ structure Ein =
       | Op2 of binary * ein_exp * ein_exp
       | Op3 of ternary * ein_exp * ein_exp * ein_exp
       | Opn of opn * ein_exp list
+      | OpR of opn * sumrange list * ein_exp		(*used in mid ir stage to reduce sequences *)
     (* FEM operators*)
       | BigF of  ME.fnspace* param_id * alpha  (*id, dx, probed position*)
       | Basis of  ME.fnspace* param_id * alpha
@@ -119,5 +110,5 @@ structure Ein =
         and pos = ein_exp
         and sumrange = index_id * int * int
         and subEIN = ein_exp * index_bind list
-
+								
   end

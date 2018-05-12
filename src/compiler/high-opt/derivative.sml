@@ -129,8 +129,7 @@ structure Derivative : sig
                   (* end case *))
             (* end case *)
           end
-
-    fun applyOpn (opn, es, dx) = let
+	fun applyOpn (opn, es, dx) = let
           val (d0::dn) = dx
           val p0 = E.Partial [d0]
           fun iterDn e2 = if null dn then e2 else E.Apply(E.Partial dn, e2)
@@ -249,17 +248,17 @@ structure Derivative : sig
               | E.Apply _ => err "Apply of non-Partial expression"
               | E.Probe _ => err "Apply of Probe"
               | E.Comp(e1, [(e2, n)]) =>
-                let
-                val E.V ii = d0
-                val vk =  100+sumX (* need to fix*)
-                val px' = E.Partial[E.V vk]
-                val e3 = E.Comp(E.Apply(px', e1), [(e2, n)])
-                val e5 = rewriteIx(vk, e2)
-                val e4 = E.Apply(p0, e5) (* should p0 here be rewritten? or shifted base don the length of n  *)
-                val SOME(d)  = findDim(e1, params)
-                val en = E.Sum([(vk, 0, d-1)], E.Opn(E.Prod, [e3, e4]))
-                (*val _ = (String.concat["\napply derivative:\n\t","think new dx is ", Int.toString(vk),"-",EinPP.expToString(E.Apply(px,e )), "\n\t===>\n,",EinPP.expToString(en)])*)
-                in SOME (iterDn en) end
+				let
+					val E.V ii = d0
+					val vk =  100+sumX (* need to fix*)
+					val px' = E.Partial[E.V vk]
+					val e3 = E.Comp(E.Apply(px', e1), [(e2, n)])
+					val e5 = rewriteIx(vk, e2)
+					val e4 = E.Apply(p0, e5) (* should p0 here be rewritten? or shifted base don the length of n  *)
+					val SOME(d)  = findDim(e1, params)
+					val en = E.Sum([(vk, 0, d-1)], E.Opn(E.Prod, [e3, e4]))
+					(*val _ = (String.concat["\napply derivative:\n\t","think new dx is ", Int.toString(vk),"-",EinPP.expToString(E.Apply(px,e )), "\n\t===>\n,",EinPP.expToString(en)])*)
+				in SOME (iterDn en) end
               | E.Comp _ => err "unsupported differentiation of comp"
               | E.Value _ => err "Value used before expand"
               | E.Img _ => err "Probe used before expand"

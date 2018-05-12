@@ -24,7 +24,7 @@ structure HandleEin : sig
 
     fun expand (lhs, ein, args) = let
 			val _ = ("\n\n   ***********\n")
-			val _ = (String.concat["\n\n   expand ***********\n:",MidIR.Var.name(lhs),"=", EinPP.toString(ein),"-",ll(args,0)])
+			val _ = print(String.concat["\n\n   expand ***********\n:",MidIR.Var.name(lhs),"=", EinPP.toString(ein),"-",ll(args,0)])
 			val sliceFlag = Controls.get Ctl.sliceFlag
 			val fullSplitFlag = Controls.get Ctl.fullSplitFlag
 			val replaceFlag =  Controls.get Ctl.replaceFlag

@@ -66,7 +66,7 @@ structure EinSums : sig
               | E.Probe(e1, e2,_)           => sort (e1:: e2)
               | E.Comp(e1,_)              => findSx(c,e1)
               | E.OField(_, e1, _)        => findSx(c,e1)
-              | E.Poly (_,_, _,shape)           => findIndex (c, shape)
+              | E.Poly (_, _,shape)       => findIndex (c, shape)
               | E.Value _                 => NONE
               | E.Img _                   => raise Fail "Img used pre expansion"
               | E.Krn _                   => raise Fail "Krn used pre expansion"

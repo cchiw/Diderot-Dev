@@ -792,7 +792,7 @@ structure ScanPP : sig
                       =>  unhandled ("OField-DataFem",e)
                 | E.OField(E.BuildFem(aid,bid), e2, alpha)
                      =>  unhandled ("OField-BuildFem",e)
-                | E.Poly(param_id, alpha, n, dx)   (*  T_[alpha]^n dx*)
+                | E.Poly(E.Tensor(param_id, alpha), n, dx)   (*  T_[alpha]^n dx*)
                     => let
                     val vP = cvtId(args,param_id)
                     val (iX,alpha) = (case alpha

@@ -49,6 +49,8 @@ structure EinUtil : sig
                 | (E.ConstR r1, E.ConstR r2) => Rational.same(r1, r2)
                 | (E.Tensor(id1, ix1), E.Tensor(id2, ix2)) =>
                     (id1 = id2) andalso sameIndex(ix1, ix2)
+                | (E.Seq(id1,v1, ix1), E.Seq(id2,v2, ix2)) =>
+                    (id1 = id2) andalso  sameIndex ([v1], [v2]) andalso sameIndex(ix1, ix2)
                 | (E.Zero(ix1), E.Zero(ix2)) => sameIndex(ix1, ix2)
                 | (E.Delta(ix1, jx1), E.Delta(ix2, jx2)) =>
                     (ix1 = ix2) andalso (jx1 = jx2)
@@ -63,7 +65,8 @@ structure EinUtil : sig
                       sameIndex (alpha1, alpha2) andalso sameIndex (ix1, ix2)
                 | (E.Partial ix, E.Partial jx) => sameIndex(ix, jx)
                 | (E.Apply(e11, e12), E.Apply(e21, e22)) => same(e11, e21) andalso same(e12, e22)
-                | (E.Probe(e11,  e12,E.None), E.Probe(e21, e22,E.None)) => same(e11, e21) andalso sameList(e12, e22) 
+                | (E.Probe(e11,  e12, NONE), E.Probe(e21, e22, NONE)) => same(e11, e21) andalso sameList(e12, e22) 
+                | (E.Probe(e11,  e12, SOME op1), E.Probe(e21, e22, SOME op2)) => same(e11, e21) andalso  (op1 = op2) andalso sameList(e12, e22) 
                 | (E.Comp(e11, es1), E.Comp(e21, es2)) =>
                     same(e11,e21) andalso sameSubEin(es1, es2)
                 | (E.OField(E.CFExp (es1), e1, ix1), E.OField(E.CFExp (es2), e2, ix2)) =>
@@ -72,8 +75,8 @@ structure EinUtil : sig
                     same(e1,e2) andalso same(ix1, ix2) andalso (id1 = id2)
                 | (E.OField(E.BuildFem (id1,s1), e1, ix1), E.OField(E.BuildFem (id2,s2), e2, ix2)) =>
                     same(e1,e2) andalso (s1=s2) andalso same(ix1, ix2) andalso (id1 = id2)
-                | (E.Poly(id1, ix1, n1,alpha1), E.Poly(id2, ix2, n2, alpha2)) =>
-                    (id1=id2)andalso  sameIndex(ix1,ix2) andalso  (n1=n2) andalso sameIndex(alpha1,alpha2)
+                | (E.Poly(e1, n1,alpha1), E.Poly(e2, n2, alpha2)) =>
+                     same(e1,e2)  andalso  (n1=n2) andalso sameIndex(alpha1,alpha2)
                 | (E.Value i, E.Value j) => (i = j)
                 | (E.Img(id1, ix1, pos1, s1), E.Img(id2, ix2, pos2, s2)) =>
                     (id1 = id2) andalso sameList(pos1, pos2) andalso sameIndex(ix1, ix2) andalso (s1 = s2)
@@ -87,6 +90,8 @@ structure EinUtil : sig
                     (op1 = op2) andalso same(e11, e21) andalso same(e12, e22) andalso same(e13, e23)
                 | (E.Opn(op1, es1), E.Opn(op2, es2)) =>
                     (op1 = op2) andalso sameList(es1, es2)
+                | (E.OpR(op1, c1, e1), E.OpR(op2, c2, e2)) =>
+                    (op1 = op2) andalso same(e1, e2) andalso sameSx(c1, c2)
                 | _ => false
               (* end case *))
             and sameSubEin([], []) = true
@@ -110,6 +115,8 @@ structure EinUtil : sig
             | sameParam (E.KRN, E.KRN) = true
             | sameParam (E.IMG(i1, shp1), E.IMG(i2, shp2)) =
                 (i1 = i2) andalso ListPair.allEq (op =) (shp1, shp2)
+            |  sameParam (E.SEQ(shp1), E.SEQ(shp2)) =
+                ListPair.allEq (op =) (shp1, shp2)
             | sameParam _ = false
           in
             ListPair.allEq sameParam (p1, p2) andalso
@@ -130,11 +137,16 @@ structure EinUtil : sig
               | hashAlpha (e1::es) = hashMu e1 + hashAlpha es
             fun hashDels [] = 0w5
               | hashDels ((i, j)::es) = hashMu i + hashMu j + hashDels es
+            fun  hashOpn  E.Add =  0w3
+              | hashOpn E.Prod = 0w5
+              | hashOpn E.MaxN = 0w7
+              | hashOpn E.MinN = 0w11
             in
               case body
                of E.Const i => hashInt i + 0w3
                 | E.ConstR _ => 0w5
                 | E.Tensor(_, alpha) => 0w23 + hashAlpha alpha
+                | E.Seq(_, ix, alpha) => 0w29 +  hashMu ix+ hashAlpha alpha
                 | E.Zero(alpha) => 0w107 + hashAlpha alpha
                 | E.Delta _ => 0w7
                 | E.Epsilon _ => 0w13
@@ -148,7 +160,7 @@ structure EinUtil : sig
                 | E.Probe(e1, e2, e3) => 0w101 + hash' e1 + iter e2
                 | E.Comp(e1, es) =>    0w141 +hash' e1+iterS es
                 | E.OField(ofld, e2, alpha) =>    0w141 +hash' e2  + hash' alpha
-                | E.Poly(id, alpha1, n1, alpha2) =>    0w143 + hashInt id+ hashAlpha alpha1+ hashInt n1 + hashAlpha alpha2
+                | E.Poly(e1, n1, alpha2) =>    0w143 + hash' e1+ hashInt n1 + hashAlpha alpha2
                 | E.Value _ => 0w11
                 | E.Img (_, alpha, es, _) => 0w43 + hashAlpha alpha + iter es
                 | E.Krn (_, dels, dim) => 0w41 + hashDels dels + hashInt dim
@@ -172,9 +184,8 @@ structure EinUtil : sig
                 | E.Op2(E.Sub, e1, e2) => 0w79 + hash' e1 + hash' e2
                 | E.Op2(E.Div, e1, e2) => 0w83 + hash' e1 + hash' e2
                 | E.Op3(E.Clamp, e1, e2, e3) => 0w163 + hash' e1 + hash' e2 + hash' e3
-                | E.Opn(E.Add, es) => 0w71 + iter es
-                | E.Opn(E.Prod, es) => 0w103 + iter es
-                | E.Opn(E.Swap id, es) => 0w177 + iter es
+                | E.Opn(opn, es) =>  hashOpn opn + iter es
+                | E.OpR(opn, sx, e1) => hashOpn opn + hash' e1
                 | E.BigF _ => 0w151
                 | E.Inverse _ => 0w157
                 | E.Basis _ =>0w163

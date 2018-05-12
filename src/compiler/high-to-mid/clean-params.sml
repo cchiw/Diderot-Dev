@@ -56,7 +56,7 @@ structure CleanParams : sig
                   | E.OField(E.DataFem id, e2, _) => walk (e2, ISet.add(mapp, id))
                   | E.OField(E.BuildFem (id,s), e2, _)
                     => walk (e2, ISet.add(ISet.add(mapp, id), s))
-                  | E.Poly(id, _, _,_) =>  ISet.add(mapp, id)
+                  | E.Poly(e1, _,_) =>  walk(e1,mapp)
                   | E.If(E.GT(e1, e2), e3, e4) =>
                     walk (e4, walk (e3, walk (e2, walk (e1, mapp))))
                   | E.If(E.LT(e1, e2), e3, e4) =>
@@ -103,7 +103,7 @@ structure CleanParams : sig
                   | E.Op3(op3, e1, e2, e3) => E.Op3(op3, rewrite e1, rewrite e2, rewrite e3)
                   | E.Opn(E.Swap id, es) => E.Opn(E.Swap (getId id), List.map rewrite es)
                   | E.Opn(opn, es) => E.Opn(opn, List.map rewrite es)
-                  | E.Poly(id, ix, n, alpha) => E.Poly(getId id, ix, n, alpha)
+                  | E.Poly(e1, n, alpha) => E.Poly(rewrite e1, n, alpha)
                   | E.OField(E.CFExp es, e2, dx)
                     => E.OField(E.CFExp (List.map (fn (id, inputTy)=>(getId id, inputTy)) es), rewrite e2, rewrite  dx)
                   | E.OField(E.DataFem id, e2, dx)

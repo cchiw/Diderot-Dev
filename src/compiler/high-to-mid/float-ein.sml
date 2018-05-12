@@ -155,7 +155,7 @@ structure FloatEin : sig
             of E.OField(E.CFExp tterm, _, dx) => E.OField(E.CFExp tterm, A , dx)
             | _  => A
             (*end case*))
-        val exp_probe = mkProbe(E.Probe(exp_fld, [exp_pos], E.None))
+        val exp_probe = mkProbe(E.Probe(exp_fld, [exp_pos], NONE))
         val outerExp2 = (case sx2
             of [] => exp_probe
             | _   => E.Sum(sx2, exp_probe)

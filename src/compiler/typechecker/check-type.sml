@@ -100,6 +100,8 @@ structure CheckType : sig
             | PT.T_Mesh => Ty.T_Mesh
             | PT.T_Element=> Ty.T_Element
             | PT.T_FnSpace => Ty.T_FnSpace
+
+         
           (* end case *))
 
   end

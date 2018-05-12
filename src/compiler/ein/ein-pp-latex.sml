@@ -58,8 +58,8 @@ fun ti2s (id, E.T) = "t_"^Int.toString(id)
                 => concat [  expToString(E.OField(E.CFExp(es), e1, E.Partial [])) ,"dx",multiIndex2s alpha, ")"]
             | E.OField(E.DataFem id, e1, E.Partial alpha) => concat ["DataFEM(",expToString e1,")_",i2s id, deriv alpha, ")"]
             | E.OField(E.BuildFem (id,id2), e1,E.Partial  alpha) => concat ["BuildFEM(",expToString e1,")_", i2s id, "[",i2s id2,"]",deriv alpha, ")"]
-            | E.Poly(tid, cx, 1, dx) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")",deriv dx]
-            | E.Poly(tid, cx, n, dx) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")^",  i2s n, deriv  dx]
+            | E.Poly(E.Tensor(tid, cx), 1, dx) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")",deriv dx]
+            | E.Poly(E.Tensor(tid, cx), n, dx) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")^",  i2s n, deriv  dx]
             | E.Value ix => "i" ^ i2s ix
             | E.Img(fid, alpha, pos, s) => concat [
                   "V", i2s fid, multiIndex2s alpha, "(",shp2s s, ")[",

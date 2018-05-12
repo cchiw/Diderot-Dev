@@ -34,11 +34,19 @@ structure EinPP : sig
     fun deltaKrn (a, b) = concat["δ_{", index2s a, ",", index2s b,"}"]
     fun deriv [] = ""
       | deriv alpha = concat["∇",multiIndex2s alpha]
+    fun opnToString opn = (case opn
+			of E.Add =>  "𝞢"
+			| E.Prod =>  "∏"
+			| E.MaxN => "max"
+			| E.MinN => "min"
+	(* end case *))
+                	
     fun expToString e = (case e
-           of E.Const r => i2s r
+        of E.Const r => i2s r
             | E.ConstR r => Rational.toString r
             | E.Tensor(id, []) => "T" ^ i2s id
             | E.Tensor(id, alpha) => concat["T", i2s id, multiIndex2s alpha]
+            | E.Seq(id, ix, alpha) => concat["S", i2s id, "{", index2s ix, "}",multiIndex2s alpha]
             | E.Zero(alpha) => concat["Z", multiIndex2s alpha]
             | E.Delta ix => delta ix
             | E.Epsilon(ix, jx, kx) => concat["ϵ_{i", index2s ix, ",i", index2s jx, ",i", index2s kx, "}"]
@@ -55,8 +63,9 @@ structure EinPP : sig
                 end
             | E.Partial alpha => "∂/∂x" ^ multiIndex2s alpha
             | E.Apply(e1, e2) => concat [ expToString e1, "@(", expToString e2, ")"]
-            | E.Probe(e1,  e2,E.None) => concat ["Probe(fld:", expToString e1, ",pos:", String.concatWithMap " ," expToString e2, ")"]
-            | E.Probe(e1,  e2,E.Seq) => concat ["Probe(fld:", expToString e1, ",{pos}:", String.concatWithMap " ," expToString e2, ")"]
+            | E.Probe(e1,  e2, NONE) => concat ["Probe(fld:", expToString e1, ",pos:", String.concatWithMap " ," expToString e2, ")"]
+            | E.Probe(e1,  e2, SOME (opn)) => 
+            		concat ["Reduce(",opnToString opn,") Probe(fld:", expToString e1, ",{pos}:", String.concatWithMap " ," expToString e2, ")"]
             | E.Comp(e1,es) => let
                 fun iter ([]) = ""
                 | iter ((e2, n1)::es) =
@@ -68,8 +77,10 @@ structure EinPP : sig
                 => concat [  expToString(E.OField(E.CFExp(es), e1, E.Partial  [])) ,"dx",multiIndex2s alpha, ")"]
             | E.OField(E.DataFem id, e1,  E.Partial alpha) => concat ["DataFEM(",expToString e1,")_",i2s id, deriv alpha, ")"]
             | E.OField(E.BuildFem (id,id2), e1,  E.Partial alpha) => concat ["BuildFEM(",expToString e1,")_", i2s id, "[",i2s id2,"]",deriv alpha, ")"]
-            | E.Poly(tid, cx, 1, dx) => concat [deriv dx,"(P", i2s tid,"_", multiIndex2s  cx, ")"]
-            | E.Poly(tid, cx, n, dx) => concat [deriv dx,"(P", i2s tid,"_", multiIndex2s  cx, ")^",  i2s n]
+            | E.Poly(E.Tensor(tid, cx), 1, dx) => concat [deriv dx,"(P", i2s tid, multiIndex2s  cx, ")"]
+            | E.Poly(E.Tensor(tid, cx), n, dx) => concat [deriv dx,"(P", i2s tid, multiIndex2s  cx, ")^",  i2s n]
+            | E.Poly(E.Seq(tid, vx, cx), 1, dx) => concat [deriv dx,"(P", i2s tid,"{",index2s  vx,"}", multiIndex2s  cx, ")"]
+            | E.Poly(E.Seq(tid, vx, cx), n, dx) => concat [deriv dx,"(P", i2s tid,"{",index2s  vx,"}", multiIndex2s  cx, ")^",  i2s n]
             | E.Value ix => "i" ^ i2s ix
             | E.Img(fid, alpha, pos, ss) => concat [
                   "V", i2s fid, multiIndex2s alpha, "(", shp2s ss, ")[",
@@ -112,6 +123,14 @@ structure EinPP : sig
            | E.Opn(E.Add, el) => concat["(", String.concatWithMap " + " expToString el,")"]
            | E.Opn(E.Prod, el) => concat["(", String.concatWithMap " * " expToString el, ")"]
            | E.Opn(E.Swap (id), es) => concat["SWAP[",i2s id,"](", String.concatWithMap ", " expToString es,")"]
+           | E.OpR(opn, sx, e1) =>   let
+           		val sx = List.map
+                      (fn (v, lb, ub) => concat ["(i", i2s v, "=", i2s lb, "..", i2s ub, ")"])
+                        sx
+                val symb = opnToString opn
+                in
+                  concat (symb :: sx @ ["(",expToString e1, ")"])
+                end
            | E.BigF  (_,id, alpha) => concat [deriv alpha, "ϝ"(*,i2s id*)]
            | E.Basis (_,id, alpha) => concat [deriv alpha,"ϕ"(*,i2s id,*)]
            | E.Inverse (_,e1) => concat ["(", expToString e1, ")","¯¹"]
@@ -126,7 +145,6 @@ structure EinPP : sig
                in
                 concat[ "\nif(", c, ") then ", expToString e3," else ", expToString e4]
                end
-               
           (* end case *))
     fun paramToString (i, E.TEN(t, shp)) = concat["T", i2s i, "[", shp2s shp, "]"]
           | paramToString (i, E.FLD (d,shp)) = concat["F", i2s i, "[", shp2s shp, "]"]
@@ -174,10 +192,10 @@ structure EinPP : sig
         | E.Comp(e1,es) => concat ["Cmp"]
         | E.OField(E.CFExp _, e1,  E.Partial []) => concat ["PolyWrap"]
         | E.OField(E.CFExp _, e1,  E.Partial alpha)  => concat ["PolyWrap"]
-        | E.Poly(tid, cx, 1, []) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")"]
-        | E.Poly(tid, cx, 1, dx) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ") dx",multiIndex2s  dx]
-        | E.Poly(tid, cx, n, []) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")^",  i2s n]
-        | E.Poly(tid, cx, n, dx) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")^",  i2s n, " dx", multiIndex2s  dx]
+        | E.Poly(E.Tensor(tid, cx), 1, []) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")"]
+        | E.Poly(E.Tensor(tid, cx), 1, dx) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ") dx",multiIndex2s  dx]
+        | E.Poly(E.Tensor(tid, cx), n, []) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")^",  i2s n]
+        | E.Poly(E.Tensor(tid, cx), n, dx) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")^",  i2s n, " dx", multiIndex2s  dx]
         | E.Value ix => "i" ^ i2s ix
         | E.Img(fid, alpha, pos, ss) => concat [
             "V", i2s fid, multiIndex2s alpha, "(", shp2s ss, ")[-]#"

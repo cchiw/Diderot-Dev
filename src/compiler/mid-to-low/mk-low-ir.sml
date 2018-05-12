@@ -82,6 +82,7 @@ structure MkLowIR : sig
 
   (* tensor operations *)
     val tensorIndex   : AvailRHS.t * index_env * LowIR.var * Ein.alpha -> LowIR.var
+    val seqTensorIndex   : AvailRHS.t * index_env * LowIR.var * Ein.alpha * Ein.mu -> LowIR.var
     val tensorIndexIX : AvailRHS.t * LowIR.var * int list -> LowIR.var
 
   (* make "x := [args]" *)
@@ -119,6 +120,7 @@ structure MkLowIR : sig
     val add = AvailRHS.addAssign
 
     fun intLit (avail, n) = add (avail, "intLit", Ty.intTy, IR.LIT(Literal.Int n))
+
     fun realLit (avail, r) =
         let
         (*val _  = print(String.concat["\n\t Literal: ", (Literal.toString (Literal.Real r))])*)
@@ -245,6 +247,20 @@ structure MkLowIR : sig
                     avail, "r", Ty.realTy,
                     IR.OP(Op.TensorIndex(V.ty arg, List.map (fn ix => lookupMu(mapp, ix)) ixs), [arg]))
          (* end case *))
+
+
+	fun mkSeq (avail, arg,vX) = add (
+    	 avail, "sq", Ty.realTy,
+     	IR.OP(Op.Subscript(Ty.intTy), [arg,vX]))
+
+            
+    fun seqTensorIndex (avail, mapp, arg, [], ix) =  let
+    	val c = lookupMu(mapp, ix)
+    	val vX = intLit (avail,IntLit.fromInt  c)
+    	in  mkSeq (avail, arg,vX)
+    	end 		
+
+
 
     fun tensorIndexIX (avail, arg, []) = arg
       | tensorIndexIX (avail, arg, [ix]) = let
