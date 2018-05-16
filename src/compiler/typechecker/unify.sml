@@ -76,18 +76,19 @@ structure Unify : sig
 
 (* FIXME: what about the bounds? *)
     fun equalDiff (pl, diff1, diff2) = (case (TU.pruneDiff diff1, TU.pruneDiff diff2)
-           of (Ty.DiffConst k1, Ty.DiffConst k2) => (k1 = k2)
-            | (Ty.DiffConst k, Ty.DiffVar(dv, i)) => let
+           of (Ty.DiffConst NONE, Ty.DiffConst NONE) => true
+            | (Ty.DiffConst(SOME k1), Ty.DiffConst(SOME k2)) => (k1 = k2)
+            | (Ty.DiffConst(SOME k), Ty.DiffVar(dv, i)) => let
                 val k' = k+i
                 in
                   if k' < 0 then false
-                  else (bindDiffVar(pl, dv, Ty.DiffConst k'); true)
+                  else (bindDiffVar(pl, dv, Ty.DiffConst(SOME k')); true)
                 end
-            | (Ty.DiffVar(dv, i), Ty.DiffConst k) => let
+            | (Ty.DiffVar(dv, i), Ty.DiffConst(SOME k)) => let
                 val k' = k+i
                 in
                   if k' < 0 then false
-                  else (bindDiffVar(pl, dv, Ty.DiffConst k'); true)
+                  else (bindDiffVar(pl, dv, Ty.DiffConst(SOME k')); true)
                 end
             | (Ty.DiffVar(dv1, 0), diff2 as Ty.DiffVar(dv2, i2)) => (
                 bindDiffVar(pl, dv1, diff2); true)
@@ -98,11 +99,14 @@ structure Unify : sig
                     "equalDiff(", TU.diffToString diff1, ", ",
                     TU.diffToString diff2, ") unimplemented"
                   ])
+            | _ => false
           (* end case *))
-
   (* match two differentiation constants where the first is allowed to be less than the second *)
+
     fun matchDiff (pl, diff1, diff2) = (case (TU.pruneDiff diff1, TU.pruneDiff diff2)
-           of (Ty.DiffConst k1, Ty.DiffConst k2) => (k1 <= k2)
+           of (Ty.DiffConst _, Ty.DiffConst NONE) => true
+            | (Ty.DiffConst NONE, Ty.DiffConst _) => false
+            | (Ty.DiffConst(SOME k1), Ty.DiffConst(SOME k2)) => (k1 <= k2)
             | (Ty.DiffVar(dv1, k1), Ty.DiffVar(dv2, k2)) =>
                 MV.sameDiffVar(dv1, dv2) andalso (k1 <= k2)
             | _ => equalDiff (pl, diff1, diff2)  (* force equality *)
@@ -208,27 +212,28 @@ structure Unify : sig
 		 of EQ => COERCE
 		  | result => result
 		(* end case *))
-            | (Ty.T_Field{diff=k1, dim=d1, shape=s1}, Ty.T_Field{diff=k2, dim=d2, shape=s2}) =>
+		 | (Ty.T_Field{diff=k1, dim=d1, shape=s1}, Ty.T_Field{diff=k2, dim=d2, shape=s2}) =>
                 if unifyType(pl, ty1, ty2)
                   then EQ
                 else if matchDiff (pl, k1, k2) andalso equalDim(pl, d1, d2)
                 andalso equalShape(pl, s1, s2)
                   then COERCE
                   else FAIL
-            | (Ty.T_OField{diff=k1, dim=d1, shape=s1}, Ty.T_OField{diff=k2, dim=d2, shape=s2}) =>
-                  if unifyType(pl, ty1, ty2)
+     	| (Ty.T_OField{diff=k1, dim=d1, shape=s1}, Ty.T_OField{diff=k2, dim=d2, shape=s2}) =>
+                if unifyType(pl, ty1, ty2)
                   then EQ
-                  else if matchDiff (pl, k1, k2) andalso equalDim(pl, d1, d2)
-                  andalso equalShape(pl, s1, s2)
+                else if matchDiff (pl, k1, k2) andalso equalDim(pl, d1, d2)
+                andalso equalShape(pl, s1, s2)
                   then COERCE
                   else FAIL
-            | (Ty.T_FemFld{diff=k1, dim=d1, shape=s1}, Ty.T_FemFld{diff=k2, dim=d2, shape=s2}) =>
-                  if unifyType(pl, ty1, ty2)
+         | (Ty.T_FemFld{diff=k1, dim=d1, shape=s1}, Ty.T_FemFld{diff=k2, dim=d2, shape=s2}) =>
+                if unifyType(pl, ty1, ty2)
                   then EQ
-                  else if matchDiff (pl, k1, k2) andalso equalDim(pl, d1, d2)
-                  andalso equalShape(pl, s1, s2)
+                else if matchDiff (pl, k1, k2) andalso equalDim(pl, d1, d2)
+                andalso equalShape(pl, s1, s2)
                   then COERCE
                   else FAIL
+
             | (ty1, ty2) => if unifyType(pl, ty1, ty2) then EQ else FAIL
           (* end case *))
 (* +DEBUG *

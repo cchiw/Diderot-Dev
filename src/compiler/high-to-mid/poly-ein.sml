@@ -353,7 +353,7 @@ structure PolyEin : sig
             
     (********************************** main *******************************)
     (* transform ein operator *)
-    fun transform_Wrapper (y, ein, args) =
+    fun transform_Wrapper (y, ein as Ein.EIN{body,index, params}, args) =
         let
             val _ = print(H.line("\n\n   Step 0 Wrapper",y, ein,args))
             val Ein.EIN{body,index, params} = ein
@@ -372,6 +372,7 @@ structure PolyEin : sig
             		| NONE =>  NONE 
             	(* end case *))
             (********************************** Step 2-4 *******************************)
+             val ein = Ein.EIN{body=body, index=index, params=params}
             val (args, params, e)  = transform_Core (y, sx, ein, args, SeqId) 
             
         	(********************************** Step 5 *******************************)

@@ -47,7 +47,7 @@ structure SimpleTypes =
       | T_Element
       | T_FnSpace
 
-    withtype diff = int
+    withtype diff = int option
          and shape = int list
          and dim = int
 
@@ -106,17 +106,25 @@ structure SimpleTypes =
             | T_Strand id => Atom.toString id
             | T_Kernel => "kernel"
             | T_Image info => ImageInfo.toString info
-            | T_Field{diff, dim, shape} => concat[
-                  "field#", Int.toString diff, "(", Int.toString dim,
-                  ")[", shapeToString shape, "]"
+            | T_Field{diff=NONE, dim, shape} => concat[
+                   "field", "(", Int.toString dim, ")[", shapeToString shape, "]"
+                 ]
+            | T_Field{diff=SOME k, dim, shape} => concat[
+                   "field#", Int.toString k, "(", Int.toString dim,
+                   ")[", shapeToString shape, "]"
                 ]
-            | T_OField{diff, dim, shape} => concat[
-                "ofield#", Int.toString diff, "(", Int.toString dim,
-                ")[", shapeToString shape, "]"
-                ]
-            | T_FemFld{diff, dim, shape} => concat[
-                "FemFld#", Int.toString diff, "(", Int.toString dim,
-                ")[", shapeToString shape, "]"
+            | T_OField{diff=NONE, dim, shape} => concat[
+                   "ofield", "(", Int.toString dim, ")[", shapeToString shape, "]"
+                 ]
+            | T_OField{diff=SOME k, dim, shape} => concat[
+                   "ofield#", Int.toString k, "(", Int.toString dim,
+                   ")[", shapeToString shape, "]"
+                   ]
+            | T_FemFld{diff=NONE, dim, shape} => concat[
+                   "femfield", "(", Int.toString dim, ")[", shapeToString shape, "]"
+                 ]
+            | T_FemFld{diff=SOME k, dim, shape} => concat[
+                   "femfield#", Int.toString k, "(", Int.toString dim,")[", shapeToString shape, "]"
                 ]
             | T_Mesh => "meshTy"
             | T_Element => "ElementTy"

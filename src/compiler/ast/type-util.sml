@@ -77,7 +77,7 @@ structure TypeUtil : sig
   (* convert to fully resolved monomorphic forms *)
     val monoDim : Types.dim -> int
     val monoShape : Types.shape -> int list
-    val monoDiff : Types.diff -> int
+    val monoDiff : Types.diff -> int option
 
   (* instantiate a type scheme, returning the argument meta variables and the resulting type.
    * Note that we assume that the scheme is closed.
@@ -135,15 +135,15 @@ structure TypeUtil : sig
             | (Ty.T_Fun(tys1, ty2)) => Ty.T_Fun(List.map prune tys1, prune ty2)
 
             | ty => ty
-          (* end case *))
-
+          (* end case *))      
     and pruneDiff (Ty.DiffVar(Ty.DfV{bind=ref(SOME diff), ...}, i)) = (
           case pruneDiff diff
            of Ty.DiffVar(dv, i') => Ty.DiffVar(dv, i+i')
-            | Ty.DiffConst i' => Ty.DiffConst(i+i')
+            | Ty.DiffConst NONE => Ty.DiffConst NONE
+            | Ty.DiffConst(SOME i') => Ty.DiffConst(SOME(i+i'))
           (* end case *))
       | pruneDiff diff = diff
-
+      
     and pruneDim dim = (case dim
            of Ty.DimVar(Ty.DV{bind=ref(SOME dim), ...}) => pruneDim dim
             | dim => dim
@@ -300,7 +300,8 @@ structure TypeUtil : sig
     fun listToString fmt sep items = String.concatWith sep (List.map fmt items)
 
     fun diffToString diff = (case pruneDiff diff
-           of Ty.DiffConst n => Int.toString n
+           of Ty.DiffConst NONE => ""  (* QUESTION: should we do something else here? *)
+			| Ty.DiffConst(SOME n) => Int.toString n
             | Ty.DiffVar(dv, 0) => MV.diffVarToString dv
             | Ty.DiffVar(dv, i) => if i < 0
                 then String.concat["(", MV.diffVarToString dv, "-", Int.toString(~i), ")"]

@@ -14,6 +14,8 @@ structure SimpleFunc : sig
 
     val new : string * SimpleTypes.ty * SimpleTypes.ty list -> t
 
+ (* create a new differentiable function *)
+    val newDiff : string * SimpleTypes.ty * SimpleTypes.ty list -> t
   (* return the function's name (as it appears in the source) *)
     val nameOf : t -> string
 
@@ -25,6 +27,10 @@ structure SimpleFunc : sig
 
   (* return a unique string representation of the function *)
     val uniqueNameOf : t -> string
+
+ (* is the function differentiable *)
+    val isDifferentiable : t -> bool
+
 
   (* increment the use count *)
     val use : t -> t
@@ -71,6 +77,10 @@ structure SimpleFunc : sig
         props : PropList.holder         (* property list *)
       }
 
+
+    fun newProp initFn = PropList.newProp (fn (F{props, ...}) => props, initFn)
+    fun newFlag () = PropList.newFlag (fn (F{props, ...}) => props)
+
     fun new (name, resTy, paramTys) = let
           val id = Stamp.new()
           in
@@ -80,6 +90,25 @@ structure SimpleFunc : sig
                 useCnt=ref 0, props=PropList.newHolder()
               }
           end
+
+  (* differentiable functions *)
+    local
+      val { getFn, setFn } = newFlag ()
+    in
+
+
+    fun newDiff arg = let
+          val f = new arg
+          in
+            setFn (f, true);
+            f
+          end
+
+    val isDifferentiable = getFn
+
+    end (* local *)
+
+
 
     fun nameOf (F{name, ...}) = name
     fun typeOf (F{ty, paramTys, ...}) = (ty, paramTys)

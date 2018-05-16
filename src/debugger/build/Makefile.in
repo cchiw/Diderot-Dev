@@ -1,0 +1,88 @@
+# Makefile
+#
+# A makefile for the Diderot debugger
+#
+# This code is part of the Diderot Project (http://diderot-language.cs.uchicago.edu)
+#
+# COPYRIGHT (c) 2017 The University of Chicago
+# All rights reserved.
+#
+# @configure_input@
+#
+
+#### Start of system configuration section. ####
+
+#
+# directories for the install target
+#
+PREFIX =                @prefix@
+INSTALL_BINDIR =        $(PREFIX)/bin
+INSTALL_LIBDIR =        $(PREFIX)/lib
+INSTALL_INCDIR =        $(PREFIX)/include
+
+#
+# directories for the local-install target
+#
+SRCDIR =        @DIDEROT_ROOT@/src
+LIBDIR =        @DIDEROT_ROOT@/lib
+BINDIR =        @DIDEROT_ROOT@/bin
+
+INSTALL =       @INSTALL@
+SHELL =         @SHELL@
+@SET_MAKE@
+
+#### End of system configuration section. ####
+
+#
+# View path
+#
+VPATH =         ../include:../engine:../driver:../gui
+
+TARGET =	diderotdb
+
+# dependency directory
+#
+DEPDIR := .depend
+$(shell mkdir -p $(DEPDIR) >/dev/null)
+
+DEPFLAGS =      -MT $@ -MMD -MP -MF $(DEPDIR)/$*.Td
+
+#
+# tools and flags
+#
+WXCONFIG =	@WX_CONFIG@
+WX_CXXFLAGS =	$(shell $(WXCONFIG) --cxxflags)
+WX_LIBS =	$(shell $(WXCONFIG) --libs std,stc)
+CXX =           @CXX@
+INCLUDES =      -I../include -I../engine -I../gui -I@DIDEROT_SRCDIR@/lib/include -I@TEEM_DIR@/include
+CPPFLAGS =      @CPPFLAGS@ $(INCLUDES) -DDIDEROT_TARGET_DEBUGGER
+CXXFLAGS =      $(DEPFLAGS) @CXXFLAGS@ $(WX_CXXFLAGS)
+LDFLAGS =	-L@TEEM_DIR@/lib @LDPATHS@
+LIBS =		-lteem @LDFLAGS_LIBM@ -ldl $(WX_LIBS)
+
+POSTCOMPILE =   mv -f $(DEPDIR)/$*.Td $(DEPDIR)/$*.d
+
+SRCS =          json-parser.cxx json.cxx \
+		tydesc-factory.cxx typedesc.cxx value.cxx \
+		main.cxx \
+		debug.cxx debug_GUI.cxx dialogs.cxx
+
+OBJS =          $(patsubst %.cxx,%.o,$(SRCS))
+
+$(TARGET):      $(OBJS)
+	$(CXX) -o $(TARGET) $(LDFLAGS) $(OBJS) $(LIBS)
+
+%.o : %.cxx $(DEPDIR)/%.d
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+	$(POSTCOMPILE)
+
+# so that make won’t fail if the dependency file doesn't exist
+$(DEPDIR)/%.d: ;
+
+.PRECIOUS: $(DEPDIR)/%.d
+
+clean:
+	rm -rf *.o $(TARGET) $(DEPDIR)
+
+distclean:
+	rm -f Makefile

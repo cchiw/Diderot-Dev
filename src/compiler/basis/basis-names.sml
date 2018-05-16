@@ -59,7 +59,7 @@ structure BasisNames =
     val fn_diff = Atom.atom "setDiffVar"       (* differentiate in respect to a var *)
 
     val fn_inst = Atom.atom "inst"              (*probe field *)
-    val fn_inst_s = Atom.atom "instS"
+    val fn_instR = Atom.atom "instR"
     val fn_convert = Atom.atom "FEM"
     val fn_convertTracker = Atom.atom "convertTracker"
     val fn_insideO = Atom.atom "insideF"

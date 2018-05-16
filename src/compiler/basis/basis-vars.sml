@@ -257,7 +257,7 @@ structure BasisVars =
 
   (* curl on 2d and 3d vector fields *)
     local
-      val diff0 = Ty.DiffConst 0
+      (*val diff0 = Ty.DiffConst 0*)
       fun field' (k, d, dd) = field(k, Ty.DimConst d, Ty.Shape(List.map Ty.DimConst dd))
     in
     val curl2D = polyVar (N.op_curl, all([DK], fn [Ty.DIFF k] => let
@@ -1353,7 +1353,7 @@ structure BasisVars =
             end))
 
 (* probe field. Arguments are a field, 1 tensor, and the last argument is a sequence *)
-    val fn_inst_ftd = polyVar (N.fn_inst_s, all([DK, NK, SK, SK, TK],
+    val fn_instR_ftd = polyVar (N.fn_instR, all([DK, NK, SK, SK, TK],
         fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.SHAPE ddT1, Ty.TYPE tv] => let
             val k = Ty.DiffVar(k, 0)
             val d = Ty.DimVar d
@@ -1365,7 +1365,7 @@ structure BasisVars =
               [f, Ty.T_Tensor dT1, seqTyc] --> Ty.T_Tensor dF
             end))
 
-    val fn_inst_fd = polyVar (N.fn_inst_s, all([DK, NK, SK, TK],
+    val fn_instR_fd = polyVar (N.fn_instR, all([DK, NK, SK, TK],
         fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.TYPE tv] => let
             val k = Ty.DiffVar(k, 0)
             val d = Ty.DimVar d
@@ -1375,6 +1375,35 @@ structure BasisVars =
             in
               [f, seqTyc] --> Ty.T_Tensor dF
             end))
+            
+    val fn_inst_fd = polyVar (N.fn_inst, all([DK, NK, SK, TK, TK, NK],
+        fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.TYPE tv1, Ty.TYPE tv2,Ty.DIM d2] => let
+            val k = Ty.DiffVar(k, 0)
+            val d = Ty.DimVar d
+            val dF = Ty.ShapeVar ddF
+            val f =  Ty.T_Field{diff=k, dim=d, shape=dF}
+            val n = SOME(Ty.DimVar d2)
+            val seqTyc1 = dynSeq(Ty.T_Var tv1)
+            val seqTyc2 =Ty.T_Sequence(Ty.T_Tensor dF, n)
+            in
+              [f, seqTyc2] --> seqTyc2
+            end))
+            (*
+    val fn_inst_fd = polyVar (N.fn_inst, all([DK, NK, SK, NK,TK, NK],
+        fn [Ty.DIFF k, Ty.DIM d0, Ty.SHAPE ddF, Ty.DIM d1, Ty.TYPE tv, Ty.DIM d2] => let
+            val k = Ty.DiffVar(k, 0)
+            val d = Ty.DimVar d0
+            val dF = Ty.ShapeVar ddF
+            val f =  Ty.T_Field{diff=k, dim=d, shape=dF}
+            (*val n = SOME(Ty.DimVar d2)*)
+           	(*fix me should be dimension*)
+            val seq1 = Ty.T_Sequence(Ty.T_Var tv, NONE)
+            val seq2 = Ty.T_Sequence(Ty.T_Tensor dF, NONE)
+            in
+              [f, seq1] --> seq2
+            end))
+	*)
+
 
 (* ----------------------------------------------------------------------------------------------------------- *)
 (* -------------------------------------------  Swap --------------------------------------------------------- *)

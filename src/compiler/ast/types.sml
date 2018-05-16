@@ -61,18 +61,20 @@ structure Types =
 
   (* meta variable of kind type *)
     and ty_var = TV of {
-          id : Stamp.stamp,
+          id : Stamp.stamp
+,
           bind : ty option ref
         }
 
   (* levels of differentiation *)
     and diff
-      = DiffConst of int                (* i (i >= 0) *)
+      = DiffConst of int option                 (* i (i >= 0) *)
       | DiffVar of (diff_var * int)     (* d + i *)
 
   (* differentiation meta variable *)
     and diff_var = DfV of {
-          id : Stamp.stamp,
+          id : Stamp.stamp
+,
           bound : int ref,              (* lower bound of differentiation *)
           bind : diff option ref        (* unification binding *)
         }
@@ -85,7 +87,8 @@ structure Types =
 
   (* shape meta variable *)
     and shape_var = SV of {
-          id : Stamp.stamp,
+          id : Stamp.stamp
+,
           bind : shape option ref       (* unification binding *)
         }
 
@@ -96,7 +99,8 @@ structure Types =
 
   (* dimension meta variable *)
     and dim_var = DV of {
-          id : Stamp.stamp,
+          id : Stamp.stamp
+,
           bind : dim option ref         (* unification binding *)
         }
 

@@ -99,7 +99,7 @@ structure V = SimpleVar
             | Ty.T_Tensor shape => STy.T_Tensor(TU.monoShape shape)
             | Ty.T_Image{dim, shape} =>
                 STy.T_Image(II.mkInfo(TU.monoDim dim, TU.monoShape shape))
-            | Ty.T_Field{diff, dim, shape} => STy.T_Field{
+           | Ty.T_Field{diff, dim, shape} => STy.T_Field{
                   diff = TU.monoDiff diff,
                   dim = TU.monoDim dim,
                   shape = TU.monoShape shape
@@ -143,6 +143,23 @@ structure V = SimpleVar
 
   (* a property to map AST function variables to SimpleAST functions *)
     local
+      fun cvt f = (case Var.monoTypeOf f
+             of Ty.T_Fun(paramTys, resTy) =>
+                  SimpleFunc.new (Var.nameOf f, cvtTy resTy, List.map cvtTy paramTys)
+              | ty as Ty.T_Field _ => let
+                  val ty' as STy.T_Field{dim, shape, ...} = cvtTy ty
+                  in
+                    SimpleFunc.newDiff (Var.nameOf f, STy.T_Tensor shape, [STy.T_Tensor[dim]])
+                  end
+              | ty => raise Fail "expected function or field type"
+            (* end case *))
+    in
+    val {getFn = cvtFunc, ...} = Var.newProp cvt
+    end
+    
+    (*
+  (* a property to map AST function variables to SimpleAST functions *)
+    local
       fun cvt x = let
             val Ty.T_Fun(paramTys, resTy) = Var.monoTypeOf x
             in
@@ -151,7 +168,8 @@ structure V = SimpleVar
     in
     val {getFn = cvtFunc, ...} = Var.newProp cvt
     end
-
+	*)
+	
   (* a property to map AST variables to SimpleAST variables *)
     local
       fun cvt x = SimpleVar.new (Var.nameOf x, Var.kindOf x, cvtTy(Var.monoTypeOf x))
@@ -834,9 +852,19 @@ val (stms, e3') = simplifyExp (cxt, e3, [])
                 in
                   funcs := S.Func{f=f', params=params', body=body'} :: !funcs
                 end
+            | simplifyGlobalDcl (AST.D_DiffFunc(f, params, body)) = let
+                val f' = cvtFunc f
+                val params' = cvtVars params
+                val body' = simplifyAndPruneBlock cxt (AST.S_Return body)
+                in
+                  funcs := S.Func{f=f', params=params', body=body'} :: !funcs
+                end
           val () = (
                 List.app simplifyInputDcl input_dcls;
                 List.app simplifyGlobalDcl globals)
+                    (* check if there no remaining constants *)
+
+                
         (* make the global-initialization block *)
           val globInit = (case globInit
                  of SOME stm => mkBlock (simplifyStmt (cxt, stm, !globalInit))

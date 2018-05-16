@@ -141,6 +141,7 @@ structure EinUtil : sig
               | hashOpn E.Prod = 0w5
               | hashOpn E.MaxN = 0w7
               | hashOpn E.MinN = 0w11
+              | hashOpn (E.Swap _) = 0w13
             in
               case body
                of E.Const i => hashInt i + 0w3
