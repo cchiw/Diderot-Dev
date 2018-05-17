@@ -376,16 +376,22 @@ fun GlobalDcl_PROD_1_ACT (InputDcl, InputDcl_SPAN : (Lex.pos * Lex.pos), FULL_SP
   (InputDcl)
 fun GlobalDcl_PROD_2_ACT (ConstDcl, ConstDcl_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
   (ConstDcl)
-fun GlobalDcl_PROD_3_ACT (VarDcl, VarDcl_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
-  (markDecl(FULL_SPAN, PT.GD_Var VarDcl))
+fun GlobalDcl_PROD_3_ACT (Type, VarOrFieldDcl, BindId, Type_SPAN : (Lex.pos * Lex.pos), VarOrFieldDcl_SPAN : (Lex.pos * Lex.pos), BindId_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
+  (markDecl (FULL_SPAN, VarOrFieldDcl (Type, BindId)))
 fun GlobalDcl_PROD_4_ACT (FunctionDcl, FunctionDcl_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
   (FunctionDcl)
 fun ConstDcl_PROD_1_ACT (SR, SEMI, Type, KW_const, BindId, SR_SPAN : (Lex.pos * Lex.pos), SEMI_SPAN : (Lex.pos * Lex.pos), Type_SPAN : (Lex.pos * Lex.pos), KW_const_SPAN : (Lex.pos * Lex.pos), BindId_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
   (markDecl(FULL_SPAN, PT.GD_Const(Type, BindId, SR)))
 fun InputDcl_PROD_1_ACT (SR1, SR2, SEMI, Type, KW_input, BindId, SR1_SPAN : (Lex.pos * Lex.pos), SR2_SPAN : (Lex.pos * Lex.pos), SEMI_SPAN : (Lex.pos * Lex.pos), Type_SPAN : (Lex.pos * Lex.pos), KW_input_SPAN : (Lex.pos * Lex.pos), BindId_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
   (markDecl(FULL_SPAN, PT.GD_Input(Type, BindId, SR1, SR2)))
+fun VarOrFieldDcl_PROD_1_ACT (SR, SEMI, SR_SPAN : (Lex.pos * Lex.pos), SEMI_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
+  (fn (ty, id) => PT.GD_Var(PT.VD_Decl(ty, id, SR)))
+fun VarOrFieldDcl_PROD_2_ACT (LP, RP, SEMI, Expression, OP_eq, BindId, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), SEMI_SPAN : (Lex.pos * Lex.pos), Expression_SPAN : (Lex.pos * Lex.pos), OP_eq_SPAN : (Lex.pos * Lex.pos), BindId_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
+  (fn (ty, id) => PT.GD_FieldFunc(ty, id, BindId, Expression))
 fun VarDcl_PROD_1_ACT (SR, SEMI, Type, BindId, SR_SPAN : (Lex.pos * Lex.pos), SEMI_SPAN : (Lex.pos * Lex.pos), Type_SPAN : (Lex.pos * Lex.pos), BindId_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
   (mark PT.VD_Mark (FULL_SPAN, PT.VD_Decl(Type, BindId, SR)))
+fun VarDclPrefix_PROD_1_ACT (Type, BindId, Type_SPAN : (Lex.pos * Lex.pos), BindId_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
+  (Type, BindId)
 fun FunctionDcl_PROD_1_ACT (LP, RP, Type, Parameters, KW_function, BindId, FunctionDef, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), Type_SPAN : (Lex.pos * Lex.pos), Parameters_SPAN : (Lex.pos * Lex.pos), KW_function_SPAN : (Lex.pos * Lex.pos), BindId_SPAN : (Lex.pos * Lex.pos), FunctionDef_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
   (markDecl(FULL_SPAN, PT.GD_Func(Type, BindId, Parameters, FunctionDef)))
 fun Parameters_PROD_1_ACT (SR, SR_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
@@ -465,12 +471,12 @@ fun AssignOp_PROD_5_ACT (OP_modeq, OP_modeq_SPAN : (Lex.pos * Lex.pos), FULL_SPA
   (Op.asgn_mod)
 fun Type_PROD_1_ACT (LP, RP, KW_image, Shape, ConstExpr, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), KW_image_SPAN : (Lex.pos * Lex.pos), Shape_SPAN : (Lex.pos * Lex.pos), ConstExpr_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
   (markTy (FULL_SPAN, PT.T_Image{dim=ConstExpr, shape=Shape}))
-fun Type_PROD_2_ACT (LP, RP, HASH, KW_field, Continuity, Shape, ConstExpr, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), HASH_SPAN : (Lex.pos * Lex.pos), KW_field_SPAN : (Lex.pos * Lex.pos), Continuity_SPAN : (Lex.pos * Lex.pos), Shape_SPAN : (Lex.pos * Lex.pos), ConstExpr_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
-  (markTy (FULL_SPAN, PT.T_Field{diff=Continuity, dim=ConstExpr, shape=Shape}))
-fun Type_PROD_3_ACT (LP, RP, HASH, KW_OField, Continuity, Shape, ConstExpr, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), HASH_SPAN : (Lex.pos * Lex.pos), KW_OField_SPAN : (Lex.pos * Lex.pos), Continuity_SPAN : (Lex.pos * Lex.pos), Shape_SPAN : (Lex.pos * Lex.pos), ConstExpr_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
-  (markTy (FULL_SPAN, PT.T_OField{diff=Continuity, dim=ConstExpr, shape=Shape}))
-fun Type_PROD_4_ACT (LP, RP, HASH, Continuity, Shape, ConstExpr, KW_fem, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), HASH_SPAN : (Lex.pos * Lex.pos), Continuity_SPAN : (Lex.pos * Lex.pos), Shape_SPAN : (Lex.pos * Lex.pos), ConstExpr_SPAN : (Lex.pos * Lex.pos), KW_fem_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
-  (markTy (FULL_SPAN, PT.T_FemFld{diff=Continuity, dim=ConstExpr, shape=Shape}))
+fun Type_PROD_2_ACT (LP, RP, SR, KW_field, Shape, ConstExpr, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), SR_SPAN : (Lex.pos * Lex.pos), KW_field_SPAN : (Lex.pos * Lex.pos), Shape_SPAN : (Lex.pos * Lex.pos), ConstExpr_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
+  (markTy (FULL_SPAN, PT.T_Field{diff=SR, dim=ConstExpr, shape=Shape}))
+fun Type_PROD_3_ACT (LP, RP, SR, KW_OField, Shape, ConstExpr, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), SR_SPAN : (Lex.pos * Lex.pos), KW_OField_SPAN : (Lex.pos * Lex.pos), Shape_SPAN : (Lex.pos * Lex.pos), ConstExpr_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
+  (markTy (FULL_SPAN, PT.T_OField{diff=SR, dim=ConstExpr, shape=Shape}))
+fun Type_PROD_4_ACT (LP, RP, SR, Shape, ConstExpr, KW_fem, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), SR_SPAN : (Lex.pos * Lex.pos), Shape_SPAN : (Lex.pos * Lex.pos), ConstExpr_SPAN : (Lex.pos * Lex.pos), KW_fem_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
+  (markTy (FULL_SPAN, PT.T_FemFld{diff=SR, dim=ConstExpr, shape=Shape}))
 fun Type_PROD_5_ACT (KW_mesh, KW_mesh_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
   (markTy (FULL_SPAN, PT.T_Mesh))
 fun Type_PROD_6_ACT (KW_element, KW_element_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
@@ -2449,41 +2455,71 @@ fun Type_NT (strm) = let
             end
       fun Type_PROD_2 (strm) = let
             val (KW_field_RES, KW_field_SPAN, strm') = matchKW_field(strm)
-            val (HASH_RES, HASH_SPAN, strm') = matchHASH(strm')
-            val (Continuity_RES, Continuity_SPAN, strm') = Continuity_NT(strm')
+            fun Type_PROD_2_SUBRULE_1_NT (strm) = let
+                  val (HASH_RES, HASH_SPAN, strm') = matchHASH(strm)
+                  val (Continuity_RES, Continuity_SPAN, strm') = Continuity_NT(strm')
+                  val FULL_SPAN = (#1(HASH_SPAN), #2(Continuity_SPAN))
+                  in
+                    ((Continuity_RES), FULL_SPAN, strm')
+                  end
+            fun Type_PROD_2_SUBRULE_1_PRED (strm) = (case (lex(strm))
+                   of (Tok.HASH, _, strm') => true
+                    | _ => false
+                  (* end case *))
+            val (SR_RES, SR_SPAN, strm') = EBNF.optional(Type_PROD_2_SUBRULE_1_PRED, Type_PROD_2_SUBRULE_1_NT, strm')
             val (LP_RES, LP_SPAN, strm') = matchLP(strm')
             val (ConstExpr_RES, ConstExpr_SPAN, strm') = ConstExpr_NT(strm')
             val (RP_RES, RP_SPAN, strm') = matchRP(strm')
             val (Shape_RES, Shape_SPAN, strm') = Shape_NT(strm')
             val FULL_SPAN = (#1(KW_field_SPAN), #2(Shape_SPAN))
             in
-              (UserCode.Type_PROD_2_ACT (LP_RES, RP_RES, HASH_RES, KW_field_RES, Continuity_RES, Shape_RES, ConstExpr_RES, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), HASH_SPAN : (Lex.pos * Lex.pos), KW_field_SPAN : (Lex.pos * Lex.pos), Continuity_SPAN : (Lex.pos * Lex.pos), Shape_SPAN : (Lex.pos * Lex.pos), ConstExpr_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
+              (UserCode.Type_PROD_2_ACT (LP_RES, RP_RES, SR_RES, KW_field_RES, Shape_RES, ConstExpr_RES, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), SR_SPAN : (Lex.pos * Lex.pos), KW_field_SPAN : (Lex.pos * Lex.pos), Shape_SPAN : (Lex.pos * Lex.pos), ConstExpr_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
                 FULL_SPAN, strm')
             end
       fun Type_PROD_3 (strm) = let
             val (KW_OField_RES, KW_OField_SPAN, strm') = matchKW_OField(strm)
-            val (HASH_RES, HASH_SPAN, strm') = matchHASH(strm')
-            val (Continuity_RES, Continuity_SPAN, strm') = Continuity_NT(strm')
+            fun Type_PROD_3_SUBRULE_1_NT (strm) = let
+                  val (HASH_RES, HASH_SPAN, strm') = matchHASH(strm)
+                  val (Continuity_RES, Continuity_SPAN, strm') = Continuity_NT(strm')
+                  val FULL_SPAN = (#1(HASH_SPAN), #2(Continuity_SPAN))
+                  in
+                    ((Continuity_RES), FULL_SPAN, strm')
+                  end
+            fun Type_PROD_3_SUBRULE_1_PRED (strm) = (case (lex(strm))
+                   of (Tok.HASH, _, strm') => true
+                    | _ => false
+                  (* end case *))
+            val (SR_RES, SR_SPAN, strm') = EBNF.optional(Type_PROD_3_SUBRULE_1_PRED, Type_PROD_3_SUBRULE_1_NT, strm')
             val (LP_RES, LP_SPAN, strm') = matchLP(strm')
             val (ConstExpr_RES, ConstExpr_SPAN, strm') = ConstExpr_NT(strm')
             val (RP_RES, RP_SPAN, strm') = matchRP(strm')
             val (Shape_RES, Shape_SPAN, strm') = Shape_NT(strm')
             val FULL_SPAN = (#1(KW_OField_SPAN), #2(Shape_SPAN))
             in
-              (UserCode.Type_PROD_3_ACT (LP_RES, RP_RES, HASH_RES, KW_OField_RES, Continuity_RES, Shape_RES, ConstExpr_RES, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), HASH_SPAN : (Lex.pos * Lex.pos), KW_OField_SPAN : (Lex.pos * Lex.pos), Continuity_SPAN : (Lex.pos * Lex.pos), Shape_SPAN : (Lex.pos * Lex.pos), ConstExpr_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
+              (UserCode.Type_PROD_3_ACT (LP_RES, RP_RES, SR_RES, KW_OField_RES, Shape_RES, ConstExpr_RES, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), SR_SPAN : (Lex.pos * Lex.pos), KW_OField_SPAN : (Lex.pos * Lex.pos), Shape_SPAN : (Lex.pos * Lex.pos), ConstExpr_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
                 FULL_SPAN, strm')
             end
       fun Type_PROD_4 (strm) = let
             val (KW_fem_RES, KW_fem_SPAN, strm') = matchKW_fem(strm)
-            val (HASH_RES, HASH_SPAN, strm') = matchHASH(strm')
-            val (Continuity_RES, Continuity_SPAN, strm') = Continuity_NT(strm')
+            fun Type_PROD_4_SUBRULE_1_NT (strm) = let
+                  val (HASH_RES, HASH_SPAN, strm') = matchHASH(strm)
+                  val (Continuity_RES, Continuity_SPAN, strm') = Continuity_NT(strm')
+                  val FULL_SPAN = (#1(HASH_SPAN), #2(Continuity_SPAN))
+                  in
+                    ((Continuity_RES), FULL_SPAN, strm')
+                  end
+            fun Type_PROD_4_SUBRULE_1_PRED (strm) = (case (lex(strm))
+                   of (Tok.HASH, _, strm') => true
+                    | _ => false
+                  (* end case *))
+            val (SR_RES, SR_SPAN, strm') = EBNF.optional(Type_PROD_4_SUBRULE_1_PRED, Type_PROD_4_SUBRULE_1_NT, strm')
             val (LP_RES, LP_SPAN, strm') = matchLP(strm')
             val (ConstExpr_RES, ConstExpr_SPAN, strm') = ConstExpr_NT(strm')
             val (RP_RES, RP_SPAN, strm') = matchRP(strm')
             val (Shape_RES, Shape_SPAN, strm') = Shape_NT(strm')
             val FULL_SPAN = (#1(KW_fem_SPAN), #2(Shape_SPAN))
             in
-              (UserCode.Type_PROD_4_ACT (LP_RES, RP_RES, HASH_RES, Continuity_RES, Shape_RES, ConstExpr_RES, KW_fem_RES, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), HASH_SPAN : (Lex.pos * Lex.pos), Continuity_SPAN : (Lex.pos * Lex.pos), Shape_SPAN : (Lex.pos * Lex.pos), ConstExpr_SPAN : (Lex.pos * Lex.pos), KW_fem_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
+              (UserCode.Type_PROD_4_ACT (LP_RES, RP_RES, SR_RES, Shape_RES, ConstExpr_RES, KW_fem_RES, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), SR_SPAN : (Lex.pos * Lex.pos), Shape_SPAN : (Lex.pos * Lex.pos), ConstExpr_SPAN : (Lex.pos * Lex.pos), KW_fem_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
                 FULL_SPAN, strm')
             end
       fun Type_PROD_5 (strm) = let
@@ -3243,6 +3279,46 @@ fun FunctionDcl_NT (strm) = let
         (UserCode.FunctionDcl_PROD_1_ACT (LP_RES, RP_RES, Type_RES, Parameters_RES, KW_function_RES, BindId_RES, FunctionDef_RES, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), Type_SPAN : (Lex.pos * Lex.pos), Parameters_SPAN : (Lex.pos * Lex.pos), KW_function_SPAN : (Lex.pos * Lex.pos), BindId_SPAN : (Lex.pos * Lex.pos), FunctionDef_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
           FULL_SPAN, strm')
       end
+fun VarOrFieldDcl_NT (strm) = let
+      fun VarOrFieldDcl_PROD_1 (strm) = let
+            fun VarOrFieldDcl_PROD_1_SUBRULE_1_NT (strm) = let
+                  val (OP_eq_RES, OP_eq_SPAN, strm') = matchOP_eq(strm)
+                  val (Expression_RES, Expression_SPAN, strm') = Expression_NT(strm')
+                  val FULL_SPAN = (#1(OP_eq_SPAN), #2(Expression_SPAN))
+                  in
+                    ((Expression_RES), FULL_SPAN, strm')
+                  end
+            fun VarOrFieldDcl_PROD_1_SUBRULE_1_PRED (strm) = (case (lex(strm))
+                   of (Tok.OP_eq, _, strm') => true
+                    | _ => false
+                  (* end case *))
+            val (SR_RES, SR_SPAN, strm') = EBNF.optional(VarOrFieldDcl_PROD_1_SUBRULE_1_PRED, VarOrFieldDcl_PROD_1_SUBRULE_1_NT, strm)
+            val (SEMI_RES, SEMI_SPAN, strm') = matchSEMI(strm')
+            val FULL_SPAN = (#1(SR_SPAN), #2(SEMI_SPAN))
+            in
+              (UserCode.VarOrFieldDcl_PROD_1_ACT (SR_RES, SEMI_RES, SR_SPAN : (Lex.pos * Lex.pos), SEMI_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
+                FULL_SPAN, strm')
+            end
+      fun VarOrFieldDcl_PROD_2 (strm) = let
+            val (LP_RES, LP_SPAN, strm') = matchLP(strm)
+            val (BindId_RES, BindId_SPAN, strm') = BindId_NT(strm')
+            val (RP_RES, RP_SPAN, strm') = matchRP(strm')
+            val (OP_eq_RES, OP_eq_SPAN, strm') = matchOP_eq(strm')
+            val (Expression_RES, Expression_SPAN, strm') = Expression_NT(strm')
+            val (SEMI_RES, SEMI_SPAN, strm') = matchSEMI(strm')
+            val FULL_SPAN = (#1(LP_SPAN), #2(SEMI_SPAN))
+            in
+              (UserCode.VarOrFieldDcl_PROD_2_ACT (LP_RES, RP_RES, SEMI_RES, Expression_RES, OP_eq_RES, BindId_RES, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), SEMI_SPAN : (Lex.pos * Lex.pos), Expression_SPAN : (Lex.pos * Lex.pos), OP_eq_SPAN : (Lex.pos * Lex.pos), BindId_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
+                FULL_SPAN, strm')
+            end
+      in
+        (case (lex(strm))
+         of (Tok.LP, _, strm') => VarOrFieldDcl_PROD_2(strm)
+          | (Tok.OP_eq, _, strm') => VarOrFieldDcl_PROD_1(strm)
+          | (Tok.SEMI, _, strm') => VarOrFieldDcl_PROD_1(strm)
+          | _ => fail()
+        (* end case *))
+      end
 fun ConstDcl_NT (strm) = let
       val (KW_const_RES, KW_const_SPAN, strm') = matchKW_const(strm)
       val (Type_RES, Type_SPAN, strm') = Type_NT(strm')
@@ -3316,10 +3392,12 @@ fun GlobalDcl_NT (strm) = let
                 FULL_SPAN, strm')
             end
       fun GlobalDcl_PROD_3 (strm) = let
-            val (VarDcl_RES, VarDcl_SPAN, strm') = VarDcl_NT(strm)
-            val FULL_SPAN = (#1(VarDcl_SPAN), #2(VarDcl_SPAN))
+            val (Type_RES, Type_SPAN, strm') = Type_NT(strm)
+            val (BindId_RES, BindId_SPAN, strm') = BindId_NT(strm')
+            val (VarOrFieldDcl_RES, VarOrFieldDcl_SPAN, strm') = VarOrFieldDcl_NT(strm')
+            val FULL_SPAN = (#1(Type_SPAN), #2(VarOrFieldDcl_SPAN))
             in
-              (UserCode.GlobalDcl_PROD_3_ACT (VarDcl_RES, VarDcl_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
+              (UserCode.GlobalDcl_PROD_3_ACT (Type_RES, VarOrFieldDcl_RES, BindId_RES, Type_SPAN : (Lex.pos * Lex.pos), VarOrFieldDcl_SPAN : (Lex.pos * Lex.pos), BindId_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
                 FULL_SPAN, strm')
             end
       fun GlobalDcl_PROD_4 (strm) = let

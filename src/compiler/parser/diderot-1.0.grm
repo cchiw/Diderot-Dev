@@ -361,25 +361,27 @@ Type    : "image" "(" Dimension ")" Dimensions
                 => (markTy(FULL_SPAN, PT.T_Image{
                         shape = Dimensions, dim = Dimension
                       }))
-        | "field" "#" INT "(" Dimension ")" Dimensions
-                => (markTy(FULL_SPAN, PT.T_Field{
-                        diff = INT,
-                        shape = Dimensions,
-                        dim = Dimension
-                      }))
+| "field" "#" INT "(" Dimension ")" Dimensions
+=> (markTy(FULL_SPAN, PT.T_Field{
+diff = SOME INT,
+shape = Dimensions,
+dim = Dimension
+}))
+| "ofield" "#" INT "(" Dimension ")" Dimensions
+=> (markTy(FULL_SPAN, PT.T_OField{
+diff = SOME INT,
+shape = Dimensions,
+dim = Dimension
+}))
+| "fem" "#" INT "(" Dimension ")" Dimensions
+=> (markTy(FULL_SPAN, PT.T_FemFld{
+diff = SOME INT,
+shape = Dimensions,
+dim = Dimension
+}))
         | "kernel" "#" INT
                 => (markTy(FULL_SPAN, PT.T_Kernel INT))
         | ConcreteType
-        | "ofield" "#" INT "(" Dimension ")" Dimensions
-            => (markTy(FULL_SPAN, PT.T_OField{
-                diff = INT,
-                shape = Dimensions,
-                dim = Dimension }))
-        | "fem" "#" INT "(" Dimension ")" Dimensions
-            => (markTy(FULL_SPAN, PT.T_FemFld{
-            diff = INT,
-            shape = Dimensions,
-            dim = Dimension}))
         | "mesh" => (markTy(FULL_SPAN, PT.T_Mesh))
         | "element"
             => (markTy (FULL_SPAN, PT.T_Element))
@@ -408,9 +410,10 @@ InputType
                       }))
         | "fem" "#" INT "(" Dimension ")" Dimensions
             => (markTy(FULL_SPAN, PT.T_FemFld{
-                diff = INT,
-                shape = Dimensions,
-                dim = Dimension}))
+            diff = SOME INT,
+            shape = Dimensions,
+            dim = Dimension
+            }))
         | ValueType SeqDimensions
                 => (markTy(FULL_SPAN, SeqDimensions ValueType))
         ;
