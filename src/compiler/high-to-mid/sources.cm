@@ -35,9 +35,11 @@ is
   handle-ein.sml
   probe-ein.sml
   poly-ein.sml
-  fem-to-mid.sml
-  ofield-to-fem.sml
   translate-ofield.sml
-  data-fem.sml
   scan-ein.sml
   helper.sml
+  eval-fem.sml
+  findcell-fem.sml
+    poly-ein-step2.sml
+    poly-ein-step3.sml
+    poly-ein-step4.sml

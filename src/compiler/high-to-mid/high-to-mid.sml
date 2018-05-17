@@ -25,8 +25,9 @@ structure HighToMid : sig
     structure DstOp = MidOps
     structure InP = Inputs
     structure BCtl = BorderCtl
-     structure ME = meshElem
-
+    structure ME = meshElem
+    structure FC = FindCellFem
+    
     fun useCount (SrcIR.V{useCnt, ...}) = !useCnt
 
     fun getRHS x = (case SrcIR.Var.getDef x
@@ -253,12 +254,12 @@ structure HighToMid : sig
               | SrcOp.LoadSeq(ty, file) => assign (DstOp.LoadSeq(cvtTy ty, file))
               | SrcOp.LoadImage(ty, file) => assign (DstOp.LoadImage(cvtTy ty, file))
               | SrcOp.MathFn e => assign (DstOp.MathFn e)
-              | SrcOp.InsideFEM dim => OFieldToFem.inside(y, dim, args, Env.renameList(env, args))
+              | SrcOp.InsideFEM dim => FC.inside(y, dim, args, Env.renameList(env, args))
               | SrcOp.InsideBASE dim => expandInsideBase(env, y, dim, Env.renameList(env, args))
               | SrcOp.BuildMesh e => assign (DstOp.BuildMesh (e))
               | SrcOp.BuildElement e => assign (DstOp.BuildElement (e))
               | SrcOp.BuildSpace => assign (DstOp.BuildSpace)
-              | SrcOp.sp_getCell => OFieldToFem.getCell(y, Env.renameList(env, args))
+              | SrcOp.sp_getCell => FC.getCell(y, Env.renameList(env, args))
               | SrcOp.printIR =>  (ScanEin.expand(y, List.map getRHS args);dummy())
               | SrcOp.KrnMultipleTwoD =>  assign (DstOp.KrnMultipleTwoD)
               | SrcOp.KrnMultipleThreeD =>  assign (DstOp.KrnMultipleThreeD)

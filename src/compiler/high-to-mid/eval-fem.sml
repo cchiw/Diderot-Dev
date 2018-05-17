@@ -1,20 +1,7 @@
-(* expand-fem.sml
- *
- * This code is part of the Diderot Project (http://diderot-language.cs.uchicago.edu)
- *
- * COPYRIGHT (c) 2016 The University of Chicago
- * All rights reserved.
- *)
-
-(* handle for evaluating fem
-* and checking inside a fem field
-*)
-structure OFieldToFem : sig
+structure EvalFem : sig
 
     val sum_evaluate : MidIR.assign -> MidIR.assign list
     val scan_evaluate : MidIR.assign -> MidIR.assign list
-    val inside : MidIR.var * int * HighIR.var list * MidIR.var list -> MidIR.assign list
-    val getCell: MidIR.var * MidIR.var list -> MidIR.assign list
     
   end = struct
 
@@ -25,35 +12,48 @@ structure OFieldToFem : sig
     structure V = IR.Var
     structure GVar = IR.GlobalVar
     structure E = Ein
-    
     structure CF = cvtFile
     structure ME = meshElem
-    structure FM = FemToMid
-    structure DF = DataFem
+    structure FC = FindCellFem
     structure H = Helper
-
-
-    (* tanslate position. used by evaluate and inside
-    * body- the fld part of the ein expressio
-    * vp- position variable
-    * other mid-ir args
+    
+    
+ 	(* types *)
+    val cellTy = Ty.intTy
+    val pointTy = Ty.TensorTy []
+    (* types created *)
+    val basisTy = Ty.BasisDataTy
+    val coordTy = Ty.coordTy
+    val fcTy = Ty.fcTy                      (*int and vector*)
+    (*Type wrapper*)
+    val mappTy = Ty.MappTy
+    val nodeTy = Ty.arrTy(Ty.intTy)            (*array of ints*)
+    
+ 	(* at this point we have the correct cell number
+    * and we are evaluating field with translated position
     *)
-    fun translate(body, vp, args) =
+    fun mk_eval_ops(level,shape, y, index, space, sdim, dim, sBasisFunctions, vp, vL, mN, mP, vTC, vfindcell, mC, vX, vB,sBasisDervs) =
         let
-            val E.OField(ofield, E.Tensor(fid, _), E.Partial  dx) = body
-            (*get components of fem field (element, mesh, datafile)*)
-            val (vfs, mesh, element, datafile) = DF.defineField(ofield, args)
-            (* get arguments from ids*)
-            val vf = List.nth(args, fid)
-            val vfs =  vf::vfs
-            val (vX, PgetData, vB, vL, mN, mP, mC,Lc) = FM.getData(vfs)
-            val (vfindcell, Pcell, dim, sdim, sBasisFunctions, space, vTC,sBasisDervs) = FM.expandFindCell(datafile, mesh, element, vp, vL, mN, mP,Lc)
+			val newposTy = Ty.TensorTy[dim]
+			(* creating new mid-ir variables*)
+			val basisEval = V.new ("makeBasisEvaluation", Ty.StringTy)
+			val cell = V.new ("cell", cellTy)
+			val newpos = V.new ("newpos", newposTy)
+			val node = V.new ("node", nodeTy)
+			val tmp = if level = 0 then [""] else List.nth(sBasisDervs,level-1)
+			val args = [vp, vL,mN,mP, vTC, vfindcell]
+			val p12 =  (basisEval, IR.OP(Op.makeBasisEvaluation(space, sBasisFunctions,level, tmp), args))
+			val p14 = (cell, IR.OP(Op.GetCell, [vfindcell,basisEval])) 
+			val p15 = (newpos, IR.OP(Op.GetPos, [vfindcell,basisEval]))
+			val p16 = (node, IR.OP(Op.GetNode, [cell, mN, mC]))
+			val args = if level = 0 then [] else  [cell, mN, mP]
+			val p19 = (y,IR.OP(Op.EvalFem(space, sdim,level,shape),[node,newpos,vX]@args))
+			val Peval =  [p12,p14,p15,p16,p19]
         in
-            (PgetData@Pcell, space, Int.fromLarge sdim, dim, sBasisFunctions, vL, mN, mP, vTC, vfindcell, mC, vX, vB,sBasisDervs)
+            Peval
         end
 
-
-    (* get name of data file*)
+	 (* get name of data file*)
     fun evaluate (y, rhs as IR.EINAPP(ein as E.EIN{body,index,...}, args)) =
     	let
 			(*deconstruct body *)
@@ -63,16 +63,14 @@ structure OFieldToFem : sig
 			val body = fld
 			val level = List.length(dx)
 			val shape = List.rev(List.drop(List.rev(index),level))
-			val (Pall, space, sdim, dim, sBasisFunctions, vL, mN, mP, vTC, vfindcell, mC, vX, vB,sBasisDervs) = translate(body, vp, args)
+			val (Pall, space, sdim, dim, sBasisFunctions, vL, mN, mP, vTC, vfindcell, mC, vX, vB,sBasisDervs) = FC.translate(body, vp, args)
 			val nn = length(sBasisDervs)
 			(*val _ = (String.concat["\nsBasisDervs: ",Int.toString(nn),"level:",Int.toString(level)])*)
 			val _ = if(level>nn) then raise Fail ("unsupported level of diff") else 1
-			val Peval =
-			FM.eval(level, shape,y, index, space, sdim, dim, sBasisFunctions, vp, vL, mN, mP, vTC, vfindcell, mC, vX, vB,sBasisDervs)
+			val Peval =  mk_eval_ops(level, shape,y, index, space, sdim, dim, sBasisFunctions, vp, vL, mN, mP, vTC, vfindcell, mC, vX, vB,sBasisDervs)
         in
             Pall@Peval
         end
-
 
     fun sum_evaluate (y, rhs as IR.EINAPP(ein as E.EIN{body,index,params}, args)) =
         let
@@ -121,7 +119,6 @@ structure OFieldToFem : sig
              asgn @[asgnn]
    	 	end
 
-
     fun slice_evaluate (y, rhs as IR.EINAPP(ein as E.EIN{body,index,params}, args)) =
         let
 			val E.Probe(E.OField(ofield, E.Tensor(fid, alpha), E.Partial dx), [pos],_) = body
@@ -161,7 +158,6 @@ structure OFieldToFem : sig
             asgn @[asgnn]
         end
         
-        
     fun scan_evaluate (y, rhs as IR.EINAPP(ein as E.EIN{body,index,params}, args)) =
         let
             val E.Probe(E.OField(ofield, E.Tensor(fid, alpha), E.Partial  dx), [pos],_) = body
@@ -173,25 +169,5 @@ structure OFieldToFem : sig
         end
 
 
-    (* check ifposition is inside field *)
-    fun inside(y, dim, [vpH,fH], [vp, f]) =
-        let
-        	val _ = H.getRHSEINSrc fH
-            val (E.EIN{body,...}, args) = H.getRHSEIN f (*remy change here was f*) (*get EIN operator attached to variable*)
-            val (Pall, space, sdim, dim, sBasisFunctions, vL, mN, mP, vTC, vfindcell, mC, vX, vB,sBasisDervs) = translate(body, vp, args)
-            val p14 = (y, IR.OP(Op.checkCell, [vfindcell]))
-        in
-            Pall@[p14]
-        end
-        
-
-    fun getCell(y, [f,vp]) =
-        let
-            val (E.EIN{body,...}, args) = H.getRHSEIN f (*get EIN operator attached to variable*)
-            val (Pall, space, sdim, dim, sBasisFunctions, vL, mN, mP, vTC, vfindcell, mC, vX, vB,sBasisDervs) = translate(body, vp, args)
-            val p14 = (y, IR.OP(Op.sp_getCell, [vfindcell]))
-        in
-                Pall@[p14]
-         end
-
 end
+
