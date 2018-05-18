@@ -52,9 +52,10 @@ structure BorderCtl : sig
    *)
     fun rewriteLoad origNd = (case Nd.kind origNd
            of IR.ASSIGN{
-                stm = (x, rhs as IR.OP(Op.LoadVoxelsWithCtl(info,s,ctl), args as [img, pos])),
+                stm = (x, rhs as IR.OP(Op.LoadVoxelsWithCtl(info,ss,ctl), args as [img, pos])),
                 ...
               } => let
+              val s = List.nth(ss,0)
                 val d = (case V.ty pos
                       of Ty.IntTy  => 1
                        | Ty.SeqTy(Ty.IntTy, SOME d) => d
@@ -63,7 +64,7 @@ structure BorderCtl : sig
                 val x1 = V.copy x
                 val x2 = V.copy x
                 val cond = V.new("isInside", Ty.BoolTy)
-                val loadNd = Nd.mkASSIGN(x1, IR.OP(Op.LoadVoxels(info,s), args))
+                val loadNd = Nd.mkASSIGN(x1, IR.OP(Op.LoadVoxels(info,ss), args))
                 val loadWithCtlNd = Nd.mkASSIGN(x2, rhs)
                 val insideTstNd = Nd.mkASSIGN(cond, IR.OP(Op.IndexInside(info,s), [pos, img]))
                 val condNd = Nd.mkCOND cond
@@ -106,15 +107,15 @@ structure BorderCtl : sig
                               (* end case *))
                           | NONE => kids env
                         (* end case *))
-                    | IR.ASSIGN{stm=(y, IR.OP(Op.LoadVoxelsWithCtl(info, s, _), [V, n])), ...} =>
+                    | IR.ASSIGN{stm=(y, IR.OP(Op.LoadVoxelsWithCtl(info, ss, _), [V, n])), ...} =>
                         let
                         fun addToList () = (workList := nd :: !workList; kids env)
                         in
                           case Env.find (env, (n, V))
-                           of SOME s' => if (s <= s')
+                           of SOME s' => if (List.nth(ss,0) <= s')
                                 then let
                                 (* no need for an inside test; replace node with LoadVoxels *)
-                                  val newNd = Nd.mkASSIGN(y, IR.OP(Op.LoadVoxels(info, s), [V, n]))
+                                  val newNd = Nd.mkASSIGN(y, IR.OP(Op.LoadVoxels(info, ss), [V, n]))
                                   in
                                     IR.CFG.replaceNode (nd, newNd);
                                     kids env

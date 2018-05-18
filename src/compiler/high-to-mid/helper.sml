@@ -21,9 +21,10 @@ structure Helper : sig
     val ll : MidIR.var list * int -> string
     val paramToString : int * Ein.param_kind -> string
     val prntNewbies: (MidIR.var * MidIR.rhs) list * 'a -> unit list
+    val toStringBA: string * Ein.ein_exp * MidIR.var list  -> string
     val line : string * MidIR.var * Ein.ein * MidIR.var list -> string
-    val iterP: Ein.ein_exp list * Ein.ein_exp list -> Ein.ein_exp
-    val iterA: Ein.ein_exp list * Ein.ein_exp list -> Ein.ein_exp
+    val iterP: Ein.ein_exp list -> Ein.ein_exp
+    val iterA: Ein.ein_exp list  -> Ein.ein_exp
     
   end = struct
 
@@ -58,7 +59,9 @@ structure Helper : sig
             ) newbies
         end
      fun line(name, y, ein, args) = String.concat[name, ":",MidIR.Var.name(y),"=", EinPP.toString(ein),"-",ll(args,0)]
-          
+     fun toStringBA(name, e,args) = (String.concat["\n\n",name,": body:",EinPP.expToString(e)," args#:",Int.toString(length(args)),"\n\n"])
+
+
 	 (* ------------------------------------ get RHS --------------------------------------------  *)
     fun getRHSEINSrc x = (case SrcIR.Var.getDef x
         of  SrcIR.EINAPP (ein, args) => (print"ein-app")
@@ -108,24 +111,25 @@ structure Helper : sig
         (* end case *))
         
     (* ------------------------------------ rewriting --------------------------------------------  *)
-    fun iterP([], [r]) = r
-    | iterP ([], rest) = E.Opn(E.Prod, rest)
-    | iterP (E.Const 0::es, rest) = E.Const(0)
-    | iterP (E.Const 1::es, rest) = iterP(es, rest)
-    | iterP (E.Delta(E.C c1, E.V v1)::E.Delta(E.C c2, E.V v2)::es, rest) =
-        (* variable can't be 0 and 1 '*)
-        if(c1=c2 orelse (not (v1=v2)))
-        then iterP (es, E.Delta(E.C c1, E.V v1)::E.Delta(E.C c2, E.V v2)::rest)
-        else  E.Const(0)
-    | iterP(E.Opn(E.Prod, ys)::es, rest) = iterP(ys@es, rest)
-    | iterP (e1::es, rest)   = iterP(es, e1::rest)
-
-
-    fun iterA([], []) = E.Const 0
-    | iterA([], [r]) = r
-    | iterA ([], rest) = E.Opn(E.Add, rest)
-    | iterA (E.Const 0::es, rest) = iterA(es, rest)
-    | iterA (E.Opn(E.Add, ys)::es, rest) = iterA(ys@es, rest)
-    | iterA (e1::es, rest)   = iterA(es, e1::rest)
-        
+    fun iterP es =  let 
+		fun iterPP([], [r]) = r
+		| iterPP ([], rest) = E.Opn(E.Prod, rest)
+		| iterPP (E.Const 0::es, rest) = E.Const(0)
+		| iterPP (E.Const 1::es, rest) = iterPP(es, rest)
+		| iterPP (E.Delta(E.C c1, E.V v1)::E.Delta(E.C c2, E.V v2)::es, rest) =
+			(* variable can't be 0 and 1 '*)
+			if(c1=c2 orelse (not (v1=v2)))
+			then iterPP (es, E.Delta(E.C c1, E.V v1)::E.Delta(E.C c2, E.V v2)::rest)
+			else  E.Const(0)
+		| iterPP(E.Opn(E.Prod, ys)::es, rest) = iterPP(ys@es, rest)
+		| iterPP (e1::es, rest)   = iterPP(es, e1::rest)
+	in iterPP(es, []) end
+	fun iterA es =  let
+		fun iterAA([], []) = E.Const 0
+		| iterAA([], [r]) = r
+		| iterAA ([], rest) = E.Opn(E.Add, rest)
+		| iterAA (E.Const 0::es, rest) = iterAA(es, rest)
+		| iterAA (E.Opn(E.Add, ys)::es, rest) = iterAA(ys@es, rest)
+		| iterAA (e1::es, rest)   = iterAA(es, e1::rest)
+	in iterAA(es,[]) end	
 end

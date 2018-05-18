@@ -42,4 +42,3 @@ is
   findcell-fem.sml
     poly-ein-step2.sml
     poly-ein-step3.sml
-    poly-ein-step4.sml

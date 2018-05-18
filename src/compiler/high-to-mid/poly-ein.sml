@@ -24,14 +24,14 @@ structure PolyEin : sig
     structure H = Helper
     structure P2 = PolyEin2
     structure P3 = PolyEin3
-    structure P4 = PolyEin4 
+
 	val ll = H.ll
 	val paramToString = H.paramToString
 	val iterP = H.iterP
 	val iterA = H.iterA
    		
    		
-   	  fun getSx (E.Sum(sx, e)) = (sx, e)
+   	 fun getSx (E.Sum(sx, e)) = (sx, e)
       | getSx e = ([], e)
     fun getPty (E.Probe(E.OField(E.CFExp pargs, e, E.Partial dx), expProbe, pty)) = pty
     fun getE (E.Probe(E.OField(E.CFExp pargs, e, E.Partial dx), expProbe, pty)) = e
@@ -48,24 +48,24 @@ structure PolyEin : sig
         	val _ = ("\n\n*******************\n") 
             val _ = (H.line("core:",y, ein,args))  
             (*check to see that it is the right number of arguments*)
-            val pargs = getPargs body 
-            val n_pargs = length(pargs)
-            val start_idxs =  getIDs(body)
-            val n_probe = length(start_idxs)
+            val cfexp_ids = getPargs body 
+            val n_pargs = length(cfexp_ids)
+            val probe_ids =  getIDs(body)
+            val n_probe = length(probe_ids)
             val _ = if(not(n_pargs =n_probe))
                     then raise  Fail(concat[" n_pargs:", Int.toString( n_pargs),"n_probe:",Int.toString(n_probe)])
                     else 1
             (* replace polywrap args/params with probed position(s) args/params *)
             val e = getE body            
-            val (args, params, e) = P2.polyArgs(args, params, pargs, start_idxs, e, SeqId)
-            val _ = (H.line("\n\n  Step 2 post polyArgs",y, ein,args))
+            val (args, params, e) = P2.polyArgs(params, e, args,  SeqId, cfexp_ids, probe_ids)
+            val _ = H.toStringBA("\n\n  Step 2 replace arguments",e,args)
             (* need to flatten before merging polynomials in product *)
-            val e = P3.mergeD(e)
-            val _ =(H.line("\n\n  Step3  mergeD",y, ein,args))
+            val e = P3.rewriteMerge(e)
+            val _ = H.toStringBA("\n\n  Step 3 merge poly term",e,args)
            (* normalize ein by cleaning it up and differntiating*)
-            val dx = getDx body 
-            val e = P4.normalize(e, dx)
-            val _ = (H.line("\n\n   Step4  normalize",y, ein,args))
+            val dx = getDx body  
+            val e = P3.rewriteDifferentiate(E.Apply(E.Partial dx, e))
+            val _ = H.toStringBA("\n\n  Step 4 differentiate ",e,args)
          in (args, params, e) end 
             
             
@@ -81,7 +81,7 @@ structure PolyEin : sig
 		    val  pty = getPty body
         	(* FIX ME variable is used in summation for sequences *)
         	val freshid = 101
-        	val sx_seq = [(freshid, 0, 3)] 
+        	val sx_seq = [(freshid, 0, 3)] (*Fixme-find length of sequence*)
             val SeqId = (case pty 
             		of SOME _ => SOME (E.V freshid )
             		| NONE =>  NONE 
@@ -100,11 +100,12 @@ structure PolyEin : sig
             	(* end case *))
             val ein = Ein.EIN{body=body, index=index, params=params}
             val _ = print(H.line("\n\n   Step 5 ",y, ein,args))
-            val _ = (String.concat["\n\n*******************\n"])
+
             (********************************** done  *******************************)
             val newbie = (y, IR.EINAPP(ein, args))
             val stg_poly = Controls.get Ctl.stgPoly
             val _ =  if(stg_poly) then ScanE.readIR_Single(newbie,"tmp-poly") else 1
+             val _ = (String.concat["\n\n*******************\n"])
         in
                [newbie]
         end

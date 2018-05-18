@@ -20,5 +20,8 @@ git add simplify/*.sml
 git add target-cpu/*.sml
 git add typechecker/*.sml
 git add simple-opt/*.sml
+git add parser/*.sml
+git add parser/*.grm
+git add parse-tree/*.sml
 cd ..
 cd ..
