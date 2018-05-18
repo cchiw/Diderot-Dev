@@ -111,7 +111,7 @@ structure PolyEin2 : sig
 							|  E.SEQ([i])   => (i, SeqId)
 							| E.TEN (_,[]) => (1, NONE)
 							| E.TEN (_,[i]) => (i, NONE)
-							| _ => raise Fail"unsupported rewritement argument type"
+							| p => raise Fail("unsupported argument type:"^H.paramToString(idx,p))
 						(* end case *))						
 					(*variable arg, and param*)
 					val arg_new = List.nth(args, idx)

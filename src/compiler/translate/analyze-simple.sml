@@ -196,7 +196,6 @@ structure AnalyzeSimple : sig
                 markUpdate (cxt, x);
                 (addUses(e, VSet.subtract(live, x)), addVar(x, assigns)))
             | doStm (S.S_IfThenElse(x, b1, b2), (liveIn, assignsIn)) = let
-val _ = print"\n inside analyze simple"
                 val liveIn = addVar(x, liveIn)
                 val (live1, assigns1) = doBlock (b1, liveIn)
                 val (live2, assigns2) = doBlock (b2, liveIn)

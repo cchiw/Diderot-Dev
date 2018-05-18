@@ -75,7 +75,7 @@ structure PolyEin : sig
     *)
     fun transform (y, ein, args) =
         let
-            val _ = print(H.line("\n\n   Step 0 Wrapper",y, ein,args))
+            val _ = (H.line("\n\n   Step 0 Wrapper",y, ein,args))
             val Ein.EIN{body,index, params} = ein
             val (sx, body) =  getSx body
 		    val  pty = getPty body
@@ -99,7 +99,7 @@ structure PolyEin : sig
             		| NONE =>  body
             	(* end case *))
             val ein = Ein.EIN{body=body, index=index, params=params}
-            val _ = print(H.line("\n\n   Step 5 ",y, ein,args))
+            val _ = (H.line("\n\n   Step 5 ",y, ein,args))
 
             (********************************** done  *******************************)
             val newbie = (y, IR.EINAPP(ein, args))

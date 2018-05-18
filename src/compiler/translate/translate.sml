@@ -502,7 +502,7 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
                               stms))
                       end
                   | S.S_IfThenElse(x, b0, b1) => let
-                      val _ = print("Make it here to translate \n")
+                   
                       val x' = lookup env x
                       val join as JOIN{nd=joinNd, ...} = newJoin (env, 2)
                       val (cfg0, _) = cvtBlock (state, env, (0, join)::joinStk, b0)

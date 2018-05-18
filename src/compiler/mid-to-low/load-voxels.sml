@@ -215,9 +215,9 @@ structure LoadVoxels : sig
         
           val n = AvailRHS.addAssignToList (avail, (lhs, IR.VAR result));
           val rst = List.rev (AvailRHS.getAssignments avail)
-                val _ = print("\n\n ************* image expand to ******* \n\n ")
-                val _ = List.map (fn e1 => print("\n\t"^LowToString.toStringAssgn(LowIR.ASSGN e1))) rst
-                val _ = print("\n\n ***************************************** \n\n ")
+                val _ = ("\n\n ************* image expand to ******* \n\n ")
+                val _ = List.map (fn e1 => ("\n\t"^LowToString.toStringAssgn(LowIR.ASSGN e1))) rst
+                val _ = ("\n\n ***************************************** \n\n ")
           in
             rst
           end

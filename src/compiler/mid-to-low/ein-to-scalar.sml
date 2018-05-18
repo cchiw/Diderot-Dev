@@ -254,15 +254,15 @@ val _ = (String.concat["\nin direction i:",Int.toString(i),"-",Int.toString(j)])
                         (* end case*))
                     | E.If(comp, e3, e4) =>
                         let
-    val _ = print"mark A"
-val _ = print(Int.toString(length(lowArgs)))
-    val _ = print"mark B"
+    val _ = "mark A"
+val _ = (Int.toString(length(lowArgs)))
+    val _ = "mark B"
                         val vC = (case comp
                         of E.GT(e1,e2) => Mk.boolGT(avail, gen (mapp, e1), gen (mapp, e2))
                          | E.LT(e1,e2) => Mk.boolLT(avail, gen (mapp, e1), gen (mapp, e2))
                          | E.Bool id   => List.nth(lowArgs, id)
                         (* end case*))
-val _ = print "Mark C"
+val _ =  "Mark C"
                         in
                             Mk.realIf(avail, vC, gen (mapp, e3), gen (mapp, e4))
                         end

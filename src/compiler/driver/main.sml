@@ -53,7 +53,7 @@ structure Main : sig
           val _ = verbose["done\n"]
           val _ = dump Ctl.dumpPT (ParseTreePP.output errStrm) "parsing" parseTree
         (***** TYPECHECKING *****)
-        val _ =print "\n\n typechecking"
+        val _ = "\n\n typechecking"
           val _ = verbose["type checking ... "]
           val _ = PhaseTimer.start Timers.timeTypechecker
           val (ast, gEnv) = (Typechecker.check errStrm parseTree)
@@ -63,7 +63,7 @@ structure Main : sig
 (* TODO: check AST for consistency *)
           val _ = dump Ctl.dumpAST ASTPP.output "typechecking" ast
         (***** SIMPLIFY *****)
-        val _ =print "\n\n simplify -r"
+        val _ = "\n\n simplify -r"
         val _ = verbose["simplifying AST ... "]
           val simple = SimpleOpt.checkAfter ("simplify", Simplify.transform (errStrm, ast, gEnv))
           val simple = SimpleOpt.transform simple
@@ -93,10 +93,10 @@ structure Main : sig
                   | {base, ext=SOME "ddro"} => base
                   | _ => (errnl "expected diderot file"; raise Error.ERROR)
                 (* end case *))
-        val _ =print "\n\n  abut to do simple"
+        val _ ="\n\n  abut to do simple"
           val simple = PhaseTimer.withTimer Timers.timeFront frontEnd filename
         (***** TRANSLATION TO HIGH IR*****)
-        val _ =print "\n\n translating to  high -r"
+        val _ ="\n\n translating to  high -r"
         val _ = verbose["translating to HighIR ... "]
           val high = PhaseTimer.withTimer Timers.timeTranslate Translate.translate simple
           val _ = verbose["done\n"]
@@ -104,12 +104,12 @@ structure Main : sig
           val high = HighOptimizer.checkAfter ("simple-to-high translation", high)
           val _ = verbose["done\n"]
         (***** HIGH-IR OPTIMIZATION *****)
-        val _ =print "\n\n about to optimize high-op -r"
+        val _ ="\n\n about to optimize high-op -r"
           val _ = verbose["optimizing HighIR ... "]
           val high = PhaseTimer.withTimer Timers.timeHigh HighOptimizer.optimize high
           val _ = verbose["done\n"]
         (***** TRANSLATION TO MID IR *****)
-        val _ = print"\n\n translating to  mid -r"
+        val _ = "\n\n translating to  mid -r"
           val _ = verbose["translating to MidIR ... "]
           val mid = PhaseTimer.withTimer Timers.timeHighToMid HighToMid.translate high
           val _ = verbose["done\n"]
@@ -117,12 +117,12 @@ structure Main : sig
           val mid = MidOptimizer.checkAfter ("high-to-mid translation", mid)
           val _ = verbose["done\n"]
         (***** MID-IR OPTIMIZATION *****)
-  val _ =print "\n\n translating to  mid opt"
+  val _ ="\n\n translating to  mid opt"
           val _ = verbose["optimizing MidIR ... "]
           val mid = PhaseTimer.withTimer Timers.timeMid MidOptimizer.optimize mid
           val _ = verbose["done\n"];
         (***** TRANSLATION TO LOW IR *****)
-  val _ =print "\n\n translating to  mid to low "
+  val _ ="\n\n translating to  mid to low "
           val _ = verbose["translating to LowIR ... "]
           val low = PhaseTimer.withTimer Timers.timeMidToLow MidToLow.translate mid
           val _ = verbose["done\n"]
@@ -131,12 +131,12 @@ structure Main : sig
           val low = LowOptimizer.checkAfter ("mid-to-low translation", low)
           val _ = verbose["done\n"]
         (***** LOW-IR OPTIMIZATION *****)
-  val _ = print"\n\n low-opt"
+  val _ = "\n\n low-opt"
           val _ = verbose["optimizing LowIR ... "]
           val low = PhaseTimer.withTimer Timers.timeLow LowOptimizer.optimize low
           val _ = verbose["done\n"]
         (***** TRANSLATION TO TREE IR *****)
-  val _ = print"\n\n translating to tree "
+  val _ = "\n\n translating to tree "
           val _ = verbose["translating to TreeIR ... "]
           val tree = PhaseTimer.withTimer Timers.timeLowToTree LowToTree.translate (low, info)
           val _ = verbose["done\n"]

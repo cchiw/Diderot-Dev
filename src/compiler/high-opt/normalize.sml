@@ -39,19 +39,19 @@ structure Normalize : sig
     fun getEinApp x = let
 			fun getEinRHS (IR.EINAPP app) = ( "EINAPP";SOME app)
 			| getEinRHS (IR.GLOBAL xy) = 
-				(print"Global"(*;getEinApp (V.getLocalDef xy)*);NONE)
+				("Global"(*;getEinApp (V.getLocalDef xy)*);NONE)
 				(*Fxime global variable should be replaced for field-func*)
-			| getEinRHS (IR.STATE _) = (print"state";NONE)
-			| getEinRHS (IR.VAR _) = (print"var";NONE)
-			| getEinRHS (IR.LIT _) = (print"lit";NONE)
-			| getEinRHS (IR.OP _) = (print"op";NONE)
-			| getEinRHS (IR.CONS _) = (print"cons";NONE)
-			| getEinRHS (IR.SEQ _) = (print"seq";NONE)
-			| getEinRHS (IR.APPLY _) = (print"apply";NONE)
-			| getEinRHS (IR.MAPREDUCE _) = (print"mapreduce";NONE)
+			| getEinRHS (IR.STATE _) = ("state";NONE)
+			| getEinRHS (IR.VAR _) = ("var";NONE)
+			| getEinRHS (IR.LIT _) = ("lit";NONE)
+			| getEinRHS (IR.OP _) = ("op";NONE)
+			| getEinRHS (IR.CONS _) = ("cons";NONE)
+			| getEinRHS (IR.SEQ _) = ("seq";NONE)
+			| getEinRHS (IR.APPLY _) = ("apply";NONE)
+			| getEinRHS (IR.MAPREDUCE _) = ("mapreduce";NONE)
            (* | getEinRHS _ = NONE*)
            val t = V.ty x
-           val _ = print(HighTypes.toString(t))
+           val _ = (HighTypes.toString(t))
           in
             case t
              of HighTypes.KernelTy => getEinRHS(V.getDef x)
@@ -125,21 +125,21 @@ fun rewriteEin (changed, params, place, newEinOp, newArgs, done, arg, orig, lhs)
    *)
     fun doRHS (lhs, IR.EINAPP(ein, args)) = let
 
-val _ =print (String.concat["\n\n****************************************************\ndoRhs:",EinPP.toString(ein), ":",ll(args,0)])
+val _ = (String.concat["\n\n****************************************************\ndoRhs:",EinPP.toString(ein), ":",ll(args,0)])
 
             fun rewrite (false, _, _, [], _) = (NONE)
               | rewrite (true, einOp, _, [], args') =(
                 SOME[(lhs, IR.EINAPP(doNormalize (einOp,args'), args'))])
               | rewrite (changed, einOp, place, x::xs, args') = let
-val _  =print (String.concat["\n\tPlace:",Int.toString(place)])
+val _  = (String.concat["\n\tPlace:",Int.toString(place)])
                 in case getEinApp x
                  of NONE => (rewrite (changed, einOp, place+1, xs, args'@[x]))
                   | SOME(newE, newA) => let
                         val Ein.EIN{params, ...} = einOp
-val _ = print(String.concat["\n\n----------------------------------------\n\nBefore rewriting:",EinPP.toString(einOp), ":",ll(args'@(x::xs),0)])
+val _ = (String.concat["\n\n----------------------------------------\n\nBefore rewriting:",EinPP.toString(einOp), ":",ll(args'@(x::xs),0)])
                       val (changed, einOp', place', done') =
                             rewriteEin (changed, params, place, newE, newA, args', x, einOp, lhs)
-val _ = print(String.concat["\n\nDone rewriting:",EinPP.toString(einOp'), ":",ll(done'@xs,0)])
+val _ = (String.concat["\n\nDone rewriting:",EinPP.toString(einOp'), ":",ll(done'@xs,0)])
                       in
                         rewrite (changed, einOp', place', xs, done')
                       end

@@ -37,17 +37,20 @@ structure PolyEin3 : sig
 				| iter(e1::es, rest, ids,  mapp) = (case e1
 					of E.Poly(E.Tensor(id, ix), n, _) =>
 						let
-							val ((n0, n1, n2, n3), ids) = (case IMap.find (mapp, id)
+							val ((nS, n1, n2, n3,n4,n5,n6), ids) = (case IMap.find (mapp, id)
 								of SOME e => (e, ids)
-								| NONE => ((0,0,0,0), id::ids)
+								| NONE => ((0,0,0,0, 0, 0,0), id::ids)
 								(* end case*))
 							fun SetMap ns = IMap.insert (mapp, id, ns)							
 							val mapp = 
-								if(ix=[]) then SetMap (n0+n, n1, n2, n3)
-								else if(ix=[E.C 0]) then SetMap (n0, n1+n, n2, n3)
-								else if(ix=[E.C 1]) then SetMap (n0, n1, n2+n, n3)
-								else if(ix=[E.C 2]) then SetMap (n0, n1, n2, n3+n)
-								else  raise Fail("unhandled")
+								if(ix=[]) then SetMap (nS+n, n1, n2, n3,n4,n5,n6)
+								else if(ix=[E.C 0]) then SetMap (nS, n1+n, n2, n3,n4,n5,n6)
+								else if(ix=[E.C 1]) then SetMap (nS, n1, n2+n, n3,n4,n5,n6)
+								else if(ix=[E.C 2]) then SetMap (nS, n1, n2, n3+n,n4,n5,n6)
+								else if(ix=[E.C 3]) then SetMap (nS, n1, n2, n3,n4+n,n5,n6)
+								else if(ix=[E.C 4]) then SetMap (nS, n1, n2, n3,n4,n5+n,n6)
+								else if(ix=[E.C 5]) then SetMap (nS, n1, n2, n3,n4,n5,n6+n)
+								else  raise Fail("unhandled:"^EinPP.expToString(e1))
 						in 
 							iter(es, rest, ids, mapp)
 						end
@@ -59,18 +62,20 @@ structure PolyEin3 : sig
 			  | mkPolyAll(id::es, ps) =  
 				(case IMap.find (mapp, id)
 					of NONE => mkPolyAll(es, ps)
-					| SOME (n0, n1, n2, n3) =>
+					| SOME (nS, n1, n2, n3, n4, n5, n6) =>
 						let (*each term is T(id)_c^n*)
 							fun mkPoly([]) = []
-							   | mkPoly((c, 0)::es) = mkPoly es
-							   | mkPoly((5, n)::es) = E.Poly(E.Tensor(id, []), n, []) :: (mkPoly es) (*Note:5 is used for scalars*)
-							   | mkPoly((c, n)::es) = E.Poly(E.Tensor(id, [E.C c]), n, []):: (mkPoly es)
-							val pnew =  mkPoly([(5, n0), (0, n1), (1, n2),(2, n3)])
+							   | mkPoly((_, 0)::es) = mkPoly es
+							   | mkPoly((SOME c, n)::es) = E.Poly(E.Tensor(id, [E.C c]), n, []):: (mkPoly es)
+							   | mkPoly((NONE, n)::es) = E.Poly(E.Tensor(id, []), n, []) :: (mkPoly es) (*Note:5 is used for scalars*)
+							  
+							val pnew =  mkPoly([(NONE, nS), (SOME 0, n1), (SOME 1, n2),(SOME 2, n3), (SOME 3, n4), (SOME 4, n5),(SOME 5, n6)])
 						in mkPolyAll(es, pnew@ps) end	
 				(* end case*))					
 			val ps =  mkPolyAll(ids, []) 
 			(*flatten *)
 			val e = iterP(ps@rest)	
+			val _ = (String.concat["\nstarter prod:",EinPP.expToString(E.Opn(E.Prod,es)), "\n->",EinPP.expToString(E.Opn(E.Prod,ps))])
 		in
 			e
 		end

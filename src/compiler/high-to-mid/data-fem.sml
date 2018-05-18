@@ -42,7 +42,7 @@ structure DataFem : sig
 				val space  = String.concat[ME.toStringMesh mesh, "_",  ME.toStringElement element, "_",Int.toString(dd)]
 				val pathtospace = H.getRHSS (List.nth(args,path))
 				val datafile = String.concat[pathtospace,space,".json"]
-				val _ = print(datafile)
+				val _ = (datafile)
 				in
 					([], mesh, element, datafile)
 				end

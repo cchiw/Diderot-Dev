@@ -245,7 +245,7 @@ concat["S-VAR:",Ty.toString(SimpleVar.typeOf x), SimpleVar.uniqueNameOf x,":",pp
                 String.concatWith "\n"(List.map (fn e1 => "\n"^stmtToString(e1))  code)
 
 
-fun doStmt (stm, stms) = ( print("\n\t-"^stmtToString(stm));case stm
+		fun doStmt (stm, stms) = (("\n\t-"^stmtToString(stm));case stm
                  of S.S_Var(x, SOME e) => (case doAssign (x, e)
                        of SOME(e', stms') => S.S_Var(x, SOME e') :: stms' @ stms
                         | NONE => stm::stms
@@ -257,8 +257,8 @@ fun doStmt (stm, stms) = ( print("\n\t-"^stmtToString(stm));case stm
                         | NONE => stm::stms
                       (* end case *))
 
-                | S.S_IfThenElse(x, blk1, blk2) => (print" made it simplify-fields";
-                      S.S_IfThenElse(x, doBlock blk1, doBlock blk2) :: stms)
+                | S.S_IfThenElse(x, blk1, blk2) => 
+                      S.S_IfThenElse(x, doBlock blk1, doBlock blk2) :: stms
                   | S.S_Foreach(x, seq, blk) =>
                       S.S_Foreach(x, seq, doBlock blk) :: stms
                   | S.S_MapReduce mrs => let

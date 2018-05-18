@@ -166,8 +166,13 @@ structure Basis : sig
           (N.fn_insideO, [BV.fn_insideO]),
           (N.fn_printIR, [BV.fn_printIR_ts,BV.fn_printIR_st,BV.fn_printIR_t,BV.fn_printIR_fs,BV.fn_printIR_sf,BV.fn_printIR_f,BV.fn_printIR_os,BV.fn_printIR_so,BV.fn_printIR_o]),
           (N.fn_swap, [BV.fn_swap2, BV.fn_swap3, BV.fn_swap4, BV.fn_swap5, BV.fn_swap6]),
-          (N.sp_getCell, [BV.sp_getCell])
-
+          (N.sp_getCell, [BV.sp_getCell]),
+          (N.ms_USq, [BV.ms_USq]),
+          (N.ms_UCq, [BV.ms_UCq]),
+          (N.re_Lagrange, [BV.re_Lagrange]),
+          (N.re_P, [BV.re_P]),
+          (N.fn_functionspace, [BV.fn_functionspace]),
+          (N.fn_tensorfunctionspace, [BV.fn_tensorfunctionspace])
         ]
 
   (* seed the basis environment *)
