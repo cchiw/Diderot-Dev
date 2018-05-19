@@ -112,6 +112,7 @@ structure Simple =
                                                  *)
       | E_InsideFEM of var * var
       | E_CondField of var * exp * exp * ty
+      | E_FieldFn of func 
 
     fun typeOf (E_Var x) = SimpleVar.typeOf x
       | typeOf (E_Lit lit) = (case lit
@@ -141,6 +142,14 @@ structure Simple =
       | typeOf (E_InsideImage _) = SimpleTypes.T_Bool
       | typeOf (E_InsideFEM _) = SimpleTypes.T_Bool
       | typeOf (E_CondField(_,_,_,ty))  = ty
+      | typeOf (E_FieldFn f) = let
+         val (dim, shp) = (case SimpleFunc.typeOf f
+                 of (SimpleTypes.T_Tensor shp, [SimpleTypes.T_Tensor[]]) => (1, shp)
+                  | (SimpleTypes.T_Tensor shp, [SimpleTypes.T_Tensor[d]]) => (d, shp)
+                (* end case *))
+          in
+            SimpleTypes.T_Field{diff = NONE, dim = dim, shape = shp}
+          end
     fun newProp initFn = PropList.newProp (fn (Block{props, ...}) => props, initFn)
     fun newFlag () = PropList.newFlag (fn (Block{props, ...}) => props)
 

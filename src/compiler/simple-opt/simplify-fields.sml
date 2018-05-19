@@ -102,6 +102,7 @@ fun ppExp (e) = let
             concat[ "loadImage", (Ty.toString ty)]
         | S.E_InsideImage(pos, img, s) => concat[ "insideImage(", var pos, ",", var img,
         ",", (Int.toString s), ")"]
+        | S.E_FieldFn f =>  "field function"
 
         (* end case *))
     in
@@ -202,10 +203,10 @@ then (print "\nconvert f";NONE)
                     else if Var.same(rator, B.op_probe)
                         then (print "\nprobe";NONE)
 *)
-                    else (print "other";
+                    else (
                     unionArgs (List.filter isField args))
-| S.E_Field (args,_) => (print"e-fld";unionArgs (List.filter isField args))
-| S.E_Tensor _ => (print"e-tens";NONE)
+			| S.E_Field (args,_) => (unionArgs (List.filter isField args))
+			| S.E_Tensor _ => (NONE)
               | S.E_Seq _ => NONE
 (* WARNING: if tuples become a surface-language feature, then we will need to track tuples
  * that contain fields or images.
@@ -222,6 +223,8 @@ then (print "\nconvert f";NONE)
               | S.E_LoadSeq _ => NONE
               | S.E_LoadImage _ => image()
               | S.E_InsideImage _ => raise Fail "premature InsideImage"
+              (* QUESTION: is this a valid way to handle field functions? *)
+              | S.E_FieldFn f => (bindImages(lhs, VMap.empty); NONE)
             (* end case *)
           end
 
@@ -240,6 +243,7 @@ concat["S-VAR:",Ty.toString(SimpleVar.typeOf x), SimpleVar.uniqueNameOf x,":",pp
                 | S.S_Continue =>"S-continue;"
                 | S.S_Die =>  "S-die;"
                 | S.S_Stabilize => "S-stabilize"
+                | _ => "S-other"
                 (* end case *))
             and  blkToString(S.Block{code, ...})  =
                 String.concatWith "\n"(List.map (fn e1 => "\n"^stmtToString(e1))  code)

@@ -35,6 +35,17 @@ structure Translate : sig
   (* maps from SimpleAST variables to the current corresponding SSA variable *)
     type env = IR.var VMap.map
 
+  (* mapping from differentiable field functions to their translated definitions *)
+    local
+      val {getFn : SimpleFunc.t -> IR.func_def, setFn, ...} =
+            SimpleFunc.newProp (fn f => raise Fail(concat[
+                "no binding for field function '", SimpleFunc.uniqueNameOf f, "'"
+              ]))
+    in
+    val getFieldFnDef = getFn
+    val setFieldFnDef = setFn
+    end (* local *)
+    
 (* +DEBUG *)
     fun prEnv (prefix, env) = let
           val wid = ref 0
@@ -163,6 +174,7 @@ structure Translate : sig
          * at the end of the loop body.  Since we don't know what y''' is at this point, we
          * just use y''.
          *)
+         
           fun doVar (y, (env', phiMap)) = (case VMap.find(env, y)
                  of SOME y' => let
                       val y'' = newVar y
@@ -436,6 +448,11 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
                     val ein = IR.EINAPP(rator,args)
                 in
                     s1@s2@s3@[IR.ASSGN(lhs, ein)]
+                end
+            | S.E_FieldFn f => let
+                val IR.Func{params, body, ...} = getFieldFnDef f
+                in
+                  raise Fail "FIXME"
                 end
           (* end case *))
 
@@ -714,8 +731,10 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
           val (bodyCFG, _) = cvtBlock (([], []), env, [], body)
           val cfg = IR.CFG.prependNode (IR.Node.mkENTRY(), loadBlk)
           val cfg = IR.CFG.concat(cfg, bodyCFG)
+          val fdef = IR.Func{name = cvtFuncVar f, params = params, body = cfg}
           in
-            IR.Func{name = cvtFuncVar f, params = params, body = cfg}
+            if (SimpleFunc.isDifferentiable f) then setFieldFnDef(f, fdef) else ();
+            fdef
           end
 
   (* lift functions used in map-reduce expressions *)

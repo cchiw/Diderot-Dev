@@ -55,9 +55,9 @@ structure PolyEin2 : sig
     		in 	
 				(case alpha
 					of [] => mkPoly []
-					| [E.V vx] =>
+					| [vx] =>
 						let
-							fun mkComponent cx = E.Opn(E.Prod, [mkPoly [E.C cx], E.Delta(E.C cx, E.V vx)]) 
+							fun mkComponent cx = E.Opn(E.Prod, [mkPoly [E.C cx], E.Delta(E.C cx,  vx)]) 
 							val polyTerms =  List.tabulate(dim, (fn n => mkComponent n))
 						in  E.Opn(E.Add, polyTerms) end
 					| _ => raise Fail "unhandled size"

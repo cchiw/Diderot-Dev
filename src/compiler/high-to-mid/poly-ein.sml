@@ -58,14 +58,14 @@ structure PolyEin : sig
             (* replace polywrap args/params with probed position(s) args/params *)
             val e = getE body            
             val (args, params, e) = P2.polyArgs(params, e, args,  SeqId, cfexp_ids, probe_ids)
-            val _ = H.toStringBA("\n\n  Step 2 replace arguments",e,args)
+            val _ = (H.toStringBA("\n\n  Step 2 replace arguments",e,args))
             (* need to flatten before merging polynomials in product *)
             val e = P3.rewriteMerge(e)
             val _ = H.toStringBA("\n\n  Step 3 merge poly term",e,args)
            (* normalize ein by cleaning it up and differntiating*)
             val dx = getDx body  
             val e = P3.rewriteDifferentiate(E.Apply(E.Partial dx, e))
-            val _ = H.toStringBA("\n\n  Step 4 differentiate ",e,args)
+            val _ =( H.toStringBA("\n\n  Step 4 differentiate ",e,args))
          in (args, params, e) end 
             
             
