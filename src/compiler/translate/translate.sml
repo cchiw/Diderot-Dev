@@ -450,9 +450,54 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
                     s1@s2@s3@[IR.ASSGN(lhs, ein)]
                 end
             | S.E_FieldFn f => let
-                val IR.Func{params, body, ...} = getFieldFnDef f
+           			fun tensorSize v = (case IR.Var.ty(v)
+            			of DstTy.TensorTy alpha => alpha
+            			| _ => raise Fail "Type is a not a tensor"
+            			(*end case*))             			
+            		val _ =  print "\n\n Mark A"
+            		val IR.Func{params, body, ...} = getFieldFnDef f
+            			val _ =  print "\n\n Mark B"
+					val IR.CFG{entry,exit} = body 					
+            		(* _comp  - body of function 
+					* _PT - arguments treated like tensors
+					* _PF - arguments treated like fields*)            	
+            		(* get computation inside field definition  _comp*)
+            		val _ =  print "\n\n Mark C"
+            		val IR.ND{kind as IR.EXIT {pred,...},...}  = exit         		
+					val IR.ND{kind,...} = !pred
+					(*find the last variable for lhs of the function body *)
+					val (stmt_comp, lhs_comp) = (case (kind,params)
+            			of (IR.ASSIGN{stm as (lhs_comp, _),...},_) => ([IR.ASSGN stm], lhs_comp)
+            			| (IR.ENTRY _, [lhs_comp])	  => ([], lhs_comp)
+            			(* end case*))
+					val alpha_comp = tensorSize lhs_comp				
+					(* get arguments treated like fields  _PF*)
+					val lhs_PF = params
+					(*for each one set equal to a dummy var *)
+					val stmt_PF= List.map (fn v => IR.ASSGN(v, IR.LIT(Literal.Int 0))) lhs_PF
+					val alphas_PF = List.map tensorSize lhs_PF
+					(*input variables treated like tensors*)
+					val alphas_PT = []		
+            		(* variables defined outside of field get statement wrapped inside *)
+            		val _ =  print "\n\n Mark E"
+            		val IR.ND{kind as IR.ENTRY{succ},...}  = entry       		
+					val IR.ND{kind,...} = !succ
+					(*find the last variable for lhs of the function body *)
+					val stmt_Else = (case kind
+            			of IR.ASSIGN{stm,...} => [IR.ASSGN stm]
+            			| IR.EXIT _	  => []
+            			(* end case*))			
+            		(*create ein operator*)
+					val rator  = MkOperators.cfexpMix (alphas_PT, alpha_comp, alphas_PF)   
+					val args =  [lhs_comp]@ lhs_PF
+					val ein = IR.EINAPP(rator,args)
+					val _ = print"\n\n\n--------"
+					val _ = List.map (fn v =>print("-"^IR.Var.toString(v))) args 
+					(*
+					raise Fail (concat["**** Entry nnode: ", IR.Node.toString entry,"** exit ", IR.Node.toString exit, "\n"])*)	
+                (*val _ =  print(String.concat["_comp:",IR.assignToString stm])*)
                 in
-                  raise Fail "FIXME"
+                	 stmt_PF@stmt_Else@ stmt_comp@[IR.ASSGN(lhs, ein)]
                 end
           (* end case *))
 
