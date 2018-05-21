@@ -300,6 +300,7 @@ structure SimplifyVars : sig
             val (env, globals) = promoteLocals (globals, globInit)
             val rename = renameBlock env
             fun renameFunc (S.Func{f, params, body}) = S.Func{f=f, params=params, body=rename body}
+              | renameFunc (S.FuncP{f, paramsF, paramsT, body}) = S.FuncP{f=f, paramsF=paramsF, paramsT=paramsT, body=rename body}
             in
               S.Program{
                   props = props, consts = consts, inputs = inputs, constInit = constInit,

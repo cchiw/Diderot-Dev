@@ -133,7 +133,7 @@ structure CheckGlobals : sig
                   E.checkForRedef (env, cxt, f);
                   (OTHER(AST.D_Func(f', params', body')), E.insertFunc(env, cxt, f, f'))
                 end
-                    | PT.GD_FieldFunc(ty, bindF, bindX, body) => (case CheckType.check(env, cxt, ty)
+            | PT.GD_FieldFunc(ty, bindF, bindX, body) => (case CheckType.check(env, cxt, ty)
                  of ty' as Ty.T_Field{diff, dim, shape} => let
                       val f = Var.new(#tree bindF, #span bindF, Var.GlobalVar, ty')
                       val xTy = Ty.T_Tensor(Ty.Shape[dim])
@@ -148,7 +148,7 @@ structure CheckGlobals : sig
                       in
                         case Util.coerceType (resTy, bodyTy)
                          of SOME e => (
-                                OTHER(AST.D_DiffFunc(f, [x], e)),
+                                OTHER(AST.D_DiffFunc(f, [x], NONE, e)),
                                 Env.insertGlobal(env, cxt, #tree bindF, f)
                               )
                           | NONE => (
@@ -162,9 +162,44 @@ structure CheckGlobals : sig
                         (* end case *)
                       end
                   | ty' => (
-                      err (cxt, [S "expected field type for '", A(#tree bindF), S "'"]);
+                      err (cxt, [S "GD_FieldFunc expected field type for '", A(#tree bindF), S "'"]);
                       (ERROR, env))
-                (* end case *))        
+                (* end case *))  
+        	 | PT.GD_FieldFuncP(ty, bindF, paramsF, paramsT, body) => (case CheckType.check(env, cxt, ty)
+        	 
+                 of ty' as Ty.T_OField{diff, shape, input} => let
+                      val f = Var.new(#tree bindF, #span bindF, Var.GlobalVar, ty')
+                      val resTy = Ty.T_Tensor shape                      
+                      val env' = Env.functionScope(env, resTy, #tree bindF)
+                	  val (paramsF', env') = CheckParams.check (env', cxt, Var.FunParam, paramsF)
+                	  val (paramsT', env') = (case paramsT
+                	  	of SOME p => let
+                	  		val (paramsT', env')  = CheckParams.check (env', cxt, Var.FunParam, p)
+                	  		in (SOME paramsT', env')  end
+                	  	| NONE => (NONE, env')
+                	  	(* end case *))                            
+                      val bodyTy = CheckExpr.check (env', cxt, body)
+                      in
+                        case Util.coerceType (resTy, bodyTy)
+                         of SOME e => 
+                         		(
+                               	 OTHER(AST.D_DiffFunc(f, paramsF', paramsT', e)),
+                                	Env.insertGlobal(env, cxt, #tree bindF, f)
+                              	)
+                          | NONE => (
+                              err (cxt, [
+                                  S "type of r.h.s. definition for '", A(#tree bindF),
+                                  S "' does not match declaration",
+                                  S "  expected: ", TY resTy, S "\n",
+                                  S "  found:    ", TY(#2 bodyTy)
+                                ]);
+                              (ERROR, env))
+                        (* end case *)
+                      end
+                  | ty' => (
+                      err (cxt, [S "GD_FieldFuncP expected field type for '", A(#tree bindF), S "'"]);
+                      (ERROR, env))
+                (* end case *))       
           (* end case *))
 
     fun check (env, cxt, globs) = let

@@ -26,7 +26,7 @@ structure CheckExpr : sig
 
   (* type check a tensor shape, where the dimensions are given by constant expressions *)
     val checkShape : Env.t * Env.context * ParseTree.expr list -> Types.shape
-
+    val checkShapeDim : Env.t * Env.context * ParseTree.expr list -> Types.shape
   (* `resolveOverload (cxt, rator, tys, args, candidates)` resolves the application of
    * the overloaded operator `rator` to `args`, where `tys` are the types of the arguments
    * and `candidates` is the list of candidate definitions.
@@ -512,49 +512,84 @@ structure CheckExpr : sig
                               (* end case *))
                           | _ => err(cxt, [S "application of non-function/field ", V f])
                         (* end case *))
-                fun checkFieldApp (e1', ty1) = (case (args, tys)
-                       of ([e2'], [ty2]) => let
-                            val (tyArgs, Ty.T_Fun([fldTy, domTy], rngTy)) =
-                                  TU.instantiate(Var.typeOf BV.op_probe)
-                                    (*hard code change here*)
-                            fun tyError () = err (cxt, [
-                                    S "type error for field application\n",
-                                    S "  expected: ", TYS[fldTy, domTy], S "\n",
-                                    S "  found:    ", TYS[ty1, ty2]
-                                  ])
-                            in
-                              if Unify.equalType(fldTy, ty1)
-                                then (case Util.coerceType(domTy, (e2', ty2))
-                                   of SOME e2' => (AST.E_Prim(BV.op_probe, tyArgs, [e1', e2'], rngTy), rngTy)
-                                    | NONE => tyError()
-                                  (* end case *))
-                                else tyError()
-                            end
-                        | _ => err(cxt, [S "badly formed field application"])
-                      (* end case *))
+                fun checkOFieldApp (input, e1', ty1) =  let								  					
+					val n = List.length (args)
+					(*Up to three tensor arguments supported. need to generalize *)
+					val opr =  
+						if(n=1) then  BV.op_probe
+						else if(n=2) then  BV.fn_inst_ott
+						else if(n=3) then  BV.fn_inst_ottt
+						else raise Fail  "number of arguments unsupported"
+					val (tyArgs, Ty.T_Fun(expTy, rngTy)) =  TU.instantiate(Var.typeOf opr)
+					val fldTy::domTys = expTy
+					fun tyError (name) = String.concat [
+									 "type error for field application\n",name,
+									 "  expected: ", String.concatWith "," (List.map  TU.toString  expTy),  "\n",
+									 "  found:    ", String.concatWith "," (List.map  TU.toString  (ty1::tys)),"\n"
+								  ]
+								  
+					fun iter ([], [], [], exps) =  List.rev exps 
+						| iter (domTy2::domTy2s, e2::e2s, ty2::ty2s, rest) = 
+							(case Util.coerceType(domTy2, (e2, ty2))
+								of SOME e2' =>  iter (domTy2s, e2s, ty2s, e2'::rest)
+								| NONE => raise Fail(tyError("1"))
+							(* end case *))
+					val exps = if Unify.equalType(fldTy, ty1)
+							then iter(domTys, args, tys,[]) 
+							else raise Fail(tyError("2"))					
+					
+					in
+						 (AST.E_Prim(opr, tyArgs, e1'::exps, rngTy), rngTy)
+					end
+                fun checkFieldApp (e1', ty1) =                
+					(case (args, tys)
+					   of ([e2'], [ty2]) => let
+							(*Fixme ^ *)
+							val (tyArgs, Ty.T_Fun([fldTy, domTy], rngTy)) =
+								  TU.instantiate(Var.typeOf BV.op_probe)
+							   
+							fun tyError () = err (cxt, [
+									S "type error for field application\n",
+									S "  expected: ", TYS[fldTy, domTy], S "\n",
+									S "  found:    ", TYS[ty1, ty2]
+								  ])
+							in 
+							  if Unify.equalType(fldTy, ty1)
+								then (case Util.coerceType(domTy, (e2', ty2))
+								   of SOME e2' => (AST.E_Prim(BV.op_probe, tyArgs, [e1', e2'], rngTy), rngTy)
+									| NONE => tyError()
+								  (* end case *))
+								else tyError()
+							end
+						| _ => err(cxt, [S "badly formed field application"])
+					  (* end case *))
                 in
                   case stripMark(#2 cxt, e)
                    of (span, PT.E_Var f) => (case Env.findVar (env, f)
-                         of SOME f' => checkFieldApp (
-                              AST.E_Var(useVar((#1 cxt, span), f')),
-                              Var.monoTypeOf f')
+                    	 of SOME f' => (case (Var.monoTypeOf f')
+                    	 	of Ty.T_Field _ => 
+                    			checkFieldApp (
+                              		AST.E_Var(useVar((#1 cxt, span), f')),
+                             		 Var.monoTypeOf f') 		 
+                            | Ty.T_OField{diff,shape, input} =>
+                            	checkOFieldApp (input,
+                              		AST.E_Var(useVar((#1 cxt, span), f')),
+                             		 Var.monoTypeOf f') 
+                            (*end case*))
                           | NONE => (case Env.findFunc (env, f)
                                of Env.PrimFun[] => err(cxt, [S "unknown function ", A f])
                                 | Env.PrimFun[f'] => checkPrimApp f'
                                 | Env.PrimFun ovldList => (
-				    case resolveOverload ((#1 cxt, span), f, tys, args, ovldList)
-				     of (e' as AST.E_Prim(f', tyArgs, _, _), rngTy) =>
-(* NOTE: if/when we switch to matching type patterns (instead of unification),
- * we can use a "Self" type pattern to handle spatial queries.
- *)
-					  if Basis.isSpatialQueryOp f'
-					    then checkSpatialQuery (env, cxt, e', tyArgs, rngTy)
-					    else (e', rngTy)
-				      | badResult => badResult
-				    (* end case *))
-                                | Env.UserFun f' => checkFunApp((#1 cxt, span), f')
-                              (* end case *))
-                          (* end case *))
+				    				case resolveOverload ((#1 cxt, span), f, tys, args, ovldList)
+				    				 of (e' as AST.E_Prim(f', tyArgs, _, _), rngTy) =>
+					 					 if Basis.isSpatialQueryOp f'
+					    					then checkSpatialQuery (env, cxt, e', tyArgs, rngTy)
+					   					 	else (e', rngTy)
+				     				 | badResult => badResult
+				    				(* end case *))
+                    			| Env.UserFun f' => checkFunApp((#1 cxt, span), f')
+                    			(* end case *))
+                   		 (* end case *))
                     | _ => checkFieldApp (check (env, cxt, e))
                   (* end case *)
                 end
@@ -983,6 +1018,15 @@ structure CheckExpr : sig
                             S (IntLit.toString d)
                           ])
                         else ();
+                      Ty.DimConst(IntInf.toInt d))
+                  | NONE => Ty.DimConst ~1
+                (* end case *))
+          in
+            Ty.Shape(List.map checkDim' shape)
+          end
+	and checkShapeDim (env, cxt, shape) = let
+          fun checkDim' e = (case checkDim (env, cxt, e)
+                 of SOME d => (
                       Ty.DimConst(IntInf.toInt d))
                   | NONE => Ty.DimConst ~1
                 (* end case *))

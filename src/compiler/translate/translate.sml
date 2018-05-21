@@ -301,7 +301,18 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
                 env
               end
           end
-
+	fun gather(IR.ND{kind,...}) = 
+		(case kind 
+			of IR.ASSIGN{stm,pred,...} => (IR.ASSGN stm)::gather(!pred)
+			|  IR.ENTRY _    => []
+		(* end case*))
+    fun tensorSize v = (case IR.Var.ty(v)
+		of DstTy.TensorTy alpha => alpha
+		| _ => raise Fail "Type is a not a tensor"
+		(*end case*))           
+	fun ft ((IR.ASSGN stm)::es) = concat["\n\t", IR.assignToString stm, ft(es)]
+	   | ft []  = ""
+	fun ff (name, es) = print(concat["\n",name,ft(es)]) 			
   (* expression translation *)
     fun cvtExp (env : env, lhs, exp) = (case exp
            of S.E_Var x => [IR.ASSGN(lhs, IR.VAR(lookup env x))]
@@ -347,7 +358,8 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
                 in
                     [IR.ASSGN(lhs, ein)]
                 end
-            | S.E_Slice(x, indices, ty as Ty.T_OField{diff, dim, shape}) => let
+                (*
+            | S.E_Slice(x, indices, ty as Ty.T_OField{diff, shape}) => let
                 val x = lookup env x
                 (* extract the integer indices from the mask *)
                 val args' = List.mapPartial Fn.id indices
@@ -357,6 +369,7 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
                 in
                 [IR.ASSGN(lhs, ein)]
                 end
+                *)
             | S.E_Slice(x, indices, ty as Ty.T_Tensor shape) => let
                 val x = lookup env x
                 (* extract the integer indices from the mask *)
@@ -450,16 +463,7 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
                     s1@s2@s3@[IR.ASSGN(lhs, ein)]
                 end
             | S.E_FieldFn f => let
-           			fun tensorSize v = (case IR.Var.ty(v)
-            			of DstTy.TensorTy alpha => alpha
-            			| _ => raise Fail "Type is a not a tensor"
-            			(*end case*))           
-            		fun ft ((IR.ASSGN stm)::es) = concat["\n\t", IR.assignToString stm, ft(es)]
-            		   | ft []  = ""
-            		fun ff (name, es) = print(concat["\n",name,ft(es)])
-            		val _ =  print "\n\n Mark A"
-            		val IR.Func{params, body, ...} = getFieldFnDef f
-            			val _ =  print "\n\n Mark B"
+            		val IR.FuncP{paramsF, body, paramsT,...} = getFieldFnDef f
 					val IR.CFG{entry,exit} = body 					
             		(* _comp  - body of function 
 					* _PT - arguments treated like tensors
@@ -470,38 +474,31 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
 					val IR.ND{kind,...} = !pred
 					(*find the last variable for lhs of the function body *)
 					val lhs_comp =
-						(case (kind,params)
+						(case (kind,paramsF)
             				of (IR.ASSIGN{stm as (lhs_comp, _),...},_) =>  lhs_comp
             				| (IR.ENTRY _, [lhs_comp])	  => lhs_comp
-            			(* end case*))
-            		fun gather(IR.ND{kind,...}) = 
-            			(case kind 
-            				of IR.ASSIGN{stm,pred,...} => (IR.ASSGN stm)::gather(!pred)
-            				|  IR.ENTRY _    => []
             			(* end case*))
             		val stmt_comp = List.rev(gather (!pred))
             		val _ = ff ("stmt_comp",stmt_comp)
 					val alpha_comp = tensorSize lhs_comp				
 					(* get arguments treated like fields  _PF*)
-					val lhs_PF = params
+					val lhs_PF = paramsF
 					(*for each one set equal to a dummy var *)
-					val stmt_PF= List.map (fn v => IR.ASSGN(v, IR.LIT(Literal.Int 0))) lhs_PF
+					val stmt_PF= List.map (fn v as IR.V{name,...} => IR.ASSGN(v, IR.LIT(Literal.String (name)))) lhs_PF
 					val _ = ff ("stmt_PF", stmt_PF)	
 					val alphas_PF = List.map tensorSize lhs_PF
 					(*input variables treated like tensors*)
-					val alphas_PT = []		
+					val lhs_PT= paramsT 
+					val alphas_PT = List.map tensorSize lhs_PT
             		(* variables defined outside of field get statement wrapped inside *)
             		val _ =  print "\n\n Mark E"
             	
             		(*create ein operator*)
 					val rator  = MkOperators.cfexpMix (alphas_PT, alpha_comp, alphas_PF)   
-					val args =  [lhs_comp]@ lhs_PF
+					val args =  [lhs_comp]@ lhs_PF@ lhs_PT
 					val ein = IR.EINAPP(rator,args)
 					val _ = List.map (fn v =>print("-"^IR.Var.toString(v))) args 
 					val _ = print"\n\n\n--------"
-					(*
-					raise Fail (concat["**** Entry nnode: ", IR.Node.toString entry,"** exit ", IR.Node.toString exit, "\n"])*)	
-                (*val _ =  print(String.concat["_comp:",IR.assignToString stm])*)
                 in
                 	 stmt_PF@ stmt_comp@[IR.ASSGN(lhs, ein)]
                 end
@@ -777,7 +774,7 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
   (* convert a function definition to a HighIR function *)
     fun cvtFunc (S.Func{f, params, body}) = let
         (* initialize the environment with the function's parameters *)
-          val (env, params) = initEnvFromParams params
+          val (env, params) = initEnvFromParams params         	
           val (loadBlk, env) = loadGlobals (env, body)
           val (bodyCFG, _) = cvtBlock (([], []), env, [], body)
           val cfg = IR.CFG.prependNode (IR.Node.mkENTRY(), loadBlk)

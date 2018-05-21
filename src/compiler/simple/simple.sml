@@ -45,6 +45,12 @@ structure Simple =
         params : var list,
         body : block
       }
+      | FuncP of {
+        f : func,
+        paramsF : var list,
+        paramsT : var list,
+        body : block
+      }
 
     and strand = Strand of {
         name : Atom.atom,

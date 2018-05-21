@@ -69,6 +69,15 @@ structure CheckType : sig
                   dim = checkDim (env, cxt, dim),
                   shape = CheckExpr.checkShape (env, cxt, shape)
                 }
+            | PT.T_OField{diff, shape, input} => let
+            	val Ty.Shape ins =  CheckExpr.checkShapeDim(env, cxt, input) 
+            	val input = List.map (fn i=> Ty.Shape [i]) ins
+            	in Ty.T_OField{
+                  diff = checkDiff (cxt, diff),
+                  shape = CheckExpr.checkShape (env, cxt, shape),
+                  input = input 
+               	 }
+                end
             | PT.T_FemFld{diff, dim, shape} => Ty.T_FemFld{
                   diff = checkDiff (cxt, diff),
                   dim = checkDim (env, cxt, dim),
@@ -95,9 +104,7 @@ structure CheckType : sig
                 end
             | PT.T_Mesh => Ty.T_Mesh
             | PT.T_Element=> Ty.T_Element
-            | PT.T_FnSpace => Ty.T_FnSpace
-
-         
+            | PT.T_FnSpace => Ty.T_FnSpace         
           (* end case *))
 
   end

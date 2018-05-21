@@ -1380,12 +1380,13 @@ structure MkOperators : sig
             then [E.Tensor(1,[])]
             else List.tabulate(n, fn id => E.Tensor(id+1, []))
 
-        in
-        E.EIN{
+        val ein = E.EIN{
                 params = [E.FLD (dim, alpha)]@ (List.map (fn talpha => mkNoSubstTEN talpha)  talphas),
                 index = alpha,
                 body = E.Probe(fldtem, probeterm, NONE)
             }
+       	val _ = print(String.concat["\n mk-operators- probe term: ",EinPP.toString(ein)])
+       	in ein 
         end
         
     (*Sequences*)

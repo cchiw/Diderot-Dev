@@ -579,10 +579,17 @@ structure TranslateBasis : sig
                                             [ assignEin(y, Mk.polyProbe (ddF,d1, [ddT]), args)]),
                 (BV.fn_inst_tf,               fn (y, [_, Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE ddT], [T,F]) =>
                                             [ assignEin(y, Mk.polyProbe (ddF,d1, [ddT]), [F, T])]),
+                (BV.fn_inst_ot,               fn (y, [_,  Ty.SHAPE ddF, Ty.SHAPE ddT1], args) =>
+                							[ assignEin(y, Mk.polyProbe (ddF,0, [ddT1]), args)]),  
                 (BV.fn_inst_ftt,               fn (y, [_, Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE ddT1, Ty.SHAPE ddT2], args) =>
                                             [ assignEin(y, Mk.polyProbe (ddF,d1, [ddT1, ddT2]), args)]),
+                (BV.fn_inst_ott,               fn (y, [_,  Ty.SHAPE ddF, Ty.SHAPE ddT1, Ty.SHAPE ddT2], args) =>
+                							[ assignEin(y, Mk.polyProbe (ddF,0, [ddT1, ddT2]), args)]),  
                 (BV.fn_inst_fttt,               fn (y, [_, Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE ddT1, Ty.SHAPE ddT2, Ty.SHAPE ddT3], args) =>
-                                            [ assignEin(y, Mk.polyProbe (ddF,d1, [ddT1, ddT2, ddT3]), args)]),
+                                            [ assignEin(y, Mk.polyProbe (ddF,d1, [ddT1, ddT2, ddT3]), args)]),                            
+                (BV.fn_inst_ottt,               fn (y, [_,  Ty.SHAPE ddF, Ty.SHAPE ddT1, Ty.SHAPE ddT2, Ty.SHAPE ddT3], args) =>
+                							[ assignEin(y, Mk.polyProbe (ddF,0, [ddT1, ddT2, ddT3]), args)]),              
+                (*FIXME *)
                 (BV.fn_instR_fd,             fn (y, [_, Ty.DIM d1, Ty.SHAPE ddF, Ty.TY ty], args) =>
                         (case ty        (*what is the type of sequence*)
                             of Ty.T_Int =>  [  assignEin(y, Mk.polyProbeSeq_N (ddF,d1, []), args)]

@@ -451,29 +451,23 @@ fun Type_PROD_1_ACT (LP, RP, KW_image, Dimensions, Dimension, LP_SPAN : (Lex.pos
                       }))
 fun Type_PROD_2_ACT (LP, RP, INT, HASH, KW_field, Dimensions, Dimension, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), INT_SPAN : (Lex.pos * Lex.pos), HASH_SPAN : (Lex.pos * Lex.pos), KW_field_SPAN : (Lex.pos * Lex.pos), Dimensions_SPAN : (Lex.pos * Lex.pos), Dimension_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
   (markTy(FULL_SPAN, PT.T_Field{
-diff = SOME INT,
-shape = Dimensions,
-dim = Dimension
-}))
-fun Type_PROD_3_ACT (LP, RP, INT, HASH, Dimensions, KW_OField, Dimension, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), INT_SPAN : (Lex.pos * Lex.pos), HASH_SPAN : (Lex.pos * Lex.pos), Dimensions_SPAN : (Lex.pos * Lex.pos), KW_OField_SPAN : (Lex.pos * Lex.pos), Dimension_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
-  (markTy(FULL_SPAN, PT.T_OField{
-diff = SOME INT,
-shape = Dimensions,
-dim = Dimension
-}))
-fun Type_PROD_4_ACT (LP, RP, INT, HASH, Dimensions, Dimension, KW_fem, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), INT_SPAN : (Lex.pos * Lex.pos), HASH_SPAN : (Lex.pos * Lex.pos), Dimensions_SPAN : (Lex.pos * Lex.pos), Dimension_SPAN : (Lex.pos * Lex.pos), KW_fem_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
+            diff = SOME INT,
+            shape = Dimensions,
+            dim = Dimension
+            }))
+fun Type_PROD_3_ACT (LP, RP, INT, HASH, Dimensions, Dimension, KW_fem, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), INT_SPAN : (Lex.pos * Lex.pos), HASH_SPAN : (Lex.pos * Lex.pos), Dimensions_SPAN : (Lex.pos * Lex.pos), Dimension_SPAN : (Lex.pos * Lex.pos), KW_fem_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
   (markTy(FULL_SPAN, PT.T_FemFld{
-diff = SOME INT,
-shape = Dimensions,
-dim = Dimension
-}))
-fun Type_PROD_5_ACT (INT, HASH, KW_kernel, INT_SPAN : (Lex.pos * Lex.pos), HASH_SPAN : (Lex.pos * Lex.pos), KW_kernel_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
+            diff = SOME INT,
+            shape = Dimensions,
+            dim = Dimension
+            }))
+fun Type_PROD_4_ACT (INT, HASH, KW_kernel, INT_SPAN : (Lex.pos * Lex.pos), HASH_SPAN : (Lex.pos * Lex.pos), KW_kernel_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
   (markTy(FULL_SPAN, PT.T_Kernel INT))
-fun Type_PROD_7_ACT (KW_mesh, KW_mesh_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
+fun Type_PROD_6_ACT (KW_mesh, KW_mesh_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
   (markTy(FULL_SPAN, PT.T_Mesh))
-fun Type_PROD_8_ACT (KW_element, KW_element_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
+fun Type_PROD_7_ACT (KW_element, KW_element_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
   (markTy (FULL_SPAN, PT.T_Element))
-fun Type_PROD_9_ACT (KW_fnspace, KW_fnspace_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
+fun Type_PROD_8_ACT (KW_fnspace, KW_fnspace_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
   (markTy (FULL_SPAN, PT.T_FnSpace))
 fun ConcreteType_PROD_1_ACT (ValueType, SeqDimensions, ValueType_SPAN : (Lex.pos * Lex.pos), SeqDimensions_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
   (markTy(FULL_SPAN, SeqDimensions ValueType))
@@ -2245,19 +2239,6 @@ fun Type_NT (strm) = let
                 FULL_SPAN, strm')
             end
       fun Type_PROD_3 (strm) = let
-            val (KW_OField_RES, KW_OField_SPAN, strm') = matchKW_OField(strm)
-            val (HASH_RES, HASH_SPAN, strm') = matchHASH(strm')
-            val (INT_RES, INT_SPAN, strm') = matchINT(strm')
-            val (LP_RES, LP_SPAN, strm') = matchLP(strm')
-            val (Dimension_RES, Dimension_SPAN, strm') = Dimension_NT(strm')
-            val (RP_RES, RP_SPAN, strm') = matchRP(strm')
-            val (Dimensions_RES, Dimensions_SPAN, strm') = Dimensions_NT(strm')
-            val FULL_SPAN = (#1(KW_OField_SPAN), #2(Dimensions_SPAN))
-            in
-              (UserCode.Type_PROD_3_ACT (LP_RES, RP_RES, INT_RES, HASH_RES, Dimensions_RES, KW_OField_RES, Dimension_RES, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), INT_SPAN : (Lex.pos * Lex.pos), HASH_SPAN : (Lex.pos * Lex.pos), Dimensions_SPAN : (Lex.pos * Lex.pos), KW_OField_SPAN : (Lex.pos * Lex.pos), Dimension_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
-                FULL_SPAN, strm')
-            end
-      fun Type_PROD_4 (strm) = let
             val (KW_fem_RES, KW_fem_SPAN, strm') = matchKW_fem(strm)
             val (HASH_RES, HASH_SPAN, strm') = matchHASH(strm')
             val (INT_RES, INT_SPAN, strm') = matchINT(strm')
@@ -2267,64 +2248,63 @@ fun Type_NT (strm) = let
             val (Dimensions_RES, Dimensions_SPAN, strm') = Dimensions_NT(strm')
             val FULL_SPAN = (#1(KW_fem_SPAN), #2(Dimensions_SPAN))
             in
-              (UserCode.Type_PROD_4_ACT (LP_RES, RP_RES, INT_RES, HASH_RES, Dimensions_RES, Dimension_RES, KW_fem_RES, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), INT_SPAN : (Lex.pos * Lex.pos), HASH_SPAN : (Lex.pos * Lex.pos), Dimensions_SPAN : (Lex.pos * Lex.pos), Dimension_SPAN : (Lex.pos * Lex.pos), KW_fem_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
+              (UserCode.Type_PROD_3_ACT (LP_RES, RP_RES, INT_RES, HASH_RES, Dimensions_RES, Dimension_RES, KW_fem_RES, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), INT_SPAN : (Lex.pos * Lex.pos), HASH_SPAN : (Lex.pos * Lex.pos), Dimensions_SPAN : (Lex.pos * Lex.pos), Dimension_SPAN : (Lex.pos * Lex.pos), KW_fem_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
                 FULL_SPAN, strm')
             end
-      fun Type_PROD_5 (strm) = let
+      fun Type_PROD_4 (strm) = let
             val (KW_kernel_RES, KW_kernel_SPAN, strm') = matchKW_kernel(strm)
             val (HASH_RES, HASH_SPAN, strm') = matchHASH(strm')
             val (INT_RES, INT_SPAN, strm') = matchINT(strm')
             val FULL_SPAN = (#1(KW_kernel_SPAN), #2(INT_SPAN))
             in
-              (UserCode.Type_PROD_5_ACT (INT_RES, HASH_RES, KW_kernel_RES, INT_SPAN : (Lex.pos * Lex.pos), HASH_SPAN : (Lex.pos * Lex.pos), KW_kernel_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
+              (UserCode.Type_PROD_4_ACT (INT_RES, HASH_RES, KW_kernel_RES, INT_SPAN : (Lex.pos * Lex.pos), HASH_SPAN : (Lex.pos * Lex.pos), KW_kernel_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
                 FULL_SPAN, strm')
             end
-      fun Type_PROD_6 (strm) = let
+      fun Type_PROD_5 (strm) = let
             val (ConcreteType_RES, ConcreteType_SPAN, strm') = ConcreteType_NT(strm)
             val FULL_SPAN = (#1(ConcreteType_SPAN), #2(ConcreteType_SPAN))
             in
               ((ConcreteType_RES), FULL_SPAN, strm')
             end
-      fun Type_PROD_7 (strm) = let
+      fun Type_PROD_6 (strm) = let
             val (KW_mesh_RES, KW_mesh_SPAN, strm') = matchKW_mesh(strm)
             val FULL_SPAN = (#1(KW_mesh_SPAN), #2(KW_mesh_SPAN))
             in
-              (UserCode.Type_PROD_7_ACT (KW_mesh_RES, KW_mesh_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
+              (UserCode.Type_PROD_6_ACT (KW_mesh_RES, KW_mesh_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
                 FULL_SPAN, strm')
             end
-      fun Type_PROD_8 (strm) = let
+      fun Type_PROD_7 (strm) = let
             val (KW_element_RES, KW_element_SPAN, strm') = matchKW_element(strm)
             val FULL_SPAN = (#1(KW_element_SPAN), #2(KW_element_SPAN))
             in
-              (UserCode.Type_PROD_8_ACT (KW_element_RES, KW_element_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
+              (UserCode.Type_PROD_7_ACT (KW_element_RES, KW_element_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
                 FULL_SPAN, strm')
             end
-      fun Type_PROD_9 (strm) = let
+      fun Type_PROD_8 (strm) = let
             val (KW_fnspace_RES, KW_fnspace_SPAN, strm') = matchKW_fnspace(strm)
             val FULL_SPAN = (#1(KW_fnspace_SPAN), #2(KW_fnspace_SPAN))
             in
-              (UserCode.Type_PROD_9_ACT (KW_fnspace_RES, KW_fnspace_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
+              (UserCode.Type_PROD_8_ACT (KW_fnspace_RES, KW_fnspace_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
                 FULL_SPAN, strm')
             end
       in
         (case (lex(strm))
-         of (Tok.KW_fnspace, _, strm') => Type_PROD_9(strm)
-          | (Tok.KW_mesh, _, strm') => Type_PROD_7(strm)
-          | (Tok.KW_kernel, _, strm') => Type_PROD_5(strm)
-          | (Tok.KW_OField, _, strm') => Type_PROD_3(strm)
-          | (Tok.KW_image, _, strm') => Type_PROD_1(strm)
+         of (Tok.KW_fnspace, _, strm') => Type_PROD_8(strm)
+          | (Tok.KW_mesh, _, strm') => Type_PROD_6(strm)
+          | (Tok.KW_kernel, _, strm') => Type_PROD_4(strm)
           | (Tok.KW_field, _, strm') => Type_PROD_2(strm)
-          | (Tok.KW_fem, _, strm') => Type_PROD_4(strm)
-          | (Tok.KW_bool, _, strm') => Type_PROD_6(strm)
-          | (Tok.KW_int, _, strm') => Type_PROD_6(strm)
-          | (Tok.KW_real, _, strm') => Type_PROD_6(strm)
-          | (Tok.KW_string, _, strm') => Type_PROD_6(strm)
-          | (Tok.KW_tensor, _, strm') => Type_PROD_6(strm)
-          | (Tok.KW_vec2, _, strm') => Type_PROD_6(strm)
-          | (Tok.KW_vec3, _, strm') => Type_PROD_6(strm)
-          | (Tok.KW_vec4, _, strm') => Type_PROD_6(strm)
-          | (Tok.ID(_), _, strm') => Type_PROD_6(strm)
-          | (Tok.KW_element, _, strm') => Type_PROD_8(strm)
+          | (Tok.KW_image, _, strm') => Type_PROD_1(strm)
+          | (Tok.KW_fem, _, strm') => Type_PROD_3(strm)
+          | (Tok.KW_bool, _, strm') => Type_PROD_5(strm)
+          | (Tok.KW_int, _, strm') => Type_PROD_5(strm)
+          | (Tok.KW_real, _, strm') => Type_PROD_5(strm)
+          | (Tok.KW_string, _, strm') => Type_PROD_5(strm)
+          | (Tok.KW_tensor, _, strm') => Type_PROD_5(strm)
+          | (Tok.KW_vec2, _, strm') => Type_PROD_5(strm)
+          | (Tok.KW_vec3, _, strm') => Type_PROD_5(strm)
+          | (Tok.KW_vec4, _, strm') => Type_PROD_5(strm)
+          | (Tok.ID(_), _, strm') => Type_PROD_5(strm)
+          | (Tok.KW_element, _, strm') => Type_PROD_7(strm)
           | _ => fail()
         (* end case *))
       end
@@ -2367,7 +2347,6 @@ fun Block_NT (strm) = let
               | (Tok.KW_vec2, _, strm') => true
               | (Tok.KW_vec3, _, strm') => true
               | (Tok.KW_vec4, _, strm') => true
-              | (Tok.KW_OField, _, strm') => true
               | (Tok.KW_fem, _, strm') => true
               | (Tok.KW_mesh, _, strm') => true
               | (Tok.KW_element, _, strm') => true
@@ -2447,7 +2426,6 @@ and Stmt_NT (strm) = let
           | (Tok.KW_vec2, _, strm') => Stmt_PROD_1(strm)
           | (Tok.KW_vec3, _, strm') => Stmt_PROD_1(strm)
           | (Tok.KW_vec4, _, strm') => Stmt_PROD_1(strm)
-          | (Tok.KW_OField, _, strm') => Stmt_PROD_1(strm)
           | (Tok.KW_fem, _, strm') => Stmt_PROD_1(strm)
           | (Tok.KW_mesh, _, strm') => Stmt_PROD_1(strm)
           | (Tok.KW_element, _, strm') => Stmt_PROD_1(strm)
@@ -2629,7 +2607,6 @@ and AtomicStmt_NT (strm) = let
           | (Tok.KW_vec2, _, strm') => AtomicStmt_PROD_2(strm)
           | (Tok.KW_vec3, _, strm') => AtomicStmt_PROD_2(strm)
           | (Tok.KW_vec4, _, strm') => AtomicStmt_PROD_2(strm)
-          | (Tok.KW_OField, _, strm') => AtomicStmt_PROD_2(strm)
           | (Tok.KW_fem, _, strm') => AtomicStmt_PROD_2(strm)
           | (Tok.KW_mesh, _, strm') => AtomicStmt_PROD_2(strm)
           | (Tok.KW_element, _, strm') => AtomicStmt_PROD_2(strm)
@@ -2708,7 +2685,6 @@ fun StrandStateDecl_NT (strm) = let
           | (Tok.KW_vec2, _, strm') => StrandStateDecl_PROD_2(strm)
           | (Tok.KW_vec3, _, strm') => StrandStateDecl_PROD_2(strm)
           | (Tok.KW_vec4, _, strm') => StrandStateDecl_PROD_2(strm)
-          | (Tok.KW_OField, _, strm') => StrandStateDecl_PROD_2(strm)
           | (Tok.KW_fem, _, strm') => StrandStateDecl_PROD_2(strm)
           | (Tok.KW_mesh, _, strm') => StrandStateDecl_PROD_2(strm)
           | (Tok.KW_element, _, strm') => StrandStateDecl_PROD_2(strm)
@@ -2790,7 +2766,6 @@ fun StrandDecl_NT (strm) = let
               | (Tok.KW_vec2, _, strm') => true
               | (Tok.KW_vec3, _, strm') => true
               | (Tok.KW_vec4, _, strm') => true
-              | (Tok.KW_OField, _, strm') => true
               | (Tok.KW_fem, _, strm') => true
               | (Tok.KW_mesh, _, strm') => true
               | (Tok.KW_element, _, strm') => true
@@ -3114,7 +3089,6 @@ fun GlobalDecl_NT (strm) = let
           | (Tok.KW_vec2, _, strm') => GlobalDecl_PROD_2(strm)
           | (Tok.KW_vec3, _, strm') => GlobalDecl_PROD_2(strm)
           | (Tok.KW_vec4, _, strm') => GlobalDecl_PROD_2(strm)
-          | (Tok.KW_OField, _, strm') => GlobalDecl_PROD_2(strm)
           | (Tok.KW_fem, _, strm') => GlobalDecl_PROD_2(strm)
           | (Tok.KW_mesh, _, strm') => GlobalDecl_PROD_2(strm)
           | (Tok.KW_element, _, strm') => GlobalDecl_PROD_2(strm)
@@ -3144,7 +3118,6 @@ fun Program_NT (strm) = let
               | (Tok.KW_vec2, _, strm') => true
               | (Tok.KW_vec3, _, strm') => true
               | (Tok.KW_vec4, _, strm') => true
-              | (Tok.KW_OField, _, strm') => true
               | (Tok.KW_fem, _, strm') => true
               | (Tok.KW_mesh, _, strm') => true
               | (Tok.KW_element, _, strm') => true

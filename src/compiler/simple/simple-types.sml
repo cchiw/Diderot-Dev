@@ -34,9 +34,9 @@ structure SimpleTypes =
           shape : shape                 (* shape of tensors in range; order is length of list *)
         }
       | T_OField of {
-        diff : diff,                  (* number of levels of differentiation supported *)
-        dim : dim,                    (* dimension of domain (2D or 3D field) *)
-        shape : shape                 (* shape of tensors in range; order is length of list *)
+        diff : diff,                  (* number of levels of differentiation supported *)                    (* dimension of domain (2D or 3D field) *)
+        shape : shape,                 (* shape of tensors in range; order is length of list *)
+        input : shape list
         }
       | T_FemFld of {
         diff : diff,                  (* number of levels of differentiation supported *)
@@ -77,14 +77,15 @@ structure SimpleTypes =
 	    | (T_Kernel, T_Kernel) => true
 	    | (T_Image info1, T_Image info2) => ImageInfo.same(info1, info2)
 	    | (T_Field{diff=k1, dim=d1, shape=shp1}, T_Field{diff=k2, dim=d2, shape=shp2}) =>
-		(k1 = k2) andalso (d1 = d2) andalso ListPair.allEq (op =) (shp1, shp2)
-            | (T_OField{diff=k1, dim=d1, shape=shp1}, T_OField{diff=k2, dim=d2, shape=shp2}) =>
+			(k1 = k2) andalso (d1 = d2) andalso ListPair.allEq (op =) (shp1, shp2)
+        | (T_OField{diff=k1,  shape=shp1, input=i1}, T_OField{diff=k2,  shape=shp2, input=i2}) =>
+                (k1 = k2)  andalso ListPair.allEq (op =) (shp1, shp2) 
+                andalso ListPair.allEq (op =) (i1, i2)
+        | (T_FemFld{diff=k1, dim=d1, shape=shp1}, T_FemFld{diff=k2, dim=d2, shape=shp2}) =>
                 (k1 = k2) andalso (d1 = d2) andalso ListPair.allEq (op =) (shp1, shp2)
-            | (T_FemFld{diff=k1, dim=d1, shape=shp1}, T_FemFld{diff=k2, dim=d2, shape=shp2}) =>
-                (k1 = k2) andalso (d1 = d2) andalso ListPair.allEq (op =) (shp1, shp2)
-            | (T_Mesh, T_Mesh) => true
-            | (T_Element, T_Element) => true
-            | (T_FnSpace, T_FnSpace) => true
+        | (T_Mesh, T_Mesh) => true
+        | (T_Element, T_Element) => true
+        | (T_FnSpace, T_FnSpace) => true
 	    | _ => false
 	  (* end case *))
 
@@ -113,12 +114,12 @@ structure SimpleTypes =
                    "field#", Int.toString k, "(", Int.toString dim,
                    ")[", shapeToString shape, "]"
                 ]
-            | T_OField{diff=NONE, dim, shape} => concat[
-                   "ofield", "(", Int.toString dim, ")[", shapeToString shape, "]"
+            | T_OField{diff=NONE, shape, input} => concat[
+                   "ofield(", String.concatWithMap "," shapeToString input, ")[", shapeToString shape, "]"
                  ]
-            | T_OField{diff=SOME k, dim, shape} => concat[
-                   "ofield#", Int.toString k, "(", Int.toString dim,
-                   ")[", shapeToString shape, "]"
+            | T_OField{diff=SOME k, shape, input} => concat[
+                   "ofield#", Int.toString k,"(",String.concatWithMap "," shapeToString input,")",
+                   "[", shapeToString shape, "]"
                    ]
             | T_FemFld{diff=NONE, dim, shape} => concat[
                    "femfield", "(", Int.toString dim, ")[", shapeToString shape, "]"

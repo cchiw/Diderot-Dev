@@ -361,24 +361,25 @@ Type    : "image" "(" Dimension ")" Dimensions
                 => (markTy(FULL_SPAN, PT.T_Image{
                         shape = Dimensions, dim = Dimension
                       }))
-| "field" "#" INT "(" Dimension ")" Dimensions
-=> (markTy(FULL_SPAN, PT.T_Field{
-diff = SOME INT,
-shape = Dimensions,
-dim = Dimension
-}))
-| "ofield" "#" INT "(" Dimension ")" Dimensions
-=> (markTy(FULL_SPAN, PT.T_OField{
-diff = SOME INT,
-shape = Dimensions,
-dim = Dimension
-}))
-| "fem" "#" INT "(" Dimension ")" Dimensions
-=> (markTy(FULL_SPAN, PT.T_FemFld{
-diff = SOME INT,
-shape = Dimensions,
-dim = Dimension
-}))
+        | "field" "#" INT "(" Dimension ")" Dimensions
+            => (markTy(FULL_SPAN, PT.T_Field{
+            diff = SOME INT,
+            shape = Dimensions,
+            dim = Dimension
+            }))
+(*
+        | "ofield" "#" INT  Dimensions
+            => (markTy(FULL_SPAN, PT.T_OField{
+            diff = SOME INT,
+            shape = Dimensions
+            }))
+*)
+        | "fem" "#" INT "(" Dimension ")" Dimensions
+            => (markTy(FULL_SPAN, PT.T_FemFld{
+            diff = SOME INT,
+            shape = Dimensions,
+            dim = Dimension
+            }))
         | "kernel" "#" INT
                 => (markTy(FULL_SPAN, PT.T_Kernel INT))
         | ConcreteType

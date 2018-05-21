@@ -45,8 +45,8 @@ structure Types =
         }
       | T_OField of {
         diff : diff,		(* number of levels of differentiation supported *)
-        dim : dim,		(* dimension of domain (2D or 3D field) *)
-        shape : shape		(* shape of tensors in range; order is length of list *)
+        input: shape list,
+        shape : shape 		(* shape of tensors in range; order is length of list *)
         }
       | T_FemFld of {
         diff : diff,		(* number of levels of differentiation supported *)

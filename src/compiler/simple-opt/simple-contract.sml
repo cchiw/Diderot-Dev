@@ -146,6 +146,9 @@ structure SimpleContract : sig
     and analyzeFunc (S.Func{params, body, ...}) = (
           List.app setBoolUnknown params;
           analyzeBlock body)
+      | analyzeFunc (S.FuncP{paramsF, paramsT, body, ...}) = (
+          List.app setBoolUnknown paramsF;List.app setBoolUnknown paramsT;
+          analyzeBlock body)
 
   (* count the variable uses in a strand *)
     fun analyzeStrand (S.Strand{

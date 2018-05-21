@@ -158,8 +158,8 @@ structure Basis : sig
           (N.fn_cfe_21, [BV.fn_cfe_21]),
           (N.fn_cfe_12, [BV.fn_cfe_12]),
           (N.fn_diff,    [BV.fn_diff]),
-          (N.fn_inst,   [BV.fn_inst_ft,BV.fn_inst_tf, BV.fn_inst_ftt, BV.fn_inst_fttt, BV.fn_inst_fd]),
-          (N.fn_instR, [BV.fn_instR_fd, BV.fn_instR_ftd]),
+          (N.fn_inst,   [BV.fn_inst_ft,BV.fn_inst_tf, BV.fn_inst_ftt, BV.fn_inst_fttt, BV.fn_inst_fd,BV.fn_inst_ot, BV.fn_inst_ott, BV.fn_inst_ottt]),
+          (N.fn_instR, [BV.fn_instR_fd, BV.fn_instR_ftd]),(*sequences and reduction*)
           (N.fn_convert, [BV.fn_convert_fp, BV.fn_convert_fvp]),
 	  	  (N.fn_convertTracker, [BV.fn_convert_Tracker_rm]),
           (N.fn_inside, [BV.fn_inside]),

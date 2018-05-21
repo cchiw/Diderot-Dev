@@ -268,8 +268,13 @@ structure CheckVarUses : sig
                 in
                   (undef, VSet.add(unused, f), bound)
                 end
-            | chkGlobalDecl (AST.D_DiffFunc(f, params, body), (undef, unused, bound)) = let
-                val unused = chkExpr(cxt, body, undef, VSet.addList(unused, params))
+            | chkGlobalDecl (AST.D_DiffFunc(f, paramsF, SOME paramsT, body), (undef, unused, bound)) = let
+                val unused = chkExpr(cxt, body, undef, VSet.addList(unused, paramsF@paramsT))
+                in
+                  (undef, VSet.add(unused, f), bound)
+                end
+            | chkGlobalDecl (AST.D_DiffFunc(f, paramsF, NONE, body), (undef, unused, bound)) = let
+                val unused = chkExpr(cxt, body, undef, VSet.addList(unused, paramsF))
                 in
                   (undef, VSet.add(unused, f), bound)
                 end

@@ -119,10 +119,10 @@ structure TypeUtil : sig
                   dim = pruneDim dim,
                   shape = pruneShape shape
                 }
-            | (Ty.T_OField{diff, dim, shape}) => Ty.T_OField{
+            | (Ty.T_OField{diff, shape, input}) => Ty.T_OField{
                  diff = pruneDiff diff,
-                 dim = pruneDim dim,
-                 shape = pruneShape shape
+                 shape = pruneShape shape,
+                 input =  input
                  }
             | (Ty.T_FemFld{diff, dim, shape}) => Ty.T_FemFld{
                  diff = pruneDiff diff,
@@ -209,12 +209,11 @@ structure TypeUtil : sig
                   dim = pruneDim dim,
                   shape = pruneShape shape
                 }
-            | prune' (Ty.T_OField{diff, dim, shape}) = Ty.T_OField{
+            | prune' (Ty.T_OField{diff, shape, input}) = Ty.T_OField{
                  diff = pruneDiff diff,
-                 dim = pruneDim dim,
-                 shape = pruneShape shape
-                 }
-                 
+                 shape = pruneShape shape,
+                 input = List.map pruneShape input
+              }                 
             | prune' (Ty.T_FemFld{diff, dim, shape}) = Ty.T_FemFld{
                  diff = pruneDiff diff,
                  dim = pruneDim dim,
@@ -318,8 +317,8 @@ structure TypeUtil : sig
                 in
                   concat["[", toS shape, dimToString d, "]"]
                 end
-          (* end case *))
-
+          (* end case *))  
+ 	
     and dimToString dim = (case pruneDim dim
            of Ty.DimConst n => Int.toString n
             | Ty.DimVar v => MV.dimVarToString v
@@ -360,9 +359,8 @@ structure TypeUtil : sig
                   String.concat[tysToString tys1, " -> ", toString ty2]
                 end
             | Ty.T_Error => "<error-type>"
-            | Ty.T_OField{diff, dim, shape} => concat[
-                "OField#", diffToString diff, "(", dimToString dim,
-                ")", shapeToString shape
+            | Ty.T_OField{diff, shape, input} => concat[
+                "OoField#", diffToString diff, "(", String.concatWith "," (List.map shapeToString input), ")",shapeToString shape
                 ]
             | Ty.T_FemFld{diff, dim, shape} => concat[
                 "FemFld#", diffToString diff, "(", dimToString dim,
@@ -389,11 +387,11 @@ structure TypeUtil : sig
           in
             Ty.T_Field{diff=diff, dim=dim, shape= Ty.Shape (ListPair.foldr f [] (l, mask))}
           end
-        | slice (Ty.T_OField{shape as Ty.Shape l,diff,dim}, mask) = let
+        | slice (Ty.T_OField{shape as Ty.Shape l,diff, input}, mask) = let
           fun f (d, true, dd) = dd
           | f (d, false, dd) = d::dd
           in
-          Ty.T_OField{diff=diff, dim=dim, shape= Ty.Shape (ListPair.foldr f [] (l, mask))}
+          Ty.T_OField{diff=diff, shape= Ty.Shape (ListPair.foldr f [] (l, mask)),input=input}
           end
       | slice (ty, _) = raise Fail(concat["slice(", toString ty, ", _)"])
 
@@ -455,8 +453,8 @@ structure TypeUtil : sig
             | ity (Ty.T_Image{dim, shape}) = Ty.T_Image{dim=iDim dim, shape=iShape shape}
             | ity (Ty.T_Field{diff, dim, shape}) =
                 Ty.T_Field{diff=iDiff diff, dim=iDim dim, shape=iShape shape}
-            | ity (Ty.T_OField{diff, dim, shape}) =
-                Ty.T_OField{diff=iDiff diff, dim=iDim dim, shape=iShape shape}
+            | ity (Ty.T_OField{diff, shape, input}) =
+                Ty.T_OField{diff=iDiff diff, shape=iShape shape, input= List.map iShape input}
             | ity (Ty.T_FemFld{diff, dim, shape}) =
                 Ty.T_FemFld{diff=iDiff diff, dim=iDim dim, shape=iShape shape}
             | ity Ty.T_Mesh = Ty.T_Mesh

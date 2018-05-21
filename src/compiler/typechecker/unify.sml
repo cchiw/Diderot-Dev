@@ -156,7 +156,13 @@ structure Unify : sig
                 equalDim(pl, d1, d2) andalso equalShape(pl, shape1, shape2)
             | (shape1, shape2) => equalShape(pl, shape2, shape1)
         (* end case *))
-
+ 	fun equalShapeS (pl, [],[]) = true  
+ 	 | equalShapeS (pl, shape1::s1, shape2::s2) =
+ 		 if(equalShape (pl, shape1, shape2)) 
+ 		 then  equalShapeS (pl, s1, s2)
+ 		else false 
+ 	|equalShapeS _ = false
+ 		
 (* QUESTION: do we need an occurs check? *)
     fun unifyType (pl, ty1, ty2) = let
           fun matchVar (tv1 as Ty.TV{id=id1, bind=b1}, tv2 as Ty.TV{id=id2, bind=b2}) =
@@ -188,8 +194,8 @@ structure Unify : sig
                 equalDim (pl, d1, d2) andalso equalShape(pl, s1, s2)
             | match (Ty.T_Field{diff=k1, dim=d1, shape=s1}, Ty.T_Field{diff=k2, dim=d2, shape=s2}) =
                 equalDiff (pl, k1, k2) andalso equalDim (pl, d1, d2) andalso equalShape(pl, s1, s2)
-            | match (Ty.T_OField{diff=k1, dim=d1, shape=s1}, Ty.T_OField{diff=k2, dim=d2, shape=s2}) =
-                equalDiff (pl, k1, k2) andalso equalDim (pl, d1, d2) andalso equalShape(pl, s1, s2)
+            | match (Ty.T_OField{diff=k1, shape=s1, input=i1}, Ty.T_OField{diff=k2, shape=s2, input=i2}) =
+                equalDiff (pl, k1, k2) andalso equalShape(pl, s1, s2) andalso equalShapeS(pl, i1, i2)
             | match (Ty.T_FemFld{diff=k1, dim=d1, shape=s1}, Ty.T_FemFld{diff=k2, dim=d2, shape=s2}) =
                 equalDiff (pl, k1, k2) andalso equalDim (pl, d1, d2) andalso equalShape(pl, s1, s2)
             | match (Ty.T_Mesh, Ty.T_Mesh) = true
@@ -224,11 +230,12 @@ structure Unify : sig
                 andalso equalShape(pl, s1, s2)
                   then COERCE
                   else FAIL
-     	| (Ty.T_OField{diff=k1, dim=d1, shape=s1}, Ty.T_OField{diff=k2, dim=d2, shape=s2}) =>
+     	| (Ty.T_OField{diff=k1, shape=s1, input= i1}, Ty.T_OField{diff=k2, shape=s2, input =i2}) =>
                 if unifyType(pl, ty1, ty2)
                   then EQ
-                else if matchDiff (pl, k1, k2) andalso equalDim(pl, d1, d2)
+                else if matchDiff (pl, k1, k2) 
                 andalso equalShape(pl, s1, s2)
+            	andalso equalShapeS(pl, i1, i2)
                   then COERCE
                   else FAIL
          | (Ty.T_FemFld{diff=k1, dim=d1, shape=s1}, Ty.T_FemFld{diff=k2, dim=d2, shape=s2}) =>

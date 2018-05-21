@@ -173,12 +173,13 @@ structure ParseTreePP : sig
             | PT.T_Field{diff=SOME k, dim, shape} => (
                 prNode' (strm, "Field", "#" ^ IntInf.toString k);
                 nest strm (fn strm => (expr (strm, dim); prList expr (strm, shape))))
-            | PT.T_OField{diff=NONE, dim, shape} => (
+            | PT.T_OField{diff=NONE, shape,input} => (
                 prNode' (strm, "OField", "#∞");
-                nest strm (fn strm => (expr (strm, dim); prList expr (strm, shape))))
-            | PT.T_OField{diff=SOME k, dim, shape} => (
+                prList expr (strm, input);
+                prList expr (strm, shape))
+            | PT.T_OField{diff=SOME k, shape,input} => (
                 prNode' (strm, "OField", "#" ^ IntInf.toString k);
-                nest strm (fn strm => (expr (strm, dim); prList expr (strm, shape))))
+                prList expr (strm, shape))
             | PT.T_FemFld{diff=NONE, dim, shape} => (
                 prNode' (strm, "FemField", "#∞");
                 nest strm (fn strm => (expr (strm, dim); prList expr (strm, shape))))

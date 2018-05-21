@@ -99,15 +99,15 @@ structure V = SimpleVar
             | Ty.T_Tensor shape => STy.T_Tensor(TU.monoShape shape)
             | Ty.T_Image{dim, shape} =>
                 STy.T_Image(II.mkInfo(TU.monoDim dim, TU.monoShape shape))
-           | Ty.T_Field{diff, dim, shape} => STy.T_Field{
+            | Ty.T_Field{diff, dim, shape} => STy.T_Field{
                   diff = TU.monoDiff diff,
                   dim = TU.monoDim dim,
                   shape = TU.monoShape shape
                 }
-            | Ty.T_OField{diff, dim, shape} => STy.T_OField{
+            | Ty.T_OField{diff, shape, input} => STy.T_OField{
                 diff = TU.monoDiff diff,
-                dim = TU.monoDim dim,
-                shape = TU.monoShape shape
+                shape = TU.monoShape shape,
+                input = List.map  TU.monoShape input
                 }
             | Ty.T_FemFld{diff, dim, shape} => STy.T_FemFld{
                 diff = TU.monoDiff diff,
@@ -132,8 +132,7 @@ structure V = SimpleVar
 
             | cvtTy (STy.T_FemFld _ ) = APITypes.MeshTy(*fix here*)
             | cvtTy (STy.T_Mesh) = APITypes.MeshTy
-
-            | cvtTy ty = raise Fail "bogus API type"
+		    | cvtTy ty = raise Fail "bogus API type"
           in
             cvtTy (SimpleVar.typeOf x)
           end
@@ -150,6 +149,12 @@ structure V = SimpleVar
                   val ty' as STy.T_Field{dim, shape, ...} = cvtTy ty
                   in
                     SimpleFunc.newDiff (Var.nameOf f, STy.T_Tensor shape, [STy.T_Tensor[dim]])
+                  end
+             | ty as Ty.T_OField _ => let
+                  val ty' as STy.T_OField{input, shape, ...} = cvtTy ty
+                  val args = List.map STy.T_Tensor input 
+                  in
+                    SimpleFunc.newDiff (Var.nameOf f, STy.T_Tensor shape, args)
                   end
               | ty => raise Fail "expected function or field type"
             (* end case *))
@@ -852,16 +857,20 @@ val (stms, e3') = simplifyExp (cxt, e3, [])
                 in
                   funcs := S.Func{f=f', params=params', body=body'} :: !funcs
                 end
-            | simplifyGlobalDcl (AST.D_DiffFunc(f, params, body)) = let
+            | simplifyGlobalDcl (AST.D_DiffFunc(f, paramsF, paramsT, body)) = let
                (* differentiable field function: we map it to both a function definition and
                * a field variable.
                *)
                 val vf = cvtVar f
                 val f' = SimpleFunc.use(cvtFunc f)
-                val params' = cvtVars params
+                val paramsF' = cvtVars paramsF
+                val paramsT' = (case paramsT
+                	of NONE => []
+                	| SOME paramsT => (cvtVars paramsT)
+                	(* end case *))
                 val body' = simplifyAndPruneBlock cxt (AST.S_Return body)
                 in
-                   funcs := S.Func{f=f', params=params', body=body'} :: !funcs;
+                   funcs := S.FuncP{f=f', paramsF=paramsF', paramsT=paramsT', body=body'} :: !funcs;
                    globals' := vf :: !globals';
                    globalInit := S.S_Assign(vf, S.E_FieldFn f') :: !globalInit
                 end

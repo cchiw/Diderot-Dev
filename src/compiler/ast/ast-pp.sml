@@ -323,10 +323,17 @@ structure ASTPP : sig
                  of AST.S_Block stms => ppBlock (ppStrm, stms)
                   | stm => ppBlock (ppStrm, [stm])
                 (* end case *))
-          	| AST.D_DiffFunc(f, params, body) => (
+          	| AST.D_DiffFunc(f, paramsF, SOME paramsT, body) => (
                 PP.openHBox ppStrm;
                   string(TU.toString(Var.monoTypeOf f));
-                  sp(); var f; sp(); ppParams (ppStrm, params);
+                  sp(); var f; sp(); ppParams (ppStrm, paramsF); ppParams (ppStrm, paramsT);
+                  sp(); string "="; sp(); ppExp(ppStrm, body); string ";";
+                PP.closeBox ppStrm;
+                nl())
+            | AST.D_DiffFunc(f, paramsF, NONE, body) => (
+                PP.openHBox ppStrm;
+                  string(TU.toString(Var.monoTypeOf f));
+                  sp(); var f; sp(); ppParams (ppStrm, paramsF);
                   sp(); string "="; sp(); ppExp(ppStrm, body); string ";";
                 PP.closeBox ppStrm;
                 nl())
