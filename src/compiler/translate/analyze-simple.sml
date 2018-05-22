@@ -244,7 +244,10 @@ structure AnalyzeSimple : sig
 		(* end case *))
 	      else ();
             analyzeBlock ConstInit constInit;
-            List.app (fn (S.Func{f, body, ...}) => analyzeBlock UserFunc body) funcs;
+            List.app 
+            	(fn (S.Func{f, body, ...}) => analyzeBlock UserFunc body
+            	  | (S.FuncP{f, body, ...}) => analyzeBlock UserFunc body
+            		) funcs;
             analyzeBlock GlobalInit globInit;
             analyzeBlock StateInit stateInit;
             Option.app (analyzeBlock StartMeth) startM;

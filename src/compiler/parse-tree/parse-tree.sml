@@ -40,7 +40,8 @@ structure ParseTree =
       | GD_Func of ty * var_bind * param list * fun_body (* function declaration *)
       | GD_FieldFunc of ty * var_bind * var_bind * expr (* field defined as function *)
       | GD_FieldFuncP of ty * var_bind * param list* param list option * expr (* field defined as function with multiple variables *)
-      
+      | GD_FieldFuncV of ty * var_bind * var_bind list* var_bind option * expr (* field defined as function with multiple variables *)
+            
     and strand_dcl
       = SD_Mark of strand_dcl mark
       | SD_Strand of {                      (* strand declaration *)

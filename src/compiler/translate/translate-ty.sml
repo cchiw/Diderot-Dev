@@ -30,7 +30,13 @@ structure TranslateTy : sig
             | Ty.T_Strand n => DstTy.StrandTy n
             | Ty.T_Image info => DstTy.ImageTy info
             | Ty.T_Field fld => DstTy.FieldTy
-            | Ty.T_OField fld => DstTy.OFieldTy
+            | Ty.T_OField{input,...} =>  let
+                fun cvtDim 1 = NONE
+                  | cvtDim d = SOME d
+                fun f e = List.mapPartial cvtDim e
+                in
+                  DstTy.OFieldTy(List.map f input)
+                end
             | Ty.T_FemFld fld => DstTy.FemFldTy
             | Ty.T_Mesh  => DstTy.MeshTy
             | Ty.T_Element=> DstTy.ElementTy

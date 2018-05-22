@@ -212,11 +212,17 @@ InputDcl
 
 VarOrFieldDcl
         : ( "=" Expression )? ";"
-            => (fn (ty, id) => PT.GD_Var(PT.VD_Decl(ty, id, SR)))
+           => (fn (ty, id) => PT.GD_Var(PT.VD_Decl(ty, id, SR)))
+        | "(" BindId ")" "=" Expression ";"
+            => (fn (ty, id) => PT.GD_FieldFunc(ty, id, BindId, Expression))
         | "(" Parameters ")" ( "(" Parameters ")" )? "=" Expression ";"
            => (fn (ty, id) => PT.GD_FieldFuncP(ty, id, Parameters, SR, Expression))
-        | "(" BindId ")" "=" Expression ";"
-            => (fn (ty, id) => PT.GD_FieldFunc(ty, id, BindId, Expression))        ;
+(*
+How do guarantee at least one bindid and then collapse it 
+        | "(" BindIdsA ")" ( "(" BindIds ")" )? "=" Expression ";"
+            => (fn (ty, id) => PT.GD_FieldFuncV(ty, id, BindIdsA, SR, Expression))
+*)
+        ;
 
 VarDcl
         : Type BindId ( "=" Expression )? ";"
@@ -238,6 +244,16 @@ Parameters
         : ( Parameter ( "," Parameter )* )?
                 => (flatten SR)
         ;
+
+BindIds
+        : ( BindId ( "," BindId )* )?
+                => (flatten SR)
+        ;
+BindIdsA
+        : BindId (( "," BindId )*)
+        => (flatten SR)
+        ;
+
 
 Parameter
         : Type BindId

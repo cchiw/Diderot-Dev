@@ -375,6 +375,40 @@ structure BasisVars =
             in
               [field(k0, d, Ty.Shape[])] --> field(km1, d, Ty.Shape[d])
             end))
+     val op_DST = polyVar (N.op_D, all([DK],
+          fn [Ty.DIFF k] => let
+            val k1 = Ty.DiffVar(k, 0)
+            val k0 = Ty.DiffVar(k, ~1)
+        	val dT1 = Ty.Shape []
+        	val ins = [dT1]      
+            val f =  Ty.T_OField{diff=k1, shape=Ty.Shape[], input = ins}
+            val g =  Ty.T_OField{diff=k0, shape=Ty.Shape[], input = ins}
+            in
+              		[f] --> g
+            end))
+    val op_DSTT = polyVar (N.op_D, all([DK],
+          fn [Ty.DIFF k] => let
+            val k1 = Ty.DiffVar(k, 0)
+            val k0 = Ty.DiffVar(k, ~1)
+        	val dT1 = Ty.Shape []
+        	val ins = [dT1, dT1]           
+            val f =  Ty.T_OField{diff=k1, shape=Ty.Shape[], input = ins}
+            val g =  Ty.T_OField{diff=k0, shape=Ty.Shape[], input = ins}
+            in
+              		[f] --> g
+            end))
+    val op_DSTTT = polyVar (N.op_D, all([DK],
+          fn [Ty.DIFF k] => let
+            val k1 = Ty.DiffVar(k, 0)
+            val k0 = Ty.DiffVar(k, ~1)
+        	val dT1 = Ty.Shape []
+        	val ins = [dT1, dT1, dT1]           
+            val f =  Ty.T_OField{diff=k1, shape=Ty.Shape[], input = ins}
+            val g =  Ty.T_OField{diff=k0, shape=Ty.Shape[], input = ins}
+            in
+              		[f] --> g
+            end))
+            
 
   (* differentiation of higher-order tensor fields *)
     val op_Dotimes = polyVar (N.op_Dotimes, all([DK, NK, SK, NK],

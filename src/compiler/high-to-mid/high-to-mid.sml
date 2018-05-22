@@ -83,7 +83,7 @@ structure HighToMid : sig
       | cvtTy SrcTy.KernelTy = DstTy.KernelTy
     (* we replace Field operations by 0, so the types are mapped to int *)
       | cvtTy SrcTy.FieldTy = DstTy.intTy
-      | cvtTy SrcTy.OFieldTy = DstTy.FemFldTy
+      | cvtTy (SrcTy.OFieldTy _) = DstTy.FemFldTy
       | cvtTy SrcTy.FemFldTy = DstTy.FemFldTy
       | cvtTy SrcTy.MeshTy  = DstTy.MeshTy
       | cvtTy SrcTy.ElementTy = DstTy.ElementTy

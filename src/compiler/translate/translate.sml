@@ -469,7 +469,6 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
 					* _PT - arguments treated like tensors
 					* _PF - arguments treated like fields*)            	
             		(* get computation inside field definition  _comp*)
-            		val _ =  print "\n\n Mark C"
             		val IR.ND{kind as IR.EXIT {pred,...},...}  = exit         		
 					val IR.ND{kind,...} = !pred
 					(*find the last variable for lhs of the function body *)
@@ -477,28 +476,41 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
 						(case (kind,paramsF)
             				of (IR.ASSIGN{stm as (lhs_comp, _),...},_) =>  lhs_comp
             				| (IR.ENTRY _, [lhs_comp])	  => lhs_comp
-            			(* end case*))
+            			(* end case*))            			
             		val stmt_comp = List.rev(gather (!pred))
-            		val _ = ff ("stmt_comp",stmt_comp)
 					val alpha_comp = tensorSize lhs_comp				
 					(* get arguments treated like fields  _PF*)
 					val lhs_PF = paramsF
 					(*for each one set equal to a dummy var *)
-					val stmt_PF= List.map (fn v as IR.V{name,...} => IR.ASSGN(v, IR.LIT(Literal.String (name)))) lhs_PF
-					val _ = ff ("stmt_PF", stmt_PF)	
 					val alphas_PF = List.map tensorSize lhs_PF
 					(*input variables treated like tensors*)
 					val lhs_PT= paramsT 
 					val alphas_PT = List.map tensorSize lhs_PT
             		(* variables defined outside of field get statement wrapped inside *)
-            		val _ =  print "\n\n Mark E"
-            	
+            		val stmt_PF= List.map (fn v as IR.V{name,...} => IR.ASSGN(v, IR.LIT(Literal.String (name)))) (lhs_PF@lhs_PT)
+            		(* check-globals matches parameters with probed terms
+            		* here checks that input type in ofield matche probed terms*)
+            		val alphas = alphas_PF@alphas_PT
+            		val ins = (case  IR.Var.ty lhs
+            			of HighTypes.OFieldTy(ins) => ins
+            			| HighTypes.FieldTy => alphas
+            			(*end case*))
+            		fun iTo []  = " real "
+            		   | iTo [b] = concat["vec", Int.toString b]
+					fun iTos es = String.concatWithMap "," iTo es 
+					val errmsg = concat["Field is probed with arguments that do not match the vector sizes indicated by the field dimension.",
+                        	"\n\tExpected(indicated by dimension):", iTos ins,
+                       		"\n\tObserved: ",iTos alphas]
+					fun match([],[]) = true 
+					  | match(e1::es, p1::ps) = 
+						if(e1=p1) then match(es,ps) else raise Fail(errmsg)
+                     | match _ = raise Fail(errmsg)										
+					val _ = match(ins, alphas)					    				
             		(*create ein operator*)
-					val rator  = MkOperators.cfexpMix (alphas_PT, alpha_comp, alphas_PF)   
-					val args =  [lhs_comp]@ lhs_PF@ lhs_PT
+					val rator  = MkOperators.cfexpMix (alpha_comp, alphas_PF,alphas_PT)   
+					val args =  [lhs_comp]@ lhs_PF @lhs_PT
 					val ein = IR.EINAPP(rator,args)
 					val _ = List.map (fn v =>print("-"^IR.Var.toString(v))) args 
-					val _ = print"\n\n\n--------"
                 in
                 	 stmt_PF@ stmt_comp@[IR.ASSGN(lhs, ein)]
                 end
@@ -770,6 +782,17 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
           in
             (env, List.rev params)
           end
+    fun initEnvFromParams2 (paramsF,paramsT) = let
+          fun cvtParam (x, (env, xs)) = let
+                val x' = newVar x
+                in
+                  (VMap.insert(env, x, x'), x'::xs)
+                end
+          val (env, paramsF) = List.foldl cvtParam (VMap.empty, []) paramsF
+          val (env, paramsT) = List.foldl cvtParam (env, []) paramsT
+          in
+            (env, List.rev paramsF,List.rev paramsT)
+          end
 
   (* convert a function definition to a HighIR function *)
     fun cvtFunc (S.Func{f, params, body}) = let
@@ -784,6 +807,19 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
             if (SimpleFunc.isDifferentiable f) then setFieldFnDef(f, fdef) else ();
             fdef
           end
+  	  | cvtFunc (S.FuncP{f, paramsF,paramsT, body}) = let
+        (* initialize the environment with the function's parameters *)
+          val (env, paramsF,paramsT) = initEnvFromParams2 (paramsF,paramsT)       	
+          val (loadBlk, env) = loadGlobals (env, body)
+          val (bodyCFG, _) = cvtBlock (([], []), env, [], body)
+          val cfg = IR.CFG.prependNode (IR.Node.mkENTRY(), loadBlk)
+          val cfg = IR.CFG.concat(cfg, bodyCFG)
+          val fdef = IR.FuncP{name = cvtFuncVar f, paramsF = paramsF, paramsT =paramsT, body = cfg}
+          in
+            if (SimpleFunc.isDifferentiable f) then (print"here-y"; setFieldFnDef(f, fdef)) else (print"here-no";());
+            fdef
+          end
+
 
   (* lift functions used in map-reduce expressions *)
     fun liftFuncs NONE = []

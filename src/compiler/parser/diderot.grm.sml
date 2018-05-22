@@ -386,10 +386,10 @@ fun InputDcl_PROD_1_ACT (SR1, SR2, SEMI, Type, KW_input, BindId, SR1_SPAN : (Lex
   (markDecl(FULL_SPAN, PT.GD_Input(Type, BindId, SR1, SR2)))
 fun VarOrFieldDcl_PROD_1_ACT (SR, SEMI, SR_SPAN : (Lex.pos * Lex.pos), SEMI_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
   (fn (ty, id) => PT.GD_Var(PT.VD_Decl(ty, id, SR)))
-fun VarOrFieldDcl_PROD_2_ACT (LP, RP, SR, SEMI, Expression, Parameters, OP_eq, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), SR_SPAN : (Lex.pos * Lex.pos), SEMI_SPAN : (Lex.pos * Lex.pos), Expression_SPAN : (Lex.pos * Lex.pos), Parameters_SPAN : (Lex.pos * Lex.pos), OP_eq_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
-  (fn (ty, id) => PT.GD_FieldFuncP(ty, id, Parameters, SR, Expression))
-fun VarOrFieldDcl_PROD_3_ACT (LP, RP, SEMI, Expression, OP_eq, BindId, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), SEMI_SPAN : (Lex.pos * Lex.pos), Expression_SPAN : (Lex.pos * Lex.pos), OP_eq_SPAN : (Lex.pos * Lex.pos), BindId_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
+fun VarOrFieldDcl_PROD_2_ACT (LP, RP, SEMI, Expression, OP_eq, BindId, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), SEMI_SPAN : (Lex.pos * Lex.pos), Expression_SPAN : (Lex.pos * Lex.pos), OP_eq_SPAN : (Lex.pos * Lex.pos), BindId_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
   (fn (ty, id) => PT.GD_FieldFunc(ty, id, BindId, Expression))
+fun VarOrFieldDcl_PROD_3_ACT (LP, RP, SR, SEMI, Expression, Parameters, OP_eq, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), SR_SPAN : (Lex.pos * Lex.pos), SEMI_SPAN : (Lex.pos * Lex.pos), Expression_SPAN : (Lex.pos * Lex.pos), Parameters_SPAN : (Lex.pos * Lex.pos), OP_eq_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
+  (fn (ty, id) => PT.GD_FieldFuncP(ty, id, Parameters, SR, Expression))
 fun VarDcl_PROD_1_ACT (SR, SEMI, Type, BindId, SR_SPAN : (Lex.pos * Lex.pos), SEMI_SPAN : (Lex.pos * Lex.pos), Type_SPAN : (Lex.pos * Lex.pos), BindId_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
   (mark PT.VD_Mark (FULL_SPAN, PT.VD_Decl(Type, BindId, SR)))
 fun VarDclPrefix_PROD_1_ACT (Type, BindId, Type_SPAN : (Lex.pos * Lex.pos), BindId_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
@@ -397,6 +397,10 @@ fun VarDclPrefix_PROD_1_ACT (Type, BindId, Type_SPAN : (Lex.pos * Lex.pos), Bind
 fun FunctionDcl_PROD_1_ACT (LP, RP, Type, Parameters, KW_function, BindId, FunctionDef, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), Type_SPAN : (Lex.pos * Lex.pos), Parameters_SPAN : (Lex.pos * Lex.pos), KW_function_SPAN : (Lex.pos * Lex.pos), BindId_SPAN : (Lex.pos * Lex.pos), FunctionDef_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
   (markDecl(FULL_SPAN, PT.GD_Func(Type, BindId, Parameters, FunctionDef)))
 fun Parameters_PROD_1_ACT (SR, SR_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
+  (flatten SR)
+fun BindIds_PROD_1_ACT (SR, SR_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
+  (flatten SR)
+fun BindIdsA_PROD_1_ACT (SR, BindId, SR_SPAN : (Lex.pos * Lex.pos), BindId_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
   (flatten SR)
 fun Parameter_PROD_1_ACT (Type, BindId, Type_SPAN : (Lex.pos * Lex.pos), BindId_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)) = 
   (mark PT.P_Mark (FULL_SPAN, PT.P_Param(Type, BindId)))
@@ -3355,31 +3359,6 @@ fun VarOrFieldDcl_NT (strm) = let
             end
       fun VarOrFieldDcl_PROD_2 (strm) = let
             val (LP_RES, LP_SPAN, strm') = matchLP(strm)
-            val (Parameters_RES, Parameters_SPAN, strm') = Parameters_NT(strm')
-            val (RP_RES, RP_SPAN, strm') = matchRP(strm')
-            fun VarOrFieldDcl_PROD_2_SUBRULE_1_NT (strm) = let
-                  val (LP_RES, LP_SPAN, strm') = matchLP(strm)
-                  val (Parameters_RES, Parameters_SPAN, strm') = Parameters_NT(strm')
-                  val (RP_RES, RP_SPAN, strm') = matchRP(strm')
-                  val FULL_SPAN = (#1(LP_SPAN), #2(RP_SPAN))
-                  in
-                    ((Parameters_RES), FULL_SPAN, strm')
-                  end
-            fun VarOrFieldDcl_PROD_2_SUBRULE_1_PRED (strm) = (case (lex(strm))
-                   of (Tok.LP, _, strm') => true
-                    | _ => false
-                  (* end case *))
-            val (SR_RES, SR_SPAN, strm') = EBNF.optional(VarOrFieldDcl_PROD_2_SUBRULE_1_PRED, VarOrFieldDcl_PROD_2_SUBRULE_1_NT, strm')
-            val (OP_eq_RES, OP_eq_SPAN, strm') = matchOP_eq(strm')
-            val (Expression_RES, Expression_SPAN, strm') = Expression_NT(strm')
-            val (SEMI_RES, SEMI_SPAN, strm') = matchSEMI(strm')
-            val FULL_SPAN = (#1(LP_SPAN), #2(SEMI_SPAN))
-            in
-              (UserCode.VarOrFieldDcl_PROD_2_ACT (LP_RES, RP_RES, SR_RES, SEMI_RES, Expression_RES, Parameters_RES, OP_eq_RES, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), SR_SPAN : (Lex.pos * Lex.pos), SEMI_SPAN : (Lex.pos * Lex.pos), Expression_SPAN : (Lex.pos * Lex.pos), Parameters_SPAN : (Lex.pos * Lex.pos), OP_eq_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
-                FULL_SPAN, strm')
-            end
-      fun VarOrFieldDcl_PROD_3 (strm) = let
-            val (LP_RES, LP_SPAN, strm') = matchLP(strm)
             val (BindId_RES, BindId_SPAN, strm') = BindId_NT(strm')
             val (RP_RES, RP_SPAN, strm') = matchRP(strm')
             val (OP_eq_RES, OP_eq_SPAN, strm') = matchOP_eq(strm')
@@ -3387,7 +3366,32 @@ fun VarOrFieldDcl_NT (strm) = let
             val (SEMI_RES, SEMI_SPAN, strm') = matchSEMI(strm')
             val FULL_SPAN = (#1(LP_SPAN), #2(SEMI_SPAN))
             in
-              (UserCode.VarOrFieldDcl_PROD_3_ACT (LP_RES, RP_RES, SEMI_RES, Expression_RES, OP_eq_RES, BindId_RES, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), SEMI_SPAN : (Lex.pos * Lex.pos), Expression_SPAN : (Lex.pos * Lex.pos), OP_eq_SPAN : (Lex.pos * Lex.pos), BindId_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
+              (UserCode.VarOrFieldDcl_PROD_2_ACT (LP_RES, RP_RES, SEMI_RES, Expression_RES, OP_eq_RES, BindId_RES, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), SEMI_SPAN : (Lex.pos * Lex.pos), Expression_SPAN : (Lex.pos * Lex.pos), OP_eq_SPAN : (Lex.pos * Lex.pos), BindId_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
+                FULL_SPAN, strm')
+            end
+      fun VarOrFieldDcl_PROD_3 (strm) = let
+            val (LP_RES, LP_SPAN, strm') = matchLP(strm)
+            val (Parameters_RES, Parameters_SPAN, strm') = Parameters_NT(strm')
+            val (RP_RES, RP_SPAN, strm') = matchRP(strm')
+            fun VarOrFieldDcl_PROD_3_SUBRULE_1_NT (strm) = let
+                  val (LP_RES, LP_SPAN, strm') = matchLP(strm)
+                  val (Parameters_RES, Parameters_SPAN, strm') = Parameters_NT(strm')
+                  val (RP_RES, RP_SPAN, strm') = matchRP(strm')
+                  val FULL_SPAN = (#1(LP_SPAN), #2(RP_SPAN))
+                  in
+                    ((Parameters_RES), FULL_SPAN, strm')
+                  end
+            fun VarOrFieldDcl_PROD_3_SUBRULE_1_PRED (strm) = (case (lex(strm))
+                   of (Tok.LP, _, strm') => true
+                    | _ => false
+                  (* end case *))
+            val (SR_RES, SR_SPAN, strm') = EBNF.optional(VarOrFieldDcl_PROD_3_SUBRULE_1_PRED, VarOrFieldDcl_PROD_3_SUBRULE_1_NT, strm')
+            val (OP_eq_RES, OP_eq_SPAN, strm') = matchOP_eq(strm')
+            val (Expression_RES, Expression_SPAN, strm') = Expression_NT(strm')
+            val (SEMI_RES, SEMI_SPAN, strm') = matchSEMI(strm')
+            val FULL_SPAN = (#1(LP_SPAN), #2(SEMI_SPAN))
+            in
+              (UserCode.VarOrFieldDcl_PROD_3_ACT (LP_RES, RP_RES, SR_RES, SEMI_RES, Expression_RES, Parameters_RES, OP_eq_RES, LP_SPAN : (Lex.pos * Lex.pos), RP_SPAN : (Lex.pos * Lex.pos), SR_SPAN : (Lex.pos * Lex.pos), SEMI_SPAN : (Lex.pos * Lex.pos), Expression_SPAN : (Lex.pos * Lex.pos), Parameters_SPAN : (Lex.pos * Lex.pos), OP_eq_SPAN : (Lex.pos * Lex.pos), FULL_SPAN : (Lex.pos * Lex.pos)),
                 FULL_SPAN, strm')
             end
       in
@@ -3396,33 +3400,33 @@ fun VarOrFieldDcl_NT (strm) = let
           | (Tok.SEMI, _, strm') => VarOrFieldDcl_PROD_1(strm)
           | (Tok.LP, _, strm') =>
               (case (lex(strm'))
-               of (Tok.KW_bool, _, strm') => VarOrFieldDcl_PROD_2(strm)
-                | (Tok.KW_field, _, strm') => VarOrFieldDcl_PROD_2(strm)
-                | (Tok.KW_image, _, strm') => VarOrFieldDcl_PROD_2(strm)
-                | (Tok.KW_int, _, strm') => VarOrFieldDcl_PROD_2(strm)
-                | (Tok.KW_kernel, _, strm') => VarOrFieldDcl_PROD_2(strm)
-                | (Tok.KW_mat2, _, strm') => VarOrFieldDcl_PROD_2(strm)
-                | (Tok.KW_mat3, _, strm') => VarOrFieldDcl_PROD_2(strm)
-                | (Tok.KW_mat4, _, strm') => VarOrFieldDcl_PROD_2(strm)
-                | (Tok.KW_real, _, strm') => VarOrFieldDcl_PROD_2(strm)
-                | (Tok.KW_string, _, strm') => VarOrFieldDcl_PROD_2(strm)
-                | (Tok.KW_tensor, _, strm') => VarOrFieldDcl_PROD_2(strm)
-                | (Tok.KW_vec2, _, strm') => VarOrFieldDcl_PROD_2(strm)
-                | (Tok.KW_vec3, _, strm') => VarOrFieldDcl_PROD_2(strm)
-                | (Tok.KW_vec4, _, strm') => VarOrFieldDcl_PROD_2(strm)
-                | (Tok.KW_OField, _, strm') => VarOrFieldDcl_PROD_2(strm)
-                | (Tok.KW_fem, _, strm') => VarOrFieldDcl_PROD_2(strm)
-                | (Tok.KW_mesh, _, strm') => VarOrFieldDcl_PROD_2(strm)
-                | (Tok.KW_element, _, strm') => VarOrFieldDcl_PROD_2(strm)
-                | (Tok.KW_fnspace, _, strm') => VarOrFieldDcl_PROD_2(strm)
-                | (Tok.RP, _, strm') => VarOrFieldDcl_PROD_2(strm)
-                | (Tok.ID(_), _, strm') =>
+               of (Tok.ID(_), _, strm') =>
                     (case (lex(strm'))
-                     of (Tok.RP, _, strm') => VarOrFieldDcl_PROD_3(strm)
-                      | (Tok.LB, _, strm') => VarOrFieldDcl_PROD_2(strm)
-                      | (Tok.ID(_), _, strm') => VarOrFieldDcl_PROD_2(strm)
+                     of (Tok.LB, _, strm') => VarOrFieldDcl_PROD_3(strm)
+                      | (Tok.ID(_), _, strm') => VarOrFieldDcl_PROD_3(strm)
+                      | (Tok.RP, _, strm') => VarOrFieldDcl_PROD_2(strm)
                       | _ => fail()
                     (* end case *))
+                | (Tok.KW_bool, _, strm') => VarOrFieldDcl_PROD_3(strm)
+                | (Tok.KW_field, _, strm') => VarOrFieldDcl_PROD_3(strm)
+                | (Tok.KW_image, _, strm') => VarOrFieldDcl_PROD_3(strm)
+                | (Tok.KW_int, _, strm') => VarOrFieldDcl_PROD_3(strm)
+                | (Tok.KW_kernel, _, strm') => VarOrFieldDcl_PROD_3(strm)
+                | (Tok.KW_mat2, _, strm') => VarOrFieldDcl_PROD_3(strm)
+                | (Tok.KW_mat3, _, strm') => VarOrFieldDcl_PROD_3(strm)
+                | (Tok.KW_mat4, _, strm') => VarOrFieldDcl_PROD_3(strm)
+                | (Tok.KW_real, _, strm') => VarOrFieldDcl_PROD_3(strm)
+                | (Tok.KW_string, _, strm') => VarOrFieldDcl_PROD_3(strm)
+                | (Tok.KW_tensor, _, strm') => VarOrFieldDcl_PROD_3(strm)
+                | (Tok.KW_vec2, _, strm') => VarOrFieldDcl_PROD_3(strm)
+                | (Tok.KW_vec3, _, strm') => VarOrFieldDcl_PROD_3(strm)
+                | (Tok.KW_vec4, _, strm') => VarOrFieldDcl_PROD_3(strm)
+                | (Tok.KW_OField, _, strm') => VarOrFieldDcl_PROD_3(strm)
+                | (Tok.KW_fem, _, strm') => VarOrFieldDcl_PROD_3(strm)
+                | (Tok.KW_mesh, _, strm') => VarOrFieldDcl_PROD_3(strm)
+                | (Tok.KW_element, _, strm') => VarOrFieldDcl_PROD_3(strm)
+                | (Tok.KW_fnspace, _, strm') => VarOrFieldDcl_PROD_3(strm)
+                | (Tok.RP, _, strm') => VarOrFieldDcl_PROD_3(strm)
                 | _ => fail()
               (* end case *))
           | _ => fail()

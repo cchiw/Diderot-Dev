@@ -56,7 +56,7 @@ structure Normalize : sig
             case t
              of HighTypes.KernelTy => getEinRHS(V.getDef x)
               | HighTypes.FieldTy => getEinRHS(V.getDef x)
-              | HighTypes.OFieldTy => getEinRHS(V.getDef x)
+              | HighTypes.OFieldTy(_)=> getEinRHS(V.getDef x)
               | _ => (getEinRHS(V.getLocalDef x))
             (* end case *)
           end

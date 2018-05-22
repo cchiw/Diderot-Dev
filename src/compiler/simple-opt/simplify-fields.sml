@@ -294,6 +294,7 @@ concat["S-VAR:",Ty.toString(SimpleVar.typeOf x), SimpleVar.uniqueNameOf x,":",pp
       | doInput _ = ()
 
     fun doFunc (S.Func{f, params, body}) = S.Func{f = f, params = params, body = doBlock body}
+      | doFunc (S.FuncP{f, paramsF, paramsT, body}) = S.FuncP{f = f, paramsF = paramsF, paramsT = paramsT, body = doBlock body}
 
     fun transform prog = let
           val S.Program{

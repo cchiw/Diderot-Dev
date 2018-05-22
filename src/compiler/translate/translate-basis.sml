@@ -219,6 +219,12 @@ structure TranslateBasis : sig
                                             if (d = 2) orelse (d = 3)
                                             then [assignEin(y, Mk.grad [d], xs)]
                                             else [assignEin(y, Mk.gradConstant [d], xs)]),
+               (BV.op_DST,               fn (y,_, xs) =>
+                                            [assignEin(y, Mk.gradConstant [0], xs)]),                       
+                (BV.op_DSTT,               fn (y,_, xs) =>
+                                            [assignEin(y, Mk.gradConstant [0], xs)]),
+                (BV.op_DSTTT,               fn (y,_, xs) =>
+                                            [assignEin(y, Mk.gradConstant [0], xs)]),
                 (BV.op_Dotimes,         fn (y, [_, Ty.DIM d1, Ty.SHAPE dd, Ty.DIM d2], xs) =>
                                                           [assignEin(y, Mk.dotimes(d1, dd@[d2]), xs)]),
                 (BV.op_Ddot,            fn (y, [_, Ty.DIM d1,  Ty.SHAPE dd, Ty.DIM d2], xs) =>
@@ -570,7 +576,7 @@ structure TranslateBasis : sig
                 (BV.fn_cfe_3,              fn (y, [_,Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE dd1, Ty.SHAPE dd2, Ty.SHAPE dd3], xs) =>
                                             [assignEin(y, Mk.cfexp (ddF, [dd1, dd2, dd3],Ein.F), xs)]),
                 (BV.fn_cfe_12,              fn (y, [Ty.SHAPE ddT0,_,Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE ddT1, Ty.SHAPE ddT2], xs) =>
-                                            [assignEin(y, Mk.cfexpMix ([ddT0],ddF,[ddT1,ddT2]), xs)]),
+                                            [assignEin(y, Mk.cfexpMix (ddF,[ddT0],[ddT1,ddT2]), xs)]),
                 (BV.fn_cfe_21,              fn (y, [Ty.SHAPE ddT0, Ty.SHAPE ddT1, _, Ty.DIM d1, Ty.SHAPE ddF, Ty.SHAPE ddT2], xs) =>
                                             [assignEin(y, Mk.cfexp (ddF,  [ddT0, ddT1,ddT2], Ein.T), xs)]),
                 (BV.fn_diff,              fn (y, [_,Ty.DIM dim, Ty.SHAPE ddF, Ty.SHAPE tshape], xs) =>

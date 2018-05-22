@@ -154,7 +154,7 @@ structure MkOperators : sig
  
  
     val cfexp: shape * shape list * Ein.inputTy -> Ein.ein
-    val cfexpMix: shape list * shape * shape list -> Ein.ein
+    val cfexpMix:  shape * shape list * shape list -> Ein.ein
     val diff_value: dim * int  list * int list -> Ein.ein
  
 
@@ -1338,27 +1338,26 @@ structure MkOperators : sig
             e1
         end
     
-    fun cfexpMix (alphas_tt, alpha_f, alphas_tf) =
+    fun cfexpMix (alpha_f, alphas_tf,alphas_tt) =
         let
         
-            val n_tt = length(alphas_tt)
-            val tterm_tt = List.tabulate(n_tt, fn id => (id+1,E.T))
-            
             
             val n_tf = length(alphas_tf)
-            val shift_tf = n_tt+1
-            val tterm_tf = List.tabulate(n_tf, fn id => (id+shift_tf, E.F))
+            val tterm_tf = List.tabulate(n_tf, fn id => (id+1, E.F))
             
+            val n_tt = length(alphas_tt)
+            val shift_tf = n_tf+1
+            val tterm_tt = List.tabulate(n_tt, fn id => (id+shift_tf,E.T))
             
             val fldtem = E.Tensor(0, specialize(alpha_f, 0))
-            val bodyterm  = E.OField(E.CFExp (tterm_tt@tterm_tf), fldtem ,  E.Partial [])
+            val bodyterm  = E.OField(E.CFExp (tterm_tf@tterm_tt), fldtem ,  E.Partial [])
            
            val param_f = [mkTEN alpha_f]
            val param_tt = List.map (fn talpha => mkNoSubstTEN  talpha)  alphas_tt
            val param_tf = List.map (fn talpha => mkNoSubstTEN  talpha)  alphas_tf
             val e1 =
                 E.EIN {
-                    params = param_f@param_tt@param_tf,
+                    params = param_f@param_tf@param_tt,
                     index  = alpha_f,
                     body   = bodyterm
                 }

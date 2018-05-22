@@ -20,7 +20,7 @@ structure HighTypes =
       | StrandTy of Atom.atom
       | KernelTy
       | FieldTy
-      | OFieldTy
+      | OFieldTy of int list  list
       | FemFldTy | MeshTy | ElementTy | FnSpaceTy
 
 
@@ -46,7 +46,7 @@ structure HighTypes =
       | same (StrandTy n1, StrandTy n2) = Atom.same(n1, n2)
       | same (KernelTy, KernelTy) = true
       | same (FieldTy, FieldTy) = true
-      | same (OFieldTy, OFieldTy) = true
+      | same (OFieldTy dd1, OFieldTy dd2) = (dd1 = dd2)
       | same (FemFldTy,FemFldTy) =true
       | same (MeshTy, MeshTy) = true
       | same (ElementTy, ElementTy) = true
@@ -63,7 +63,7 @@ structure HighTypes =
       | hash (ImageTy info) = 0w17 + 0w3 * ImageInfo.hash info
       | hash KernelTy = 0w19
       | hash FieldTy = 0w23
-      | hash OFieldTy = 0w29
+      | hash (OFieldTy _ ) = 0w29
       | hash FemFldTy = 0w41
       | hash MeshTy = 0w37
       | hash ElementTy = 0w39
@@ -86,7 +86,13 @@ structure HighTypes =
       | toString (StrandTy n) = Atom.toString n
       | toString KernelTy = "kernel"
       | toString FieldTy = "field"
-      | toString OFieldTy = "Ofield"
+      | toString (OFieldTy es)  =  let
+      	fun f dd =   String.concat["[",String.concatWithMap "," Int.toString dd,"]"]
+      	in 
+		  String.concat[
+				"ofield{", String.concatWithMap "," f es, "}"
+			  ]
+        end
       | toString FemFldTy = "FemFldTy"
       | toString MeshTy = "meshTy"
       | toString ElementTy ="ElementTy"

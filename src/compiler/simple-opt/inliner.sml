@@ -254,6 +254,12 @@ structure Inliner : sig
           in
             F.Tbl.insert funcTbl (f, func')
           end
+        | expandFunc funcTbl (S.FuncP{f, paramsF, paramsT, body}) = let
+          val body' = expandBlock funcTbl body
+          val func' = S.FuncP{f=f, paramsF=paramsF,paramsT=paramsT, body=body'}
+          in
+            F.Tbl.insert funcTbl (f, func')
+          end
 
     fun expandStrand funcTbl = let
           val expandBlock = expandBlock funcTbl
@@ -276,6 +282,9 @@ structure Inliner : sig
 
   (* return a function's expanded definition if it is still used, otherwise return NONE *)
     fun funcIsUsed funcTbl (S.Func{f, ...}) = if (F.useCount f > 0)
+          then SOME(F.Tbl.lookup funcTbl f)
+          else NONE
+     | funcIsUsed funcTbl (S.FuncP{f, ...}) = if (F.useCount f > 0)
           then SOME(F.Tbl.lookup funcTbl f)
           else NONE
 

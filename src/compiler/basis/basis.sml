@@ -147,7 +147,7 @@ structure Basis : sig
           (N.asgn_mul, [BV.mul_ii, BV.mul_rr, BV.mul_tr, BV.mul_fr]),
           (N.asgn_div, [BV.div_ii, BV.div_rr, BV.div_tr, BV.div_tr]),
           (N.asgn_mod, [BV.op_mod]),
-          (N.op_D,     [BV.op_D]),
+          (N.op_D,     [BV.op_D, (*BV.op_DST,*) BV.op_DSTT, BV.op_DSTTT]),
           (N.op_Dotimes,   [BV.op_Dotimes]),
           (N.op_Ddot,   [BV.op_Ddot]),
           (N.fn_concat, [BV.fn_concat_fv2, BV.fn_concat_fm2, BV.fn_concat_ft2, BV.fn_concat_fs3, BV.fn_concat_fm3, BV.fn_concat_ft3]),

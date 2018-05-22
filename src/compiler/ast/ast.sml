@@ -36,7 +36,8 @@ structure AST =
     and global_dcl
       = D_Var of var_dcl                                (* global-variable declaration *)
       | D_Func of var * var list * stmt                 (* user-defined function *)
-      | D_DiffFunc of var * var list * var list option * expr  (* differentiable function *)
+      | D_DiffFunc of var * var list * var list option * expr  
+      (* differentiable function - arguments to treat like fields and treat like tensors*)
     and strand = Strand of {
         name : Atom.atom,                               (* the strand name *)
         params : var list,                              (* strand parameters *)
