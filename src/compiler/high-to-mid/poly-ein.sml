@@ -46,7 +46,7 @@ structure PolyEin : sig
     fun transform_Core (y, sx, ein as Ein.EIN{body,index, params} , args, SeqId) =
         let
         	val _ = ("\n\n*******************\n") 
-            val _ = (H.line("core:",y, ein,args))  
+            val _ = print(H.line("core:",y, ein,args))  
             (*check to see that it is the right number of arguments*)
             val cfexp_ids = getPargs body 
             val n_pargs = length(cfexp_ids)
@@ -58,10 +58,10 @@ structure PolyEin : sig
             (* replace polywrap args/params with probed position(s) args/params *)
             val e = getE body            
             val (args, params, e) = P2.polyArgs(params, e, args,  SeqId, cfexp_ids, probe_ids)
-            val _ = (H.toStringBA("\n\n  Step 2 replace arguments",e,args))
+            val _ = print(H.toStringBA("\n\n  Step 2 replace arguments",e,args))
             (* need to flatten before merging polynomials in product *)
             val e = P3.rewriteMerge(e)
-            val _ = H.toStringBA("\n\n  Step 3 merge poly term",e,args)
+            val _ = print(H.toStringBA("\n\n  Step 3 merge poly term",e,args))
            (* normalize ein by cleaning it up and differntiating*)
             val dx = getDx body  
             val e = P3.rewriteDifferentiate(E.Apply(E.Partial dx, e))
@@ -80,32 +80,31 @@ structure PolyEin : sig
             val (sx, body) =  getSx body
 		    val  pty = getPty body
         	(* FIX ME variable is used in summation for sequences *)
-        	val freshid = 101
-        	val sx_seq = [(freshid, 0, 3)] (*Fixme-find length of sequence*)
-            val SeqId = (case pty 
-            		of SOME _ => SOME (E.V freshid )
-            		| NONE =>  NONE 
+        	val freshid = 101        	
+            val (SeqId, sx_seq) = (case pty 
+            		of SOME (_,n) => (SOME (E.V freshid ),[(freshid, 0, n-1)])
+            		| NONE =>  (NONE, [])
             	(* end case *))
-             val ein = Ein.EIN{body=body, index=index, params=params}
+            val ein = Ein.EIN{body=body, index=index, params=params}
             val (args, params, body)  = transform_Core (y, sx, ein, args, SeqId) 
             (* Add summation wrapper back to ein expression *)
             val body = (case sx
             		of [] => body
                 	|  _  => E.Sum(sx, body)
             	(* end case *))
-            (* Add sequence wrapper back to ein expression *)           
+            (* Add sequence wrapper back to ein expression *)        
             val body = (case pty
-            		of SOME opn => E.OpR(opn, sx_seq, body) (*E.Sum(sx_seq,e)*)
+            		of SOME (opn,_) => E.OpR(opn, sx_seq, body) (*E.Sum(sx_seq,e)*)
             		| NONE =>  body
             	(* end case *))
             val ein = Ein.EIN{body=body, index=index, params=params}
-            val _ = (H.line("\n\n   Step 5 ",y, ein,args))
+            val _ = print(H.line("\n\n   Step 5 ",y, ein,args))
 
             (********************************** done  *******************************)
             val newbie = (y, IR.EINAPP(ein, args))
             val stg_poly = Controls.get Ctl.stgPoly
             val _ =  if(stg_poly) then ScanE.readIR_Single(newbie,"tmp-poly") else 1
-             val _ = (String.concat["\n\n*******************\n"])
+             val _ = print(String.concat["\n\n*******************\n"])
         in
                [newbie]
         end

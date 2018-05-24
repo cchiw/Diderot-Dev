@@ -107,8 +107,7 @@ structure PolyEin2 : sig
 				let
 					(*check if the current parameter is a sequence and get dimension*)
 					val (dim, SeqId_current) = (case List.nth(params,idx)
-							of E.SEQ([])   => (1, SeqId)
-							|  E.SEQ([i])   => (i, SeqId)
+							of  E.SEQ(_, [dim])   => (dim, SeqId)
 							| E.TEN (_,[]) => (1, NONE)
 							| E.TEN (_,[i]) => (i, NONE)
 							| p => raise Fail("unsupported argument type:"^H.paramToString(idx,p))

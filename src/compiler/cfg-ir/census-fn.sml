@@ -53,7 +53,10 @@ functor CensusFn (IR : SSA) : sig
                 (* end case *))
           val clearCFG = IR.CFG.apply clearNode
         (* clear the counts of the variables defined in a function definition *)
-          fun clearFuncDef (IR.Func{name, params, body}) = (
+          fun clearFuncDef (IR.FuncP{name, paramsF, paramsT, body}) = (
+                clearFunc name; List.app clearVar paramsF;List.app clearVar paramsT;
+                clearCFG body)
+             | clearFuncDef (IR.Func{name, params, body}) = (
                 clearFunc name; List.app clearVar params;
                 clearCFG body)
         (* clear the counts of the variables defined in an strand *)
@@ -109,7 +112,10 @@ functor CensusFn (IR : SSA) : sig
             Option.app clearCFG start;
             Option.app clearCFG update;
           (* then count uses *)
-            List.app (fn (IR.Func{body, ...}) => incCFG body) funcs;
+            List.app 
+            	(fn (IR.Func{body, ...}) => incCFG body
+            	| (IR.FuncP{body, ...}) => incCFG body) 
+            funcs;
             incCFG constInit;
             incCFG globInit;
             Create.app incCFG create;

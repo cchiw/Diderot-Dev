@@ -17,7 +17,7 @@ structure Ein =
       | IMG of int * int list
       | DATA
       | FNCSPACE
-      | SEQ of int list
+      | SEQ of int 	* int list			 (*length of sequence and shape *)
 
     (* placement in argument list *)
     type param_id= int
@@ -83,7 +83,7 @@ structure Ein =
       | Conv of param_id * alpha * param_id * alpha
       | Partial of alpha
       | Apply of ein_exp * ein_exp
-      | Probe of ein_exp * ein_exp list * opn option 
+      | Probe of ein_exp * ein_exp list * (opn * int ) option  (*reduction operator over range*)
       | Comp of ein_exp * subEIN list
       | OField of ofield * ein_exp * ein_exp (*field arg T, exp, E.Partial dx*)
       | Poly of ein_exp * int* alpha  (*  ein_exp^n dx*)

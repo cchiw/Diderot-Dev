@@ -51,7 +51,7 @@ structure Helper : sig
   	  | paramToString (i, E.FLD (d, shp)) = concat["F", i2s i, "(", i2s d, ")[",shp2s shp , "]"]
       | paramToString (i, E.KRN) = "H" ^ i2s i
       | paramToString (i, E.IMG(d, shp)) = concat["V", i2s i, "(", i2s d, ")[", shp2s shp, "]"]
-      | paramToString (i, E.SEQ shp) =    concat["Sequence[",shp2s shp , "]"]
+      | paramToString (i, E.SEQ (n,shp)) =    concat["Sequence[",i2s n,"]{",shp2s shp , "]"]
      fun prntNewbies(newbies, id) = let 
         val _ = (id)
         in  List.map (fn (lhs,DstIR.EINAPP(e,a))=> (concat["\n\n ->:", MidTypes.toString(DstIR.Var.ty lhs)," ",DstIR.Var.name(lhs),"=",EinPP.toString(e) ,"-",ll(a,0),"---->"])

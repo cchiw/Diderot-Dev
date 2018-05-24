@@ -82,7 +82,7 @@ structure MkLowIR : sig
 
   (* tensor operations *)
     val tensorIndex   : AvailRHS.t * index_env * LowIR.var * Ein.alpha -> LowIR.var
-    val seqTensorIndex   : AvailRHS.t * index_env * LowIR.var * Ein.alpha * Ein.mu -> LowIR.var
+    val seqTensorIndex   : AvailRHS.t * index_env * LowIR.var * Ein.mu * Ein.alpha-> LowIR.var
     val tensorIndexIX : AvailRHS.t * LowIR.var * int list -> LowIR.var
 
   (* make "x := [args]" *)
@@ -248,19 +248,7 @@ structure MkLowIR : sig
                     IR.OP(Op.TensorIndex(V.ty arg, List.map (fn ix => lookupMu(mapp, ix)) ixs), [arg]))
          (* end case *))
 
-
-	fun mkSeq (avail, arg,vX) = add (
-    	 avail, "sq", Ty.realTy,
-     	IR.OP(Op.Subscript(Ty.intTy), [arg,vX]))
-
-            
-    fun seqTensorIndex (avail, mapp, arg, [], ix) =  let
-    	val c = lookupMu(mapp, ix)
-    	val vX = intLit (avail,IntLit.fromInt  c)
-    	in  mkSeq (avail, arg,vX)
-    	end 		
-
-
+		
 
     fun tensorIndexIX (avail, arg, []) = arg
       | tensorIndexIX (avail, arg, [ix]) = let
@@ -271,6 +259,22 @@ structure MkLowIR : sig
       | tensorIndexIX (avail, arg, ixs) =
           add (avail, "r", Ty.realTy, IR.OP(Op.TensorIndex(V.ty arg, ixs), [arg]))
 
+
+    (*ID{mu}[alpha]*)
+    fun seqTensorIndex (avail, mapp, arg, mu,alpha) = let
+    	val c = lookupMu(mapp, mu)
+    	val vX = intLit (avail,IntLit.fromInt  c)
+
+    	val Ty.SeqTy(rTy, _) = V.ty arg
+    	val realTy = Ty.realTy  	          
+    	val vSeq =  add (
+    		 	avail, "sq", rTy,
+     			IR.OP(Op.Subscript(realTy), [arg,vX])
+     		)
+    	in  
+    		tensorIndex(avail, mapp, vSeq, alpha)
+    	end 
+    	
     fun evalDelta (mapp, i, j) = let
           val i' = lookupMu (mapp, i)
           val j' = lookupMu (mapp, j)

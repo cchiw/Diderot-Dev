@@ -595,13 +595,12 @@ structure TranslateBasis : sig
                                             [ assignEin(y, Mk.polyProbe (ddF,d1, [ddT1, ddT2, ddT3]), args)]),                            
                 (BV.fn_inst_ottt,               fn (y, [_,  Ty.SHAPE ddF, Ty.SHAPE ddT1, Ty.SHAPE ddT2, Ty.SHAPE ddT3], args) =>
                 							[ assignEin(y, Mk.polyProbe (ddF,0, [ddT1, ddT2, ddT3]), args)]),              
-                (*FIXME *)
-                (BV.fn_instR_fd,             fn (y, [_, Ty.DIM d1, Ty.SHAPE ddF, Ty.TY ty], args) =>
-                        (case ty        (*what is the type of sequence*)
-                            of Ty.T_Int =>  [  assignEin(y, Mk.polyProbeSeq_N (ddF,d1, []), args)]
-                            | _ => raise Fail ("Expects sequence in last type:"^Ty.toString(ty))
-                        (* end case*))
-                    ),
+                (BV.fn_sumR_t,             		fn (y, [_, Ty.DIM d1, Ty.SHAPE ddF, Ty.DIM n], args) =>
+                        					[ assignEin(y, Mk.polyProbeSeq_A (ddF,d1,n), args)]), 
+                (BV.fn_maxR_r,             		 fn (y, [_, Ty.DIM d1, Ty.DIM n], args) =>
+                        					[ assignEin(y, Mk.polyProbeSeq_X ([],d1,n), args)]), 
+                (BV.fn_minR_r,         			 fn (y, [_, Ty.DIM d1, Ty.DIM n], args) =>
+                        					[ assignEin(y, Mk.polyProbeSeq_N ([],d1,n), args)]),                    
                 (BV.fn_convert_fp,               fn (y, [_,Ty.DIM d, Ty.SHAPE dd], [f,p]) =>
 						   [assignEin(y, Mk.ofieldfem (d, dd), [f,p])]),
                 (BV.fn_convert_fvp,              fn (y, [_,Ty.DIM d, Ty.SHAPE dd], [f,v,p]) =>

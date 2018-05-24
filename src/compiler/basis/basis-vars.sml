@@ -1422,42 +1422,50 @@ structure BasisVars =
             
   (* ----------- sequences ----------- *)
 (* probe field. Arguments are a field, 1 tensor, and the last argument is a sequence *)
-    val fn_instR_ftd = polyVar (N.fn_instR, all([DK, NK, SK, SK, TK],
-        fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.SHAPE ddT1, Ty.TYPE tv] => let
-            val k = Ty.DiffVar(k, 0)
-            val d = Ty.DimVar d
-            val dF = Ty.ShapeVar ddF
-            val f =  Ty.T_Field{diff=k, dim=d, shape=dF}
-            val dT1 = Ty.ShapeVar ddT1
-            val seqTyc = dynSeq(Ty.T_Var tv)
-            in
-              [f, Ty.T_Tensor dT1, seqTyc] --> Ty.T_Tensor dF
-            end))
 
-    val fn_instR_fd = polyVar (N.fn_instR, all([DK, NK, SK, TK],
-        fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.TYPE tv] => let
-            val k = Ty.DiffVar(k, 0)
-            val d = Ty.DimVar d
-            val dF = Ty.ShapeVar ddF
-            val f =  Ty.T_Field{diff=k, dim=d, shape=dF}
-            val seqTyc = dynSeq(Ty.T_Var tv)
-            in
-              [f, seqTyc] --> Ty.T_Tensor dF
-            end))
-            
-    (*Fixme. revisit*)
-    val fn_inst_fd = polyVar (N.fn_inst, all([DK, NK, SK, TK, TK, NK],
-        fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.TYPE tv1, Ty.TYPE tv2,Ty.DIM d2] => let
+    val fn_inst_fd = polyVar (N.fn_inst, all([DK, NK, SK, TK, NK],
+        fn [Ty.DIFF k, Ty.DIM d, Ty.SHAPE ddF, Ty.TYPE tv2,Ty.DIM d2] => let
             val k = Ty.DiffVar(k, 0)
             val d = Ty.DimVar d
             val dF = Ty.ShapeVar ddF
             val f =  Ty.T_Field{diff=k, dim=d, shape=dF}
             val n = SOME(Ty.DimVar d2)
-            val seqTyc1 = dynSeq(Ty.T_Var tv1)
             val seqTyc2 =Ty.T_Sequence(Ty.T_Tensor dF, n)
             in
               [f, seqTyc2] --> seqTyc2
             end))
+    (*Probe field at a sequence for positions then reduce with reduction operator *)
+	 val fn_sumR_t  = polyVar (N.fn_sumR, all([DK, NK, SK, NK],
+        fn [Ty.DIFF k, Ty.DIM d0, Ty.SHAPE ddF, Ty.DIM n] => let
+            val k = Ty.DiffVar(k, 0)
+            val d = Ty.DimVar d0
+            val dF = Ty.ShapeVar ddF
+            val f =  Ty.T_Field{diff=k, dim=d, shape=dF}
+            val seqTyc = Ty.T_Sequence(Ty.T_Tensor(Ty.Shape[d]) , SOME(Ty.DimVar n))
+            in
+              [f, seqTyc] --> Ty.T_Tensor dF
+            end))
+    val fn_maxR_r  =  polyVar (N.fn_maxR, all([DK, NK, NK],
+        fn [Ty.DIFF k, Ty.DIM d, Ty.DIM n] => let
+            val k = Ty.DiffVar(k, 0)
+            val d = Ty.DimVar d
+            val sca = (Ty.Shape[])
+            val f =  Ty.T_Field{diff=k, dim=d, shape=sca}
+            val seqTyc = Ty.T_Sequence(Ty.T_Tensor(Ty.Shape[d]), SOME(Ty.DimVar n))
+            in
+              [f, seqTyc] -->  Ty.T_Tensor sca
+            end))
+    val fn_minR_r  =  polyVar (N.fn_minR, all([DK, NK, NK],
+        fn [Ty.DIFF k, Ty.DIM d, Ty.DIM n] => let
+            val k = Ty.DiffVar(k, 0)
+            val d = Ty.DimVar d
+            val sca =   (Ty.Shape[])
+            val f =  Ty.T_Field{diff=k, dim=d, shape=sca}
+            val seqTyc = Ty.T_Sequence(Ty.T_Tensor (Ty.Shape[d]), SOME(Ty.DimVar n))
+            in
+              [f, seqTyc] --> Ty.T_Tensor sca
+            end))
+            
 
 (* ----------------------------------------------------------------------------------------------------------- *)
 (* -------------------------------------------  Swap --------------------------------------------------------- *)

@@ -115,8 +115,8 @@ structure EinUtil : sig
             | sameParam (E.KRN, E.KRN) = true
             | sameParam (E.IMG(i1, shp1), E.IMG(i2, shp2)) =
                 (i1 = i2) andalso ListPair.allEq (op =) (shp1, shp2)
-            |  sameParam (E.SEQ(shp1), E.SEQ(shp2)) =
-                ListPair.allEq (op =) (shp1, shp2)
+            |  sameParam (E.SEQ(n1,shp1), E.SEQ(n2,shp2)) =
+                 (n1 = n2) andalso ListPair.allEq (op =) (shp1, shp2)
             | sameParam _ = false
           in
             ListPair.allEq sameParam (p1, p2) andalso

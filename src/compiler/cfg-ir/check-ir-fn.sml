@@ -486,7 +486,8 @@ functor CheckIRFn (
                 (* end case *))
           val checkCFG = checkCFG errFn
         (* check a function definition *)
-          fun checkFunc (IR.Func{name, params, body}) = checkCFG (params, body)
+          fun checkFunc (IR.Func{name, params,  body}) = checkCFG (params, body)
+            | checkFunc (IR.FuncP{name, paramsF,  paramsT, body}) = checkCFG (paramsF@paramsT, body)
         (* check a strand definition *)
           fun checkStrand (IR.Strand{params, state, stateInit, startM, updateM, stabilizeM, ...}) =
                 let

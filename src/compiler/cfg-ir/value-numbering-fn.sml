@@ -314,6 +314,14 @@ handle ex => (D.printTree(TextIO.stdOut, cfg); raise ex)
           fun transformFunc (IR.Func{name, params, body}) = IR.Func{
                   name = name, params = params, body = transformCFG (params, body)
                 }
+            |  transformFunc (IR.FuncP{name, paramsF, paramsT, body}) = 
+            	let 
+            		val body = transformCFG (paramsF@paramsT, body)
+                	
+                in IR.FuncP{
+                  	name = name, paramsF = paramsF, paramsT = paramsT, body =body
+                	}
+                end
         (* transform a strand *)
           fun transformStrand strand = let
                 val IR.Strand{

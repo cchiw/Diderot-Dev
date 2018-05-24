@@ -79,6 +79,7 @@ functor RewriteFn (R : REWRITE) : sig
           fun doOptionalCFG (NONE, changes) = changes
             | doOptionalCFG (SOME cfg, changes) = doCFG cfg orelse changes
           fun doFunc (IR.Func{body, ...}, changes) = doCFG body orelse changes
+            | doFunc (IR.FuncP{body, ...}, changes) = doCFG body orelse changes
           fun doStrand (IR.Strand{stateInit, startM, updateM, stabilizeM, ...}) = let
                 val changes = doCFG stateInit
                 val changes = doOptionalCFG (startM, changes)

@@ -211,6 +211,12 @@ functor SSAFn (
         params : var list,
         body : cfg
       }
+      | FuncP of {
+        name : func,
+        paramsF : var list,
+        paramsT : var list,
+        body : cfg
+      }
 
     and strand = Strand of {
         name : Atom.atom,

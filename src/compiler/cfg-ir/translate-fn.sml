@@ -201,6 +201,16 @@ functor TranslateFn (Params : TRANSLATE_PARAMS) : sig
                       in
                         Params.registerFunc (env, name, mk)
                       end
+                	| registerFunc (SrcIR.FuncP{name, paramsF, paramsT, body}) = let
+                      fun mk (env, name') = DstIR.FuncP{
+                              name = name',
+                              paramsF = renameList (env, paramsF),
+                              paramsT = renameList (env, paramsT),
+                              body = translateCFG (env, body)
+                            }
+                      in
+                        Params.registerFunc (env, name, mk)
+                      end
                 in
                   List.app registerFunc funcs
                 end

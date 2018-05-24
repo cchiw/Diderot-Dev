@@ -63,8 +63,10 @@ structure BasisNames =
     val fn_convert = Atom.atom "FEM"
     val fn_convertTracker = Atom.atom "convertTracker"
     val fn_insideO = Atom.atom "insideF"
-
-
+    val fn_sumR = Atom.atom "SUM" 
+    val fn_maxR = Atom.atom "MAX" 
+    val fn_minR = Atom.atom "MIN" 
+        
 (* standard math functions *)
     val fn_abs = Atom.atom "abs"
     val fn_acos = Atom.atom "acos"

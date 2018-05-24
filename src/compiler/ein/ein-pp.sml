@@ -46,7 +46,7 @@ structure EinPP : sig
             | E.ConstR r => Rational.toString r
             | E.Tensor(id, []) => "T" ^ i2s id
             | E.Tensor(id, alpha) => concat["T", i2s id, multiIndex2s alpha]
-            | E.Seq(id, ix, alpha) => concat["S", i2s id, "{", index2s ix, "}",multiIndex2s alpha]
+            | E.Seq(id, ix, alpha) => concat["S", i2s id, "[", index2s ix, "]",multiIndex2s alpha]
             | E.Zero(alpha) => concat["Z", multiIndex2s alpha]
             | E.Delta ix => delta ix
             | E.Epsilon(ix, jx, kx) => concat["ϵ_{i", index2s ix, ",i", index2s jx, ",i", index2s kx, "}"]
@@ -64,8 +64,8 @@ structure EinPP : sig
             | E.Partial alpha => "∂/∂x" ^ multiIndex2s alpha
             | E.Apply(e1, e2) => concat [ expToString e1, "@(", expToString e2, ")"]
             | E.Probe(e1,  e2, NONE) => concat ["Probe(fld:", expToString e1, ",pos:", String.concatWithMap " ," expToString e2, ")"]
-            | E.Probe(e1,  e2, SOME (opn)) => 
-            		concat ["Reduce(",opnToString opn,") Probe(fld:", expToString e1, ",{pos}:", String.concatWithMap " ," expToString e2, ")"]
+            | E.Probe(e1,  e2, SOME (opn,n)) => 
+            		concat ["Reduce(",opnToString opn, i2s n,") Probe(fld:", expToString e1, ",{pos}:", String.concatWithMap " ," expToString e2, ")"]
             | E.Comp(e1,es) => let
                 fun iter ([]) = ""
                 | iter ((e2, n1)::es) =
@@ -79,8 +79,8 @@ structure EinPP : sig
             | E.OField(E.BuildFem (id,id2), e1,  E.Partial alpha) => concat ["BuildFEM(",expToString e1,")_", i2s id, "[",i2s id2,"]",deriv alpha, ")"]
             | E.Poly(E.Tensor(tid, cx), 1, dx) => concat [deriv dx,"(P", i2s tid, multiIndex2s  cx, ")"]
             | E.Poly(E.Tensor(tid, cx), n, dx) => concat [deriv dx,"(P", i2s tid, multiIndex2s  cx, ")^",  i2s n]
-            | E.Poly(E.Seq(tid, vx, cx), 1, dx) => concat [deriv dx,"(P", i2s tid,"{",index2s  vx,"}", multiIndex2s  cx, ")"]
-            | E.Poly(E.Seq(tid, vx, cx), n, dx) => concat [deriv dx,"(P", i2s tid,"{",index2s  vx,"}", multiIndex2s  cx, ")^",  i2s n]
+            | E.Poly(E.Seq(tid, vx, cx), 1, dx) => concat [deriv dx,"(S", i2s tid,"{",index2s  vx,"}", multiIndex2s  cx, ")"]
+            | E.Poly(E.Seq(tid, vx, cx), n, dx) => concat [deriv dx,"(S", i2s tid,"{",index2s  vx,"}", multiIndex2s  cx, ")^",  i2s n]
             | E.Value ix => "i" ^ i2s ix
             | E.Img(fid, alpha, pos, ss) => concat [
                   "V", i2s fid, multiIndex2s alpha, "(", shp2s ss, ")[",
@@ -146,13 +146,13 @@ structure EinPP : sig
                 concat[ "\nif(", c, ") then ", expToString e3," else ", expToString e4]
                end
           (* end case *))
-    fun paramToString (i, E.TEN(t, shp)) = concat["T", i2s i, "[", shp2s shp, "]"]
-          | paramToString (i, E.FLD (d,shp)) = concat["F", i2s i, "[", shp2s shp, "]"]
+    fun paramToString (i, E.TEN(t, shp)) = concat["T", i2s i, "{", shp2s shp, "}"]
+          | paramToString (i, E.FLD (d,shp)) = concat["F", i2s i, "{", shp2s shp, "}"]
           | paramToString (i, E.KRN) = "H" ^ i2s i
-          | paramToString (i, E.IMG(d, shp)) = concat["V", i2s i, "(", i2s d, ")[", shp2s shp, "]"]
+          | paramToString (i, E.IMG(d, shp)) = concat["V", i2s i, "(", i2s d, "){", shp2s shp, "}"]
           | paramToString (i, E.DATA) = "DATA" ^ i2s i
           | paramToString (i, E.FNCSPACE) = "FNCSPACE" ^ i2s i
-          | paramToString (i, E.SEQ shp) = concat["Sequence",i2s i,"[", shp2s shp, "]"]
+          | paramToString (i, E.SEQ (n,shp)) = concat["Sequence",i2s i,"[", i2s n, "]{", shp2s shp, "}"]
     fun paramsToString (params) = String.concatWith "," (List.mapi paramToString params)
           
     fun toString (Ein.EIN{params, index, body}) = let

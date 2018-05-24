@@ -178,6 +178,9 @@ Log.msg' (fn () => ["promote ", V.toString x, " --> ", GV.toString gx, "\n"]);
                 fun doFunc (IR.Func{name, params, body}) = IR.Func{
                         name = name, params = params, body = doCFG body
                       }
+                  | doFunc (IR.FuncP{name, paramsF, paramsT, body}) = IR.FuncP{
+                        name = name, paramsF = paramsF, paramsT = paramsT, body = doCFG body
+                      }
                 in
                   List.map doFunc funcs
                 end
