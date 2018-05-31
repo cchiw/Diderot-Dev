@@ -127,7 +127,6 @@ structure MkOperators : sig
     val sliceT : bool list * int list * Ein.index_bind list * int list -> Ein.ein
     val sliceF : bool list * int list * Ein.index_bind list * int -> Ein.ein
     val concatTensor: shape *int -> Ein.ein
-    val concatTensorBody: shape *int *int -> Ein.ein_exp
     val concatField: int * shape *int -> Ein.ein
     val compositionF: shape * shape * int -> Ein.ein
     val compositionT: shape * shape -> Ein.ein    (*note added for cfexp*)
@@ -1186,34 +1185,26 @@ structure MkOperators : sig
           
           
           
-    fun concatTensorBody (shape, nflds, idshift) = let
+    fun concatBody (expression, shape, nflds, idshift) = let
           val expindex = specialize(shape, 1)
-          val exps = List.tabulate (nflds, fn n =>  E.Opn(E.Prod, [E.Tensor(n+idshift, expindex), E.Delta(E.C n, E.V 0)]))
+          val exps = List.tabulate (nflds, fn n =>  E.Opn(E.Prod, [expression(n+idshift, expindex), E.Delta(E.C n, E.V 0)]))
           in E.Opn(E.Add, exps) end
           
     fun concatTensor(shape, nflds) =
         E.EIN{
-            params =List.tabulate (nflds, fn _=> mkTEN shape),
+            params = List.tabulate (nflds, fn _=> mkTEN shape),
             index = nflds::shape,
-            body = concatTensorBody (shape, nflds, 0)
+            body = concatBody (E.Tensor, shape, nflds, 0)
           }
           
+    fun concatField (dim, shape, nflds) =
+         E.EIN{
+            params = List.tabulate (nflds, fn _=> E.FLD (dim, shape)),
+            index = nflds::shape,
+            body = concatBody (E.Field, shape, nflds, 0)
+        }
 
-          
-          
-    fun concatField (dim, shape, nflds) = let
-        val expindex = specialize(shape, 1)
-        val params = List.tabulate (nflds, fn _=> E.FLD (dim, shape))
-        val exps = List.tabulate (nflds, fn n =>  E.Opn(E.Prod, [E.Field(n, expindex), E.Delta(E.C n, E.V 0)]))
-         
-        val einop =
-            E.EIN{
-                params = params,
-                index = nflds::shape,
-                body = E.Opn(E.Add, exps)
-                }
 
-        in einop end
         
 
 

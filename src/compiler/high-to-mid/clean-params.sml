@@ -50,8 +50,9 @@ structure CleanParams : sig
                   | E.Opn(_, es) => List.foldl walk mapp es
                   | E.OField(E.CFExp es, e2, dx) =>
                         let
-                            val es= List.map (fn (id,_) => E.Tensor(id,[])) (es)
-                        in walk(dx, walk (e2, (List.foldl walk mapp es)))
+                            val es = List.map (fn (id, _) => E.Tensor(id, [])) (es)
+                        in 
+                        	walk(dx, walk (e2, (List.foldl walk mapp es)))
                         end
                   | E.OField(E.DataFem id, e2, _) => walk (e2, ISet.add(mapp, id))
                   | E.OField(E.BuildFem (id,s), e2, _)

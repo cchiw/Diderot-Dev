@@ -178,6 +178,7 @@ fun ll ([],cnt) = ""
                         |  _ => raise Fail "term to be replaced is not a Tensor or Fields"
                       (* end case *))
                 end
+          (*N.T.S shape is there because of composition index space*)
           fun sumI e = let val (v,_,_) = List.last e in v end
           fun apply (b, shape) = (case b
                  of E.Tensor(id, mx) => rewrite (id, mx, b, shape)
@@ -194,10 +195,10 @@ fun ll ([],cnt) = ""
                         (insideComp := true;E.Comp(fouter, es'))
                         end
                   | E.OField(E.CFExp es, e2, E.Partial alpha) => let
-                        val ps =List.map (fn (id,inputTy) => (mapId(id, origId, 0),inputTy)) es
-                        in E.OField(E.CFExp ps, apply(e2,shape),E.Partial alpha) end
-                  | E.OField(ofld, e2,E.Partial alpha)
-                    => E.OField(ofld, apply(e2,shape),E.Partial alpha)
+                        val ps = List.map (fn (id, inputTy) => (mapId(id, origId, 0), inputTy)) es
+                        in E.OField(E.CFExp ps, apply(e2, shape), E.Partial alpha) end
+                  | E.OField(ofld, e2, E.Partial alpha)
+                    => E.OField(ofld, apply(e2, shape), E.Partial alpha)
                   | E.Value _ => raise Fail "expression before expand"
                   | E.Img _ => raise Fail "expression before expand"
                   | E.Krn _ => raise Fail "expression before expand"

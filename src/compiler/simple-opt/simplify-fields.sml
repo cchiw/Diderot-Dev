@@ -205,8 +205,8 @@ then (print "\nconvert f";NONE)
 *)
                     else (
                     unionArgs (List.filter isField args))
-			| S.E_Field (args,_) => (unionArgs (List.filter isField args))
-			| S.E_Tensor _ => (NONE)
+            | S.E_Field (args,_) => (unionArgs (List.filter isField args))
+            | S.E_Tensor _ => (NONE)
               | S.E_Seq _ => NONE
 (* WARNING: if tuples become a surface-language feature, then we will need to track tuples
  * that contain fields or images.
@@ -249,7 +249,7 @@ concat["S-VAR:",Ty.toString(SimpleVar.typeOf x), SimpleVar.uniqueNameOf x,":",pp
                 String.concatWith "\n"(List.map (fn e1 => "\n"^stmtToString(e1))  code)
 
 
-		fun doStmt (stm, stms) = (("\n\t-"^stmtToString(stm));case stm
+        fun doStmt (stm, stms) = (("\n\t-"^stmtToString(stm));case stm
                  of S.S_Var(x, SOME e) => (case doAssign (x, e)
                        of SOME(e', stms') => S.S_Var(x, SOME e') :: stms' @ stms
                         | NONE => stm::stms

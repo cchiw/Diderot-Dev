@@ -106,8 +106,8 @@ structure CleanIndex : sig
                   | E.Op3(_, e1, e2, e3) => shape (e1, shape(e2, shape(e3, ixs)))
                   | E.Opn(_, es) => List.foldl shape ixs es
                   | E.Comp(e1, _) => shape(e1, ixs)
-                  | E.OField(_,e2,E.Partial  alpha) => shape (e2, addMus(ixs, alpha))
-                  | E.Poly (_,_, alpha) => addMus(ixs, alpha)
+                  | E.OField(_, e2,E.Partial alpha) => shape (e2, addMus(ixs, alpha))
+                  | E.Poly (_, _, alpha) => addMus(ixs, alpha)
                   | E.If(E.GT(e1, e2), e3, e4) =>
                     shape (e1,shape (e2, shape (e3, shape(e4, ixs))))
                   | E.If(E.LT(e1, e2), e3, e4) =>
@@ -166,8 +166,8 @@ structure CleanIndex : sig
                   | E.Opn(E.Prod, es) => shape' (es, ixs)
                    | E.Opn(E.Swap _, e::_) => shape(e, ixs)
                   | E.Comp(e1, _) => shape(e1, ixs)
-                  | E.OField(_,e2,E.Partial  alpha) => shape(e2, alpha@ ixs)
-                  | E.Poly(_,_,alpha) => alpha@ ixs
+                  | E.OField(_, e2, E.Partial alpha) => shape(e2, alpha@ixs)
+                  | E.Poly(_, _, alpha) => alpha@ ixs
                   | E.If(E.GT(e1, e2), e3, e4) =>
                     shape' ([e1, e2, e3, e4], ixs)
                   | E.If(E.LT(e1, e2), e3, e4) =>

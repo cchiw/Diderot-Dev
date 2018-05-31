@@ -104,6 +104,7 @@ structure Simple =
                                                 (* Diderot builtin operator *)
       | E_Tensor of var list * ty
       | E_Field of var list * ty
+      | E_Field of var list * ty
       | E_Seq of var list * ty                  (* sequence (ty is result type) *)
       | E_Tuple of var list                     (* tuple of values *)
       | E_Project of var * int                  (* project out tuple member *)

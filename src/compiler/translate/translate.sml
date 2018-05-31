@@ -312,7 +312,13 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
 		(*end case*))           
 	fun ft ((IR.ASSGN stm)::es) = concat["\n\t", IR.assignToString stm, ft(es)]
 	   | ft []  = ""
-	fun ff (name, es) = print(concat["\n",name,ft(es)]) 			
+	fun ff (name, es) = print(concat["\n",name,ft(es)]) 
+	fun iTo []  = " real "
+      | iTo [b] = concat["vec", Int.toString b]
+	fun iTos es = String.concatWithMap "," iTo es 	
+	fun errmsg(ins,alphas) = concat["Field is probed with arguments that do not match the vector sizes indicated by the field dimension.",
+        "\n\tExpected(indicated by dimension):", iTos ins,
+        "\n\tObserved: ",iTos alphas]		
   (* expression translation *)
     fun cvtExp (env : env, lhs, exp) = (case exp
            of S.E_Var x => [IR.ASSGN(lhs, IR.VAR(lookup env x))]
@@ -463,56 +469,62 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
                     s1@s2@s3@[IR.ASSGN(lhs, ein)]
                 end
             | S.E_FieldFn f => let
-            		val IR.FuncP{paramsF, body, paramsT,...} = getFieldFnDef f
-					val IR.CFG{entry,exit} = body 					
-            		(* _comp  - body of function 
-					* _PT - arguments treated like tensors
-					* _PF - arguments treated like fields*)            	
-            		(* get computation inside field definition  _comp*)
-            		val IR.ND{kind as IR.EXIT {pred,...},...}  = exit         		
-					val IR.ND{kind,...} = !pred
-					(*find the last variable for lhs of the function body *)
+					(*  Variable convention used
+            		 - "alphas" tensor size
+            		 - "stmt"  statements 
+            		 - "lhs" high-ir variable
+            		 - "_comp"  function body 
+            		 -  "_PF" parameters treated like a fields  
+            		 - "_PT " parameters treated like a tensor 
+            		 *)
+            		 (*function body _comp*)
+            		val IR.FuncP{paramsF, body, paramsT,...} = getFieldFnDef f        	
+					(*Decompose function body *)
+					val IR.CFG{entry, exit} = body 					
+            		(*get computation inside field definition  _comp*)
+            		val IR.ND{kind as IR.EXIT {pred, ...}, ...}  = exit         		
+					val IR.ND{kind, ...} = !pred
+            		(*get last variable name used*) 
 					val lhs_comp =
-						(case (kind,paramsF)
+						(case (kind, paramsF)
             				of (IR.ASSIGN{stm as (lhs_comp, _),...},_) =>  lhs_comp
             				| (IR.ENTRY _, [lhs_comp])	  => lhs_comp
-            			(* end case*))            			
-            		val stmt_comp = List.rev(gather (!pred))
-					val alpha_comp = tensorSize lhs_comp				
-					(* get arguments treated like fields  _PF*)
+            				| (IR.FOREACH _, _) => raise Fail ("uncovered node kind: "^IR.Node.toString(!pred))
+            				| _ => raise Fail ("uncovered node kind: "^IR.Node.toString(!pred))
+            			(* end case*)) 
+            		(*get all the statements used in the function body *)      			
+            		val stmt_comp = List.rev(gather (!pred))    	  	
+            		(*analyze parameters*)	              	
 					val lhs_PF = paramsF
-					(*for each one set equal to a dummy var *)
-					val alphas_PF = List.map tensorSize lhs_PF
-					(*input variables treated like tensors*)
-					val lhs_PT= paramsT 
-					val alphas_PT = List.map tensorSize lhs_PT
-            		(* variables defined outside of field get statement wrapped inside *)
-            		val stmt_PF= List.map (fn v as IR.V{name,...} => IR.ASSGN(v, IR.LIT(Literal.String (name)))) (lhs_PF@lhs_PT)
+					val lhs_PT = paramsT
+					val lhs_allP  = lhs_PF@lhs_PT 
+					(*for each argument set equal to a dummy var *)
+            		val stmt_allP =  List.map (fn v as IR.V{name,...} => IR.ASSGN(v, IR.LIT(Literal.String (name)))) (lhs_allP)     
+            		(*get tensor size of arguments*)
+            		val alphas_PF = List.map tensorSize lhs_PF
+            		val alphas_PT = List.map tensorSize lhs_PT
+            		val alphas_allP = alphas_PF@alphas_PT 
+            		val alpha_comp = tensorSize lhs_comp    	
             		(* check-globals matches parameters with probed terms
             		* here checks that input type in ofield matche probed terms*)
-            		val alphas = alphas_PF@alphas_PT
             		val ins = (case  IR.Var.ty lhs
-            			of HighTypes.OFieldTy(ins) => ins
-            			| HighTypes.FieldTy => alphas
-            			(*end case*))
-            		fun iTo []  = " real "
-            		   | iTo [b] = concat["vec", Int.toString b]
-					fun iTos es = String.concatWithMap "," iTo es 
-					val errmsg = concat["Field is probed with arguments that do not match the vector sizes indicated by the field dimension.",
-                        	"\n\tExpected(indicated by dimension):", iTos ins,
-                       		"\n\tObserved: ",iTos alphas]
+            			of HighTypes.OFieldTy(ins) => ins 
+            			| HighTypes.FieldTy => alphas_allP
+            			(*end case*))				
 					fun match([],[]) = true 
 					  | match(e1::es, p1::ps) = 
-						if(e1=p1) then match(es,ps) else raise Fail(errmsg)
-                     | match _ = raise Fail(errmsg)										
-					val _ = match(ins, alphas)					    				
+						if(e1=p1) then match(es,ps) else raise Fail(errmsg(ins, alphas_allP))
+                     | match _ = raise Fail(errmsg(ins,alphas_allP))										
+					val _ = match(ins, alphas_allP)					    				
             		(*create ein operator*)
 					val rator  = MkOperators.cfexpMix (alpha_comp, alphas_PF,alphas_PT)   
-					val args =  [lhs_comp]@ lhs_PF @lhs_PT
+					val args =  lhs_comp::lhs_allP 
 					val ein = IR.EINAPP(rator,args)
+				
 					val _ = List.map (fn v =>print("-"^IR.Var.toString(v))) args 
+       
                 in
-                	 stmt_PF@ stmt_comp@[IR.ASSGN(lhs, ein)]
+                	 stmt_allP@ stmt_comp@[IR.ASSGN(lhs, ein)]
                 end
           (* end case *))
 

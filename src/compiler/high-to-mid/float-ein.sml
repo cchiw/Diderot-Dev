@@ -259,17 +259,10 @@ structure FloatEin : sig
                     of E.Probe _ => lift ("probe", exp, params, index, sx, args, avail)
                     | exp       => rewrite(sx, exp, params, args))
                     (* end case*))
-| E.Sum(sx2, e) => (print("\n Mark A Sum exp:"^EinPP.expToString(exp));case e
+			| E.Sum(sx2, e) => (print("\n Mark A Sum exp:"^EinPP.expToString(exp));case e
                 of E.Probe(E.Comp(_, []), _, ty) =>  raise Fail ("nonsupported nest")
                  | E.Probe(E.Comp(_, es), _, ty) =>  compn("composition", e,params, index, sx, sx2, args, avail)
-(*
-                 | E.Probe(E.OField(E.CFExp _, _, _),_, ty) => let
-                    val (e', params', args') = rewrite (sx2@sx, e, params, args)
-                    in
-                        (E.Sum(sx2, e'), params', args')
-                    end
-*)
-            | E.Probe ( _, _, ty) => (print"\nMark C";lift ("sumprobe", exp, params, index, sx, args, avail))
+            	 | E.Probe ( _, _, ty) => (print"\nMark C";lift ("sumprobe", exp, params, index, sx, args, avail))
                  | _ => let
                     val _ = print"\nMark D"
                     val (e', params', args') = rewrite (sx2@sx, e, params, args)
