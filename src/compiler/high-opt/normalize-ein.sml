@@ -103,10 +103,7 @@ structure NormalizeEin : sig
     fun mkComp(F, es, x, ty) = let
         fun return e = (ST.tick cntProbe; e)
         val probe = E.Probe(E.Comp(F, es), x, ty)
-
-
-
-            in (case F
+        in (case F
             of E.Tensor _         => err "Tensor without Lift"
             | E.Lift e           => return e
             | E.Zero _           => return F
@@ -121,27 +118,27 @@ structure NormalizeEin : sig
             | E.Const _          => return F
             | E.Delta _          => return F
             | E.Sum(sx1, e)      =>
-            let
-            val exp =  E.Probe(E.Comp(e, es), x, ty)
-            val xexp = E.Sum(sx1, exp)
-            in return xexp end
+                let
+                val exp =  E.Probe(E.Comp(e, es), x, ty)
+                val xexp = E.Sum(sx1, exp)
+                in return xexp end
             | E.Op1(op1, e)      =>
-            let
-            val exp =  E.Probe(E.Comp(e, es), x, ty)
-            val xexp = E.Op1(op1, exp)
-            in return xexp end
+                let
+                val exp =  E.Probe(E.Comp(e, es), x, ty)
+                val xexp = E.Op1(op1, exp)
+                in return xexp end
             | E.Op2(op2, e1, e2) =>
-            let
-            val exp1 =  E.Probe(E.Comp(e1, es), x, ty)
-            val exp2 =  E.Probe(E.Comp(e2, es), x, ty)
-            val xexp = E.Op2(op2, exp1, exp2)
-            in return xexp end
+                let
+                val exp1 =  E.Probe(E.Comp(e1, es), x, ty)
+                val exp2 =  E.Probe(E.Comp(e2, es), x, ty)
+                val xexp = E.Op2(op2, exp1, exp2)
+                in return xexp end
             | E.Opn(opn, [])     => err "Probe of empty operator"
             | E.Opn(opn, es1)     =>
-            let
-            val exps =  List.map (fn e1 => E.Probe(E.Comp(e1, es), x, ty)) es1
-            val xexp = E.Opn(opn, exps)
-            in return xexp end
+                let
+                val exps =  List.map (fn e1 => E.Probe(E.Comp(e1, es), x, ty)) es1
+                val xexp = E.Opn(opn, exps)
+                in return xexp end
             | _                  => probe
             (* end case *))
         end

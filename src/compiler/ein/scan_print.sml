@@ -334,14 +334,14 @@ structure ScanPP : sig
                 | E.Comp(e1, [(e2,_)]) => let
                     val (s1, beta1) = getAlpha (e1)
                     val (s2, _) = getAlpha (e2)
-                    val name = concat[s1,R.get_op_comp(op_n),s2]
+                    val name = concat[s1, R.get_op_comp(op_n), s2]
                     in (name, beta1)
                     end
-                | E.Comp(e1, [(e2,_),(e3,_)]) => let
+                | E.Comp(e1, [(e2, _),(e3, _)]) => let
                     val (s1, beta1) = getAlpha (e1)
                     val (s2, _) = getAlpha (e2)
                     val (s3, _) = getAlpha (e3)
-                    val name = concat[s1,R.get_op_comp(op_n),s2,R.get_op_comp(op_n),s3]
+                    val name = concat[s1, R.get_op_comp(op_n), s2, R.get_op_comp(op_n),s3]
                     in (name, beta1)
                     end
                 | E.Apply(E.Partial dx, e2) => let

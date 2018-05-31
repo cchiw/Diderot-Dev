@@ -47,7 +47,7 @@ fun ti2s (id, E.T) = "t_"^Int.toString(id)
             | E.Partial alpha => "\nabla" ^ multiIndex2s alpha
             | E.Apply(e1, e2) => concat [ expToString e1, "@(", expToString e2, ")"]
             | E.Probe(e1, e2,_) =>  expToString e1
-            | E.Comp(e1,es) => let
+            | E.Comp(e1, es) => let
                 fun iter ([]) = ""
                 | iter ((e2, n1)::es) =
                 concat ["[", expToString e2 , concat ["{", shp2s n1, "}"],  "]", iter(es)]

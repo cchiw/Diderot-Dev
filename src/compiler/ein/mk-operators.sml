@@ -1029,9 +1029,9 @@ structure MkOperators : sig
           (*^^ old *)
     fun compositionT (shape0, shape1) = let
           val dim0 = (case shape1
-            of [] => 1
-            | [n] => n
-            (* end case *))
+                of [] => 1
+                | [n] => n
+                (* end case *))
             
            val expindex0 = specialize(shape0, 0)
            val expindex1 = specialize(shape1, 0)
@@ -1045,19 +1045,19 @@ structure MkOperators : sig
           
     fun compositionF (shape0, shape1, dim1) = let
           val dim0 = (case shape1
-          of [] => 1
-          | [n] => n
-          (* end case *))
+            of [] => 1
+            | [n] => n
+            (* end case *))
           
           val expindex0 = specialize(shape0, 0)
           val expindex1 = specialize(shape1, 0)
-          in
+        in
           E.EIN{
-          params = [E.FLD (dim0, shape0), E.FLD (dim1, shape1)],
-          index = shape0,
-          body = E.Comp (E.Field(0, expindex0), [(E.Field(1, expindex1),  shape1)])
+             params = [E.FLD (dim0, shape0), E.FLD (dim1, shape1)],
+            index = shape0,
+            body = E.Comp (E.Field(0, expindex0), [(E.Field(1, expindex1),  shape1)])
           }
-          end
+        end
           
           
           (* Lerp<ty>(a, b, t) -- computes a + t*(b-a), where a and b have type ty

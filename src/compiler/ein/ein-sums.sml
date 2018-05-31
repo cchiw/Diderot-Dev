@@ -64,7 +64,7 @@ structure EinSums : sig
               | E.Probe(E.Conv(_, [], _, []), [E.Tensor(_, [])],_)
                                           => NONE
               | E.Probe(e1, e2,_)           => sort (e1:: e2)
-              | E.Comp(e1,_)              => findSx(c,e1)
+              | E.Comp(e1, _)              => findSx(c, e1)
               | E.OField(_, e1, _)        => findSx(c,e1)
               | E.Poly (_, _,shape)       => findIndex (c, shape)
               | E.Value _                 => NONE

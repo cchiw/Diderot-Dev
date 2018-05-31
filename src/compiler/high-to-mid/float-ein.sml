@@ -123,7 +123,7 @@ structure FloatEin : sig
             | E.Value _          => err "Value used before expand"
             | E.Img _            => err "Probe used before expand"
             | E.Krn _            => err "Krn used before expand"
-            | E.Comp(e1,_)       => E.Probe(fld, x, ty) (* handled next stage*)
+            | E.Comp(e1, _)       => E.Probe(fld, x, ty) (* handled next stage*)
             | E.Epsilon _        => fld
             | E.Eps2 _           => fld
             | E.Const _          => fld
@@ -251,7 +251,7 @@ structure FloatEin : sig
                 | E.OField(_, E.Tensor(_,alpha), dx) => lift ("probe", exp, params, index, sx, args, avail)
                 | E.Comp(_, []) => raise Fail "nonsupported nest"
                 | E.Comp(_, es)
-                    => compn("composition", exp,params, index, sx, [],args, avail)
+                    => compn("composition", exp, params, index, sx, [], args, avail)
                 | E.OField(E.CFExp tterm, E.Comp _ , dx)
                      => raise Fail "cfexp of a composition not allowed"
                     (* compn("poly-wrap-composition", exp,params, index, sx, [],args, avail)*)
@@ -261,7 +261,7 @@ structure FloatEin : sig
                     (* end case*))
 			| E.Sum(sx2, e) => (print("\n Mark A Sum exp:"^EinPP.expToString(exp));case e
                 of E.Probe(E.Comp(_, []), _, ty) =>  raise Fail ("nonsupported nest")
-                 | E.Probe(E.Comp(_, es), _, ty) =>  compn("composition", e,params, index, sx, sx2, args, avail)
+                 | E.Probe(E.Comp(_, es), _, ty) =>  compn("composition", e, params, index, sx, sx2, args, avail)
             	 | E.Probe ( _, _, ty) => (print"\nMark C";lift ("sumprobe", exp, params, index, sx, args, avail))
                  | _ => let
                     val _ = print"\nMark D"

@@ -66,10 +66,10 @@ structure EinPP : sig
             | E.Probe(e1,  e2, NONE) => concat ["Probe(fld:", expToString e1, ",pos:", String.concatWithMap " ," expToString e2, ")"]
             | E.Probe(e1,  e2, SOME (opn,n)) => 
             		concat ["Reduce(",opnToString opn, i2s n,") Probe(fld:", expToString e1, ",{pos}:", String.concatWithMap " ," expToString e2, ")"]
-            | E.Comp(e1,es) => let
+            | E.Comp(e1, es) => let
                 fun iter ([]) = ""
                 | iter ((e2, n1)::es) =
-                concat ["[", expToString e2 , concat ["{", shp2s n1, "}"],  "]", iter(es)]
+                concat ["[", expToString e2, concat ["{", shp2s n1, "}"], "]", iter(es)]
                 in concat ["Cmp(", expToString e1,")", (iter(es))] end
             | E.OField(E.CFExp es, e1,  E.Partial [])
                 => concat ["CFExp[Tids:", String.concatWithMap " ," ti2s  es, "](exp:",expToString e1,")"]
@@ -189,7 +189,7 @@ structure EinPP : sig
         | E.Partial alpha => "∂/∂x" ^ multiIndex2s alpha
         | E.Apply(e1, e2) => "∂/∂x"
         | E.Probe(e1, e2,_) => concat ["Probe"]
-        | E.Comp(e1,es) => concat ["Cmp"]
+        | E.Comp(e1, es) => concat ["Cmp"]
         | E.OField(E.CFExp _, e1,  E.Partial []) => concat ["PolyWrap"]
         | E.OField(E.CFExp _, e1,  E.Partial alpha)  => concat ["PolyWrap"]
         | E.Poly(E.Tensor(tid, cx), 1, []) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")"]
