@@ -166,16 +166,19 @@ structure LoadVoxels : sig
    * where idx1 varies the fastest and idxn varies the slowest.
    *)
     fun gridIterate (avail, n, ss) (f : int list -> IR.var) = let
-          fun iter (0, idxs, _) = f idxs
-            | iter (i, idxs, s::ss) = let
+          val ss = List.rev ss
+          fun iter (0, idxs) = f idxs
+            | iter (i, idxs) = let
+                val s = List.nth(ss,i-1)
+                val _ = print (String.concat["\n grid Iterate n:",Int.toString(i),"s:", Int.toString (s)])
                 fun lp (j, xs) = if (j < s)
-                      then lp (j+1, iter(i-1, j::idxs,ss) :: xs)
+                      then lp (j+1, iter(i-1, j::idxs) :: xs)
                       else assignCons (avail, voxName idxs, List.rev xs)
                 in
                   lp (0, [])
                 end
           in
-            iter (n, [],List.rev ss)
+            iter (n, [])
           end
 
   (* `shapeIterate avail shp f` generates code to construct a tensor with

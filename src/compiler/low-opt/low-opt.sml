@@ -32,9 +32,13 @@ structure LowOptimizer : sig
             else prog
 
     fun optimize prog = let
+    val _ = print"mark a"
           val prog = transform (Ctl.lowContract, Timers.timeLowContract, "contraction(1)", LowContract.transform, prog)
+              val _ = print"mark b"
           val prog = transform (Ctl.lowVN, Timers.timeLowVN, "value numbering", VN.transform, prog)
+              val _ = print"mark c"
           val prog = transform (Ctl.lowContract, Timers.timeLowContract, "contraction(2)", LowContract.transform, prog)
+              val _ = print"mark d"
           in
             prog
           end

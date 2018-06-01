@@ -115,7 +115,7 @@ structure Basis : sig
             ]),
           (N.op_norm, [BV.op_norm_t, BV.op_norm_f]),
         (* overloaded f2unctions *)
-          (N.fn_abs, [BV.fn_abs_i, BV.fn_abs_r]),
+          (N.fn_abs, [BV.fn_abs_i, BV.fn_abs_r, BV.fn_abs_s]),
           (N.fn_acos, [BV.fn_acos_r, BV.fn_acos_s]),
           (N.fn_asin, [BV.fn_asin_r, BV.fn_asin_s]),
           (N.fn_atan, [BV.fn_atan_r, BV.fn_atan_s]),

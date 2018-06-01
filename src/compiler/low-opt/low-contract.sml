@@ -117,11 +117,20 @@ structure LowContract : sig
                   | _ => NONE
                 (* end case *))
             | (Op.TensorIndex(Ty.TensorTy dims, idxs), [t]) => let
+                         		 val _ = print(concat["\nstarting dim:",Int.toString(length(dims)),"ix:",Int.toString(length(idxs))])
                 fun get ([], [], x) = (
                       SOME[(lhs, IR.VAR(use x))])
                   | get (ix::ixs, d::ds, x) = (case getLocalDef x
-                       of IR.CONS(ys, _) => get(ixs, ds, List.nth(ys, ix))
+                       of IR.CONS(ys, _) => let  
+                       val _ = print(concat["\nstart cons ix:", Int.toString(ix), "  d:",Int.toString(d)])
+                                  		 val _ = print(concat["\n mid cons ys:",Int.toString(length(ys)),"ix:",Int.toString(ix)])
+                       	val  z = List.nth(ys, ix)
+            
+                       	val rtn = get(ixs, ds, z)
+                       	 val _ = print"end cons"
+                       	in rtn end 
                         | _ => let
+                        	val _ = print"else cat"
                             val rator = if List.null ds
                                   then Op.VIndex(d, ix)
                                   else Op.TensorIndex(Ty.tensorTy(d::ds), ix::ixs)
@@ -130,11 +139,14 @@ structure LowContract : sig
                             end
                       (* end case *))
                   | get _ = raise Fail "malformed TensorIndex"
-                in
+                val _ = print"\n\ttensor index start"
+                val rtn = 
                   case getLocalDef t
                    of IR.CONS _ => (ST.tick cntTensorIndex; decUse t; get(idxs, dims, t))
                     | _ => NONE
                   (* end case *)
+                val _ = print"\ttensor index end"
+                in rtn
                 end
             | (Op.ProjectLast(Ty.TensorTy dims, idxs), [t]) => let
                 fun get ([], [_], x) = (
@@ -152,12 +164,16 @@ structure LowContract : sig
                     | _ => NONE
                   (* end case *)
                 end
-            | (Op.Subscript ty, [seq, idx]) => (case (getLocalDef seq, V.getDef idx)
+            | (Op.Subscript ty, [seq, idx]) => let
+                  val _ = print"\n\tSubscrip start"
+            	val rtn = (case (getLocalDef seq, V.getDef idx)
                  of (IR.SEQ(vs, _), IR.LIT(Literal.Int i)) => (
                       ST.tick cntSubscript; decUse seq; decUse idx;
                       SOME[(lhs, IR.VAR(use (List.nth(vs, Int.fromLarge i))))])
                   | _ => NONE
                 (* end case *))
+                 val _ = print"\ttSubscrip end "
+                in rtn end 
             | _ => NONE
           (* end case *))
       | doAssign _ = NONE
