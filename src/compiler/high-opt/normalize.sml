@@ -125,7 +125,7 @@ fun rewriteEin (changed, params, place, newEinOp, newArgs, done, arg, orig, lhs)
    *)
     fun doRHS (lhs, IR.EINAPP(ein, args)) = let
 
-val _ = print(String.concat["\n\n****************************************************\ndoRhs:",EinPP.toString(ein), ":",ll(args,0)])
+val _ = (String.concat["\n\n****************************************************\ndoRhs:",EinPP.toString(ein), ":",ll(args,0)])
 
             fun rewrite (false, _, _, [], _) = (NONE)
               | rewrite (true, einOp, _, [], args') =(
@@ -136,10 +136,10 @@ val _  = (String.concat["\n\tPlace:",Int.toString(place)])
                  of NONE => (rewrite (changed, einOp, place+1, xs, args'@[x]))
                   | SOME(newE, newA) => let
                         val Ein.EIN{params, ...} = einOp
-val _ = print(String.concat["\n\n----------------------------------------\n\nBefore rewriting:",EinPP.toString(einOp), ":",ll(args'@(x::xs),0)])
+val _ = (String.concat["\n\n----------------------------------------\n\nBefore rewriting:",EinPP.toString(einOp), ":",ll(args'@(x::xs),0)])
                       val (changed, einOp', place', done') =
                             rewriteEin (changed, params, place, newE, newA, args', x, einOp, lhs)
-val _ =print (String.concat["\n\nDone rewriting:",EinPP.toString(einOp'), ":",ll(done'@xs,0)])
+val _ =(String.concat["\n\nDone rewriting:",EinPP.toString(einOp'), ":",ll(done'@xs,0)])
                       in
                         rewrite (changed, einOp', place', xs, done')
                       end

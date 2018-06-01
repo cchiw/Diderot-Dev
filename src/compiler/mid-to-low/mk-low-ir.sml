@@ -123,7 +123,7 @@ structure MkLowIR : sig
 
     fun realLit (avail, r) =
         let
-        (*val _  = print(String.concat["\n\t Literal: ", (Literal.toString (Literal.Real r))])*)
+        (*val _  = (String.concat["\n\t Literal: ", (Literal.toString (Literal.Real r))])*)
         in add (avail, "realLit", Ty.realTy, IR.LIT(Literal.Real r)) end
     fun intToRealLit (avail, n) = realLit (avail, RealLit.fromInt(IntInf.fromInt n))
 

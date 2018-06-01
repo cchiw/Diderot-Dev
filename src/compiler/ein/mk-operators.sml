@@ -1355,7 +1355,7 @@ structure MkOperators : sig
                     index  = alpha_f,
                     body   = bodyterm
                 }
-            val _ = print(String.concat["\n mk-operators- poly term: ",EinPP.toString(e1)])
+            val _ = (String.concat["\n mk-operators- poly term: ",EinPP.toString(e1)])
         in
             e1
         end
@@ -1378,7 +1378,7 @@ structure MkOperators : sig
                 index = alpha,
                 body = E.Probe(fldtem, probeterm, NONE)
             }
-       	val _ = print(String.concat["\n mk-operators- probe term: ",EinPP.toString(ein)])
+       	val _ = (String.concat["\n mk-operators- probe term: ",EinPP.toString(ein)])
        	in ein 
         end
         
@@ -1393,7 +1393,7 @@ structure MkOperators : sig
 				body = E.Probe(fldtem, probeterm, SOME (opn,n))
 			  }
 
-			val _ = print(String.concat["poly probe seq:",EinPP.toString(ein)])
+			val _ = (String.concat["poly probe seq:",EinPP.toString(ein)])
 		in	
 			ein 
         end

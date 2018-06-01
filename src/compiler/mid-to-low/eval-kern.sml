@@ -99,7 +99,7 @@ structure EvalKern : sig
           (* end case *))
 
     fun expand (result, d, h, k, [x]) = let
-         val _ = print(String.concat["\n kernel : ", Kernel.name(h)])
+         val _ = (String.concat["\n kernel : ", Kernel.name(h)])
           val {isCont, segs} = Kernel.curve (h, k)
         (* degree of polynomial *)
           val deg = List.length(hd segs) - 1

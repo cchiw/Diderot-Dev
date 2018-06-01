@@ -164,7 +164,7 @@ structure FloatEin : sig
         val (tshape2, sizes2, body2) = CleanIndex.clean(outerExp2, index, sx)
         val einapp2 = CleanParams.clean (body2, newP2, sizes2, args2)
         val IR.EINAPP(outerExp, _) = einapp2
-        val _ = print(String.concat["\n\n  outer:",EinPP.toString(outerExp)])
+        val _ = (String.concat["\n\n  outer:",EinPP.toString(outerExp)])
         val lhs = AvailRHS.addAssign (avail,concat[name, "l"], Ty.tensorTy sizes2, einapp2)
 
         (*replacement*)
@@ -198,10 +198,10 @@ structure FloatEin : sig
 
         val innerExp = E.EIN{params = params, index =  indexA, body = E.Probe(wrapA,pos, ty)}
         val innerVar = AvailRHS.addAssign (avail, "Inner", Ty.tensorTy indexA, IR.EINAPP(innerExp, args))
-        val _ = print(String.concat["\n\n",V.name(innerVar), " = ",EinPP.toString(innerExp)])
+        val _ = (String.concat["\n\n",V.name(innerVar), " = ",EinPP.toString(innerExp)])
         (*other  composition *)
         val (Re, sizes, lhs) = iter(indexA, innerVar, List.tl(es'), avail)
-        val _ = print(String.concat["\n\n",V.name(lhs), " = ",EinPP.expToString(Re)])
+        val _ = (String.concat["\n\n",V.name(lhs), " = ",EinPP.expToString(Re)])
 
         in
             (Re, params @ [E.TEN(true, sizes)], args @ [lhs])
@@ -259,12 +259,12 @@ structure FloatEin : sig
                     of E.Probe _ => lift ("probe", exp, params, index, sx, args, avail)
                     | exp       => rewrite(sx, exp, params, args))
                     (* end case*))
-			| E.Sum(sx2, e) => (print("\n Mark A Sum exp:"^EinPP.expToString(exp));case e
+			| E.Sum(sx2, e) => (("\n Mark A Sum exp:"^EinPP.expToString(exp));case e
                 of E.Probe(E.Comp(_, []), _, ty) =>  raise Fail ("nonsupported nest")
                  | E.Probe(E.Comp(_, es), _, ty) =>  compn("composition", e, params, index, sx, sx2, args, avail)
-            	 | E.Probe ( _, _, ty) => (print"\nMark C";lift ("sumprobe", exp, params, index, sx, args, avail))
+            	 | E.Probe ( _, _, ty) => ("\nMark C";lift ("sumprobe", exp, params, index, sx, args, avail))
                  | _ => let
-                    val _ = print"\nMark D"
+                    val _ = "\nMark D"
                     val (e', params', args') = rewrite (sx2@sx, e, params, args)
                     in
                         (E.Sum(sx2, e'), params', args')

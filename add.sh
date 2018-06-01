@@ -23,5 +23,14 @@ git add simple-opt/*.sml
 git add parser/*.sml
 git add parser/*.grm
 git add parse-tree/*.sml
+git add mid-opt/*.sml
+git add cfg-ir/*.sml
+rm */*.o
+rm */*/*.o
+rm */*/*/*.o
+rm -r */.cm/
+rm -r */*/.cm/
+rm -r */*/*/.cm/
 cd ..
 cd ..
+git rm lib/*.o

@@ -286,9 +286,9 @@ structure EinToLow : sig
        
     fun expand (y, ein as Ein.EIN{params, index, body}, args) = let
 
-val _ = print("\n\n *********************** Starting expand************** ")
-        val _ = print( String.concat["\n\n ",LowTypes.toString(Var.ty(y))," ", Var.name(y),"=",EinPP.toString(ein)])
-        val _ = List.map (fn e1 => print(String.concat["\n\t",LowTypes.toString(Var.ty(e1)),Var.name(e1)," cnt: ",useCount(e1)])) args
+val _ = ("\n\n *********************** Starting expand************** ")
+        val _ = ( String.concat["\n\n ",LowTypes.toString(Var.ty(y))," ", Var.name(y),"=",EinPP.toString(ein)])
+        val _ = List.map (fn e1 => (String.concat["\n\t",LowTypes.toString(Var.ty(e1)),Var.name(e1)," cnt: ",useCount(e1)])) args
 (* DEBUG
           val _ = (case Var.ty y
                  of LowTypes.TensorTy alpha => if (alpha = index)
@@ -306,10 +306,10 @@ val _ = print("\n\n *********************** Starting expand************** ")
                 of [] =>
                     [LowIR.ASSGN  (y, LowIR.VAR (List.nth (args, 0)))]
                 | (_, asgn)::rest => let
-                val _ = print("\n\n ************* translated to ******* \n\n ")
+                val _ = ("\n\n ************* translated to ******* \n\n ")
                     val es = List.revMap LowIR.ASSGN ((y, asgn)::rest)
-                    val _ = List.map (fn e1 => print("\n\t"^LowToString.toStringAssgn(e1))) es
-                    val _ = print("\n\n ***************************************** \n\n ")
+                    val _ = List.map (fn e1 => ("\n\t"^LowToString.toStringAssgn(e1))) es
+                    val _ = ("\n\n ***************************************** \n\n ")
                     in
                         es
                     end

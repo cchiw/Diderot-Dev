@@ -170,7 +170,7 @@ structure LoadVoxels : sig
           fun iter (0, idxs) = f idxs
             | iter (i, idxs) = let
                 val s = List.nth(ss,i-1)
-                val _ = print (String.concat["\n grid Iterate n:",Int.toString(i),"s:", Int.toString (s)])
+                val _ = (String.concat["\n grid Iterate n:",Int.toString(i),"s:", Int.toString (s)])
                 fun lp (j, xs) = if (j < s)
                       then lp (j+1, iter(i-1, j::idxs) :: xs)
                       else assignCons (avail, voxName idxs, List.rev xs)

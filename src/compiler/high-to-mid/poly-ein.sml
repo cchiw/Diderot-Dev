@@ -43,9 +43,9 @@ structure PolyEin : sig
     *)
     fun transform_Core (y, sx, ein as Ein.EIN{body, index, params} , args, SeqId) = 
         let
-            val _ = print(concat["\n\n\n   transform core:",EinPP.toString(ein)])
+            val _ = (concat["\n\n\n   transform core:",EinPP.toString(ein)])
         	val _ = ("\n\n*******************\n") 
-            val _ = print(H.line("core:", y, ein, args))  
+            val _ = (H.line("core:", y, ein, args))  
             (*check to see that it is the right number of arguments*)
             val cfexp_ids = getPargs body 
             val n_pargs = length(cfexp_ids)
@@ -57,10 +57,10 @@ structure PolyEin : sig
             (* replace polywrap args/params with probed position(s) args/params *)
             val e = getE body            
             val (args, params, e) = P2.polyArgs(params, e, args,  SeqId, cfexp_ids, probe_ids)
-            val _ = print(H.toStringBA("\n\n  Step 2 replace arguments", e, args))
+            val _ = (H.toStringBA("\n\n  Step 2 replace arguments", e, args))
             (* need to flatten before merging polynomials in product *)
             val e = P3.rewriteMerge(e)
-            val _ = print(H.toStringBA("\n\n  Step 3 merge poly term", e, args))
+            val _ = (H.toStringBA("\n\n  Step 3 merge poly term", e, args))
            (* normalize ein by cleaning it up and differntiating*)
             val dx = getDx body  
             val e = P3.rewriteDifferentiate(E.Apply(E.Partial dx, e))
@@ -74,7 +74,7 @@ structure PolyEin : sig
     *)
     fun transform (y, ein, args) = 
         let
-            val _ = print(H.line("\n\n   Step 0 Wrapper", y, ein, args))
+            val _ = (H.line("\n\n   Step 0 Wrapper", y, ein, args))
             val Ein.EIN{body, index, params} = ein
             val (sx, body) =  getSx body
 		    val  pty = getPty body
@@ -97,13 +97,13 @@ structure PolyEin : sig
             		| NONE =>  body
             	(* end case *))
             val ein = Ein.EIN{body = body, index = index, params = params}
-            val _ = print(H.line("\n\n   Step 5 ", y, ein, args))
+            val _ = (H.line("\n\n   Step 5 ", y, ein, args))
 
             (********************************** done  *******************************)
             val newbie = (y, IR.EINAPP(ein, args))
             val stg_poly = Controls.get Ctl.stgPoly
             val _ =  if(stg_poly) then ScanE.readIR_Single(newbie, "tmp-poly") else 1
-             val _ = print(String.concat["\n\n*******************\n"])
+             val _ = (String.concat["\n\n*******************\n"])
         in
                [newbie]
         end
