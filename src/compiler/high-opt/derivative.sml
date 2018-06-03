@@ -154,74 +154,65 @@ structure Derivative : sig
         fun change(E.V 0) = E.V vk
           | change ix     = ix
         in (case e
-            of E.Const _        => e
-            | E.Tensor(id2, alpha)
-                                => E.Tensor(id2, List.map (fn e=> change(e)) alpha)
-            | E.Zero (alpha)    => E.Zero(List.map (fn e => change(e)) alpha)
-            | E.Delta (i,j)     => E.Delta(change i, change j)
-            | E.Epsilon (i,j,k) => E.Epsilon(change i, change j, change k)
-            | E.Eps2 (i,j)      => E.Eps2(change i, change j)
-            | E.Field(id2, alpha)
-                                => E.Field(id2, List.map (fn e => change(e)) alpha)
-            | E.Lift e1         => E.Lift(rewriteIx(vk, e1))
-            | E.Conv(id2, alpha, h2, dx2)
-                                => E.Conv(id2, List.map (fn e => change(e)) alpha, h2, dx2)
-            | E.Partial(alpha)
-                                => E.Partial (List.map (fn e => change(e)) alpha)
-            | E.Apply(e1, e2)   => E.Apply(e1, rewriteIx(vk, e2))
-            | E.Probe(e1, e2, e3)   => E.Probe(rewriteIx(vk, e1), e2,e3)
+            of E.Const _ => e
+            | E.Tensor(id2, alpha) => E.Tensor(id2, List.map (fn e => change(e)) alpha)
+            | E.Zero (alpha) => E.Zero(List.map (fn e => change(e)) alpha)
+            | E.Delta (i, j) => E.Delta(change i, change j)
+            | E.Epsilon (i, j, k) => E.Epsilon(change i, change j, change k)
+            | E.Eps2 (i, j) => E.Eps2(change i, change j)
+            | E.Field(id2, alpha) => E.Field(id2, List.map (fn e => change(e)) alpha)
+            | E.Lift e1  => E.Lift(rewriteIx(vk, e1))
+            | E.Conv(id2, alpha, h2, dx2) => E.Conv(id2, List.map (fn e => change(e)) alpha, h2, dx2)
+            | E.Partial(alpha) => E.Partial (List.map (fn e => change(e)) alpha)
+            | E.Apply(e1, e2) => E.Apply(e1, rewriteIx(vk, e2))
+            | E.Probe(e1, e2, e3) => E.Probe(rewriteIx(vk, e1), e2, e3)
             | E.Comp(e1, es) => E.Comp(rewriteIx(vk, e1), es)
-            | E.Sum(sx, e1)
-                                => E.Sum(sx, rewriteIx(vk, e1))
-            | E.Op1(op1, e1)
-                                => E.Op1(op1, rewriteIx(vk, e1))
-            | E.Op2(op2, e1, e2)
-                                => E.Op2(op2, rewriteIx(vk, e1), rewriteIx(vk, e2))
-            | E.Opn(opn, es)
-                                => E.Opn(opn, List.map (fn e => rewriteIx(vk, e)) es)
-            | E.OField(E.BuildFem (a,b), e1, dx) => E.OField(E.BuildFem (a,b), rewriteIx(vk, e1), dx)
-
+            | E.Sum(sx, e1) => E.Sum(sx, rewriteIx(vk, e1))
+            | E.Op1(op1, e1) => E.Op1(op1, rewriteIx(vk, e1))
+            | E.Op2(op2, e1, e2) => E.Op2(op2, rewriteIx(vk, e1), rewriteIx(vk, e2))
+            | E.Opn(opn, es) => E.Opn(opn, List.map (fn e => rewriteIx(vk, e)) es)
+            | E.OField(E.BuildFem (a, b), e1, dx) => E.OField(E.BuildFem (a, b), rewriteIx(vk, e1), dx)
             |  _ => e
             (*end case*))
         end
 
     fun findDim(e, params) = (case e
-            of E.Const _            => NONE
-            | E.Tensor _            => NONE
-            | E.Zero _              => NONE
-            | E.Delta _             => NONE
-            | E.Epsilon _           => NONE
-            | E.Eps2 _              => NONE
-            | E.Lift _              => NONE
-            | E.Field(id, _)   => let
-                val E.IMG(d,_) = List.nth(params, id)
+            of E.Const _     => NONE
+            | E.Tensor _     => NONE
+            | E.Zero _       => NONE
+            | E.Delta _      => NONE
+            | E.Epsilon _    => NONE
+            | E.Eps2 _       => NONE
+            | E.Lift _       => NONE
+            | E.Field(id, _) => let
+                val E.IMG(d, _) = List.nth(params, id)
                 in SOME(d) end
-            | E.Conv(id, _, _, _)   => let
-                val E.IMG(d,_) = List.nth(params, id)
+            | E.Conv(id, _, _, _) => let
+                val E.IMG(d, _) = List.nth(params, id)
                 in SOME(d) end
 
-            | E.Partial _           => NONE
-            | E.Apply(e1, e2)       => findDim(e2, params)
-            | E.Probe(e1, e2,_)       => findDim(e1, params)
-            | E.Comp(e1, _)     => findDim(e1, params)
-            | E.Sum(_, e1)          => findDim(e1, params)
-            | E.Op1(_, e1)          => findDim(e1, params)
-            | E.Op2(_, e1, e2)      =>
+            | E.Partial _    => NONE
+            | E.Apply(e1, e2) => findDim(e2, params)
+            | E.Probe(e1, e2, _) => findDim(e1, params)
+            | E.Comp(e1, _) => findDim(e1, params)
+            | E.Sum(_, e1)   => findDim(e1, params)
+            | E.Op1(_, e1)   => findDim(e1, params)
+            | E.Op2(_, e1, e2) =>
                 (case findDim(e1, params)
                     of NONE => findDim(e2, params)
-                    |  e  => e
+                    |  e => e
                 (*end case *))
-            | E.Opn(_, es)          => let
+            | E.Opn(_, es)   => let
                 fun iter([]) = NONE
                   | iter(e1::es) =
                     (case findDim(e1, params)
                         of NONE => iter(es)
-                        |  e  => e
+                        |  e => e
                         (*end case *))
                 in iter(es) end
-            | E.OField(E.BuildFem _, E.Tensor(id,_), _) =>
+            | E.OField(E.BuildFem _, E.Tensor(id, _), _) =>
                     let
-                    val E.FLD(d,_) = List.nth(params, id)
+                    val E.FLD(d, _) = List.nth(params, id)
                     in SOME(d) end
             |  _ => raise Fail(String.concat["find Dim does not handle: ", EinPP.expToString(e)])
         (* end case*))
@@ -257,7 +248,7 @@ structure Derivative : sig
 					val e4 = E.Apply(p0, e5) (* should p0 here be rewritten? or shifted base don the length of n  *)
 					val SOME(d)  = findDim(e1, params)
 					val en = E.Sum([(vk, 0, d-1)], E.Opn(E.Prod, [e3, e4]))
-					(*val _ = (String.concat["\napply derivative:\n\t","think new dx is ", Int.toString(vk),"-",EinPP.expToString(E.Apply(px,e )), "\n\t===>\n,",EinPP.expToString(en)])*)
+					(*val _ = (String.concat["\napply derivative:\n\t", "think new dx is ", Int.toString(vk), "-", EinPP.expToString(E.Apply(px, e )), "\n\t== =>\n, ", EinPP.expToString(en)])*)
 				in SOME (iterDn en) end
               | E.Comp _ => err "unsupported differentiation of comp"
               | E.Value _ => err "Value used before expand"

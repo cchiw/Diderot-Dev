@@ -895,21 +895,26 @@ structure BasisVars =
           end
 
     (*function composition*)
-    val fn_comp = polyVar(N.fn_comp , all([DK, NK, NK, SK, SK],
-            fn [Ty.DIFF k, Ty.DIM d0, Ty.DIM d1, Ty.SHAPE dd0, Ty.SHAPE dd1] => let
-                (*val [d0] = dd1*)
-                val f1 = Ty.T_Field{diff = Ty.DiffVar(k, 0), dim = Ty.DimVar d0, shape = Ty.ShapeVar dd0}
-                val f2 = Ty.T_Field{diff = Ty.DiffVar(k, 0), dim = Ty.DimVar d1, shape = Ty.ShapeVar dd1}
-            in
-                [f1, f2] --> f1
-            end
-        ))
-    val comp = polyVar(N.op_comp , all([DK, NK, NK, SK, SK],
-        fn [Ty.DIFF k, Ty.DIM d0, Ty.DIM d1, Ty.SHAPE dd0, Ty.SHAPE dd1] => let
-            val f1 = Ty.T_Field{diff = Ty.DiffVar(k, 0), dim = Ty.DimVar d0, shape = Ty.ShapeVar dd0}
-            val f2 = Ty.T_Field{diff = Ty.DiffVar(k, 0), dim = Ty.DimVar d1, shape = Ty.ShapeVar dd1}
+    val fn_comp = polyVar(N.fn_comp , all([DK, NK, SK, NK, SK],
+        fn [Ty.DIFF k, Ty.DIM d0, Ty.SHAPE s0, Ty.DIM d1,  Ty.SHAPE s1] => let
+            val k' = Ty.DiffVar(k, 0)
+            val d0' = Ty.DimVar d0
+            val d1' = Ty.DimVar d1
+            val f0 = field(k', d0', Ty.ShapeVar s0)
+            val f1 = field(k', d1', Ty.ShapeVar s1)
         in
-            [f1, f2] --> f1
+            [f0, f1] --> f0
+        end
+    ))
+    val comp = polyVar(N.op_comp, all([DK, NK, SK, NK, SK],
+        fn [Ty.DIFF k, Ty.DIM d0, Ty.SHAPE s0, Ty.DIM d1,  Ty.SHAPE s1] => let
+            val k' = Ty.DiffVar(k, 0)
+            val d0' = Ty.DimVar d0
+            val d1' = Ty.DimVar d1
+            val f0 = field(k', d0', Ty.ShapeVar s0)
+            val f1 = field(k', d1', Ty.ShapeVar s1)
+        in
+            [f0, f1] --> f0
         end
     ))
 

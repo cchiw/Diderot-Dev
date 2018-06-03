@@ -104,12 +104,12 @@ structure Main : sig
           val high = HighOptimizer.checkAfter ("simple-to-high translation", high)
           val _ = verbose["done\n"]
         (***** HIGH-IR OPTIMIZATION *****)
-        val _ ="\n\n about to optimize high-op -r"
+        val _ =print"\n\n about to optimize high-op -r"
           val _ = verbose["optimizing HighIR ... "]
           val high = PhaseTimer.withTimer Timers.timeHigh HighOptimizer.optimize high
           val _ = verbose["done\n"]
         (***** TRANSLATION TO MID IR *****)
-        val _ = "\n\n translating to  mid -r"
+        val _ = print"\n\n translating to  mid -r"
           val _ = verbose["translating to MidIR ... "]
           val mid = PhaseTimer.withTimer Timers.timeHighToMid HighToMid.translate high
           val _ = verbose["done\n"]
@@ -117,7 +117,7 @@ structure Main : sig
           val mid = MidOptimizer.checkAfter ("high-to-mid translation", mid)
           val _ = verbose["done\n"]
         (***** MID-IR OPTIMIZATION *****)
-  val _ ="\n\n translating to  mid opt"
+  val _ =print"\n\n translating to  mid opt"
           val _ = verbose["optimizing MidIR ... "]
           val mid = PhaseTimer.withTimer Timers.timeMid MidOptimizer.optimize mid
           val _ = verbose["done\n"];

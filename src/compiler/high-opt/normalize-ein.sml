@@ -37,7 +37,7 @@ structure NormalizeEin : sig
     val lastCounter             = cntReduceDelta
     val cntRounds               = ST.newCounter "high-opt:normalize-round"
 
-    fun err str = raise Fail(String.concat["Ill-formed EIN Operator",str])
+    fun err str = raise Fail(String.concat["Ill-formed EIN Operator", str])
 
     val zero = E.Const 0
 
@@ -91,8 +91,8 @@ structure NormalizeEin : sig
               | E.If(comp, e3, e4)
                 =>  let
                     val comp2 =(case comp
-                    of E.GT(e1,e2) => E.GT(E.Probe(e1, x, ty), E.Probe(e2, x, ty))
-                     | E.LT(e1,e2) => E.LT(E.Probe(e1, x, ty), E.Probe(e2, x, ty))
+                    of E.GT(e1, e2) => E.GT(E.Probe(e1, x, ty), E.Probe(e2, x, ty))
+                     | E.LT(e1, e2) => E.LT(E.Probe(e1, x, ty), E.Probe(e2, x, ty))
                      | E.Bool id   => E.Bool id
                 (* end case*))
                 in (ST.tick cntProbe; (E.If(comp2, E.Probe(e3, x, ty), E.Probe(e4, x, ty)))) end
@@ -102,9 +102,10 @@ structure NormalizeEin : sig
 
     fun mkComp(F, es, x, ty) = let
         fun return e = (ST.tick cntProbe; e)
-        val probe = E.Probe(E.Comp(F, es), x, ty)
+        fun setInnerProbe e = E.Probe(E.Comp(e, es), x, ty)
+        val probe = setInnerProbe F
         in (case F
-            of E.Tensor _         => err "Tensor without Lift"
+            of E.Tensor _        => err "Tensor without Lift"
             | E.Lift e           => return e
             | E.Zero _           => return F
             | E.Partial _        => err "Probe Partial"
@@ -117,20 +118,12 @@ structure NormalizeEin : sig
             | E.Eps2 _           => return F
             | E.Const _          => return F
             | E.Delta _          => return F
-            | E.Sum(sx1, e)      =>
-                let
-                val exp =  E.Probe(E.Comp(e, es), x, ty)
-                val xexp = E.Sum(sx1, exp)
-                in return xexp end
-            | E.Op1(op1, e)      =>
-                let
-                val exp =  E.Probe(E.Comp(e, es), x, ty)
-                val xexp = E.Op1(op1, exp)
-                in return xexp end
+            | E.Sum(sx1, e)      => return (E.Sum(sx1, setInnerProbe e))
+            | E.Op1(op1, e)      => return (E.Op1(op1, setInnerProbe e))
             | E.Op2(op2, e1, e2) =>
                 let
-                val exp1 =  E.Probe(E.Comp(e1, es), x, ty)
-                val exp2 =  E.Probe(E.Comp(e2, es), x, ty)
+                val exp1 = setInnerProbe e1
+                val exp2 = setInnerProbe e2
                 val xexp = E.Op2(op2, exp1, exp2)
                 in return xexp end
             | E.Opn(opn, [])     => err "Probe of empty operator"
@@ -157,7 +150,7 @@ structure NormalizeEin : sig
 
         val sumX = ref (length index)
         fun incSum() = sumX:= (!sumX+2)
-        fun addSum((v, _,_)::sx) =
+        fun addSum((v, _, _)::sx) =
             sumX:= (!sumX)+v
         fun filterProd args = (case EinFilter.mkProd args
             of SOME e => (ST.tick cntFilter; e)
@@ -191,13 +184,13 @@ structure NormalizeEin : sig
                       end
                   (*sets one of the variables as a fld term *)
 
-                  | E.Apply(E.Tensor (id,_), exp) => (case rewrite(exp)
+                  | E.Apply(E.Tensor (id, _), exp) => (case rewrite(exp)
                     of E.OField(E.CFExp tterms, fldtem, dx) => let
-                        val varg = List.nth(args,id)
+                        val varg = List.nth(args, id)
 
                         fun iter([]) = raise Fail("term isn't an input")
-                        | iter ((e1,inputTy)::es) =
-                            if (HighIR.Var.same(List.nth(args,e1), varg))
+                        | iter ((e1, inputTy)::es) =
+                            if (HighIR.Var.same(List.nth(args, e1), varg))
                             then (e1, E.F)::es (*change to field type*)
                             else (e1, inputTy)::iter(es)
                         val tterms = iter(tterms)
@@ -221,15 +214,15 @@ structure NormalizeEin : sig
                   | E.Op3(op3, e1, e2, e3)=> E.Op3(op3, rewrite e1, rewrite e2, rewrite e3)
                     (************** composition **************)
                  | E.OField(ofld, e, alpha)      => E.OField(ofld, rewrite e, alpha)
-                 | E.Comp(E.If(comp, e3, e4), es)     =>
+                 | E.Comp(E.If(comp, e3, e4), es) =>
                     let
                         (* field operation need to be pushed to leaves *)
                         val inner3 = E.Comp(e3, es)
                         val inner4 = E.Comp(e4, es)
                         val exp  = E.If(comp, inner3, inner4)
                         in(ST.tick cntProbe; exp) end
-                 | E.Comp(E.Comp(a, es1), es2)   =>  (ST.tick cntProbe; rewrite (E.Comp(a, es1@es2)))
-                 | E.Comp(a, (E.Comp(b, es1), m)::es2) =>  (ST.tick cntProbe; rewrite (E.Comp(a, ((b,m)::es1)@es2)))
+                 | E.Comp(E.Comp(a, es1), es2) => (ST.tick cntProbe; rewrite (E.Comp(a, es1@es2)))
+                 | E.Comp(a, (E.Comp(b, es1), m)::es2) =>  (ST.tick cntProbe; rewrite (E.Comp(a, ((b, m)::es1)@es2)))
                  | E.Comp(e1, es)                  =>
                     let
                     val e1' = rewrite e1
@@ -287,21 +280,21 @@ structure NormalizeEin : sig
                                     else if(a= (~1*b))
                                         then  (ST.tick cntDivDiv; rewrite (E.Op2(E.Div, checkProd ((E.Const ~1)::e1), checkProd e2)))
                                    else rewrite (E.Op2(E.Div, eN, eD))
-                            | (E.Opn(E.Prod, [e1, E.Op2(E.Div, e2,e3)]), _)
+                            | (E.Opn(E.Prod, [e1, E.Op2(E.Div, e2, e3)]), _)
                                 =>
-                                (ST.tick cntDivDiv; rewrite(E.Op2(E.Div, E.Opn(E.Prod,[e1, e2]),  E.Opn(E.Prod,[e3, eD]))))
+                                (ST.tick cntDivDiv; rewrite(E.Op2(E.Div, E.Opn(E.Prod, [e1, e2]),  E.Opn(E.Prod, [e3, eD]))))
                             | _ => E.Op2(E.Div, eN, eD)
                             (*end case*))
                         end
                 | E.Op2(op2, e1, e2) =>  E.Op2(op2, rewrite e1, rewrite e2)
                 (************* Algebraic Rewrites Opn **************)
                 (* added new rewrite here*)
-                | E.Opn(E.Add, [e1,e2])  =>
-                    if(EinUtil.sameExp(e1,e2))
+                | E.Opn(E.Add, [e1, e2])  =>
+                    if(EinUtil.sameExp(e1, e2))
                     then (ST.tick cntAddRewrite; E.Opn(E.Prod, [E.Const 2, e1]))
                     else
                         let
-                        val es' = List.map rewrite [e1,e2]
+                        val es' = List.map rewrite [e1, e2]
                         in
                         case EinFilter.mkAdd es'
                             of SOME body' => (ST.tick cntAddRewrite; body')
@@ -324,15 +317,15 @@ structure NormalizeEin : sig
                         then (ST.tick cntSqrtElim; s1)
                         else filterProd [rewrite e1, rewrite e2]
                 (************* Product EPS **************)
-                  | E.Opn(E.Prod, (eps1 as E.Epsilon(i,j,k))::ps) => (case ps
+                  | E.Opn(E.Prod, (eps1 as E.Epsilon(i, j, k))::ps) => (case ps
                        of ((p1 as E.Apply(E.Partial (d as (_::_::_)), e)) :: es) => (
-                            case (EpsUtil.matchEps ([i,j,k], d), es)
+                            case (EpsUtil.matchEps ([i, j, k], d), es)
                              of (true, _) => (ST.tick cntEpsElim; zero)
                               | (_, []) => mkProd[eps1, rewrite p1]
                               | _ => filterProd [eps1, rewrite (mkProd (p1 :: es))]
                             (* end case *))
                         | ((p1 as E.Conv(_, _, _, (d as (_::_::_)))) :: es) => (
-                            case (EpsUtil.matchEps ([i,j,k], d), es)
+                            case (EpsUtil.matchEps ([i, j, k], d), es)
                              of (true, _) => (ST.tick cntEpsElim; E.Lift zero)
                               | (_, []) => mkProd[eps1, p1]
                               | _ => (case rewrite (mkProd(p1 :: es))
@@ -395,18 +388,18 @@ structure NormalizeEin : sig
 
 
 
-            | E.Opn(E.Prod, [E.Op2(E.Div, E.Const 1,e2), E.Op2(E.Div,E.Const 1 ,e4), e5]) =>
+            | E.Opn(E.Prod, [E.Op2(E.Div, E.Const 1, e2), E.Op2(E.Div, E.Const 1 , e4), e5]) =>
                     (ST.tick cntDivElim;rewrite(E.Op2(E.Div, rewrite e5, rewrite (E.Opn(E.Prod, [rewrite e2, rewrite e4])))))
 
             | E.Opn(E.Prod, E.Const a::E.Const b::es)=>  (ST.tick cntDivElim; E.Opn(E.Prod, E.Const (a*b)::es))
 
-            | E.Opn(E.Prod, [E.Op2(E.Div, e1,e2), E.Op2(E.Div,e3,e4)]) =>
+            | E.Opn(E.Prod, [E.Op2(E.Div, e1, e2), E.Op2(E.Div, e3, e4)]) =>
                         let
                 val e1' = rewrite e1
                 val e2' =rewrite e2
                 val e3' = rewrite e3
                 val e4' =rewrite e4
-                val e = E.Op2(E.Div, E.Opn(E.Prod,  [e1',e3']), E.Opn(E.Prod, [ e2', e4']))
+                val e = E.Op2(E.Div, E.Opn(E.Prod,  [e1', e3']), E.Opn(E.Prod, [ e2', e4']))
                 val e' = rewrite e
                         in
                             (ST.tick cntReduceDelta;e')
@@ -415,19 +408,19 @@ structure NormalizeEin : sig
 
 
 
-                  | E.Opn(E.Prod, [e1,e2]) => filterProd [rewrite e1, rewrite e2]
+                  | E.Opn(E.Prod, [e1, e2]) => filterProd [rewrite e1, rewrite e2]
                   | E.Opn(E.Prod, e1::es) => let
                       val e' = rewrite e1
                       val e2 = rewrite (mkProd es)
                       in
                         case e2
                          of E.Opn(Prod, p') => filterProd (e' :: p')
-                          | _ => filterProd [e',e2]
+                          | _ => filterProd [e', e2]
                         (* end case *)
                       end
                   | E.Opn(opn, es) => E.Opn(opn, List.map rewrite es)
-                  | E.If(E.GT(e1,e2), e3, e4) => E.If(E.GT(rewrite e1, rewrite e2), rewrite e3, rewrite e4)
-                  | E.If(E.LT(e1,e2), e3, e4) => E.If(E.LT(rewrite e1, rewrite e2), rewrite e3, rewrite e4)
+                  | E.If(E.GT(e1, e2), e3, e4) => E.If(E.GT(rewrite e1, rewrite e2), rewrite e3, rewrite e4)
+                  | E.If(E.LT(e1, e2), e3, e4) => E.If(E.LT(rewrite e1, rewrite e2), rewrite e3, rewrite e4)
                 | E.If(E.Bool e1, e3, e4) => E.If(E.Bool e1, rewrite e3, rewrite e4)
                 |  _ =>  raise Fail "unhandled"
 
@@ -439,7 +432,7 @@ structure NormalizeEin : sig
           fun loop (body, total, changed) = let
                 val body' = rewrite body
                 (* DEBUG
-                val _ =print(String.concat["\n\n normalize ==> X:", EinPP.expToString(body),"\n\t ==> Y:", EinPP.expToString(body')])
+                val _ =print(String.concat["\n\n normalize ==> X:", EinPP.expToString(body), "\n\t ==> Y:", EinPP.expToString(body')])
 *)
 
 

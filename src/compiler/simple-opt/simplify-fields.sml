@@ -103,7 +103,7 @@ fun ppExp (e) = let
         | S.E_InsideImage(pos, img, s) => concat[ "insideImage(", var pos, ",", var img,
         ",", (Int.toString s), ")"]
         | S.E_FieldFn f =>  "field function"
-
+        | S.E_CondField (x, e1, e2, ty) => concat["conditional(", var x, ") then", pp e1, "else", pp e2]
         (* end case *))
     in
         pp e
@@ -225,6 +225,8 @@ then (print "\nconvert f";NONE)
               | S.E_InsideImage _ => raise Fail "premature InsideImage"
               (* QUESTION: is this a valid way to handle field functions? *)
               | S.E_FieldFn f => (bindImages(lhs, VMap.empty); NONE)
+              | S.E_CondField (x, e1, e2, ty) => doAssign (lhs, e1)
+              (*Fixme *)
             (* end case *)
           end
 

@@ -301,11 +301,34 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
                 env
               end
           end
-	fun gather(IR.ND{kind,...}) = 
-		(case kind 
-			of IR.ASSIGN{stm,pred,...} => (IR.ASSGN stm)::gather(!pred)
+	fun gather(node as IR.ND{kind,...}) = let
+
+	    fun iter [] = []
+         | iter (e1::es) = gather(e1)@iter(es)
+		in (case kind 
+			of IR.ASSIGN{stm,pred,...} =>  
+			    let 
+			    	val _ = print(concat["\nassign:", IR.Node.toString(!pred)])
+			        val rtn =  (*(IR.ASSGN stm)::*)gather(!pred) 
+			        val _ = print(concat["\n end assign:"])
+			        in rtn end
 			|  IR.ENTRY _    => []
-		(* end case*))
+			| IR.COND{pred, cond, trueBranch, falseBranch} => 
+			    let
+			        val _ = print(concat["\npred:", IR.Node.toString(!pred), "\n\ttrueBranch kind: ", IR.Node.toString(!trueBranch),"\n\tfalseBranch:", IR.Node.toString(!falseBranch)])   
+			        val rtn = gather(!pred) (*@gather(!trueBranch)@gather(!falseBranch)*)
+                    val _ = print(concat["\n end pred:"])
+                    in rtn end 
+            | IR.JOIN {preds, succ, ...} =>  (*iter (!preds) *)
+             let
+                val _ = print(concat["\n join :", String.concatWith "," (List. map IR.Node.toString (!preds))])
+                val rtn = iter (!preds)
+                val _ = print(concat["\n end join:"])
+                in rtn  end
+            | IR.EXIT{kind=ExitKind.RETURN _, ...}  => []
+            | _ => raise Fail ("uncovered node kind: "^IR.Node.toString(node))
+		    (* end case*))
+		end 
     fun tensorSize v = (case IR.Var.ty(v)
 		of DstTy.TensorTy alpha => alpha
 		| _ => raise Fail "Type is a not a tensor"
@@ -490,9 +513,12 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
             				of (IR.ASSIGN{stm as (lhs_comp, _),...},_) =>  lhs_comp
             				| (IR.ENTRY _, [lhs_comp])	  => lhs_comp
             				| (IR.FOREACH _, _) => raise Fail ("uncovered node kind: "^IR.Node.toString(!pred))
+            				| (IR.COND{pred, cond, trueBranch, falseBranch}, [lhs_comp]) =>lhs_comp        
+            				| (IR.JOIN _, [lhs_comp]) =>lhs_comp  
             				| _ => raise Fail ("uncovered node kind: "^IR.Node.toString(!pred))
             			(* end case*)) 
-            		(*get all the statements used in the function body *)      			
+            		(*get all the statements used in the function body *) 
+            		val _ = print "Starting gather *****"     			
             		val stmt_comp = List.rev(gather (!pred))    	  	
             		(*analyze parameters*)	              	
 					val lhs_PF = paramsF

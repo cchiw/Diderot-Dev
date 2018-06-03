@@ -188,11 +188,12 @@ fun ll ([],cnt) = ""
                   | E.Conv(v, mx, h, ux) => E.Conv(mapId(v, origId, 0), mx, mapId(h, origId, 0), ux)
                   | E.Apply(e1, e2) => E.Apply(apply (e1, shape), apply  (e2, shape))
                   | E.Probe(f, pos, ty) => E.Probe(apply (f, shape), List.map (fn e1=> apply(e1, shape)) pos,ty)
-                  | E.Comp(e1, es) => let
+                  | E.Comp(e1, es) => 
+                    let
                         val fouter = apply(e1, shape)
-                        val es' = List.map (fn(e2,n2)=> (insideComp:=true; (apply (e2,n2),n2))) es
+                        val es' = List.map (fn (e2, n2) => (insideComp:=true; (apply (e2, n2), n2))) es
                         in
-                        (insideComp := true;E.Comp(fouter, es'))
+                          (insideComp:= true; E.Comp(fouter, es'))
                         end
                   | E.OField(E.CFExp es, e2, E.Partial alpha) => let
                         val ps = List.map (fn (id, inputTy) => (mapId(id, origId, 0), inputTy)) es

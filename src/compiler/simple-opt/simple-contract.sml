@@ -137,6 +137,7 @@ structure SimpleContract : sig
                   | S.E_LoadImage _ => ()
                   | S.E_InsideImage(pos, img, _) => (markUsed pos; markUsed img)
                   | S.E_FieldFn _ => ()
+                  | S.E_CondField (v, e1, e2, _) => (markUsed v; analyzeExp e1; analyzeExp e2)
                 (* end case *))
           in
             analyzeBlk blk

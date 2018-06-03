@@ -66,11 +66,12 @@ structure EinPP : sig
             | E.Probe(e1,  e2, NONE) => concat ["Probe(fld:", expToString e1, ",pos:", String.concatWithMap " ," expToString e2, ")"]
             | E.Probe(e1,  e2, SOME (opn,n)) => 
             		concat ["Reduce(",opnToString opn, i2s n,") Probe(fld:", expToString e1, ",{pos}:", String.concatWithMap " ," expToString e2, ")"]
-            | E.Comp(e1, es) => let
-                fun iter ([]) = ""
-                | iter ((e2, n1)::es) =
-                concat ["[", expToString e2, concat ["{", shp2s n1, "}"], "]", iter(es)]
-                in concat ["Cmp(", expToString e1,")", (iter(es))] end
+            | E.Comp(e1, es) => 
+                let
+                  fun f(e2, n1) = concat ["[", expToString e2, "{", shp2s n1, "}", "]"]
+                in 
+                  concat ["Cmp(", expToString e1,")", String.concatWithMap ", " f es] 
+                end
             | E.OField(E.CFExp es, e1,  E.Partial [])
                 => concat ["CFExp[Tids:", String.concatWithMap " ," ti2s  es, "](exp:",expToString e1,")"]
             | E.OField(E.CFExp(es), e1,  E.Partial alpha)

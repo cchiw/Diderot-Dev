@@ -126,6 +126,7 @@
 <INITIAL> "⋅"           => (T.OP_dot);          (* u22c5 *)
 <INITIAL> "×"           => (T.OP_cross);        (* u00d7 *)
 <INITIAL> "⊗"           => (T.OP_outer);        (* u2297 *)
+<INITIAL> "∘"           => (T.OP_comp);
 <INITIAL> "("           => (T.LP);
 <INITIAL> ")"           => (T.RP);
 <INITIAL> "["           => (T.LB);
