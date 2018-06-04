@@ -1200,12 +1200,14 @@ structure MkOperators : sig
           
     fun condField(dim, alpha) = let
          val expindex = specialize(alpha, 0)
-          in
+         val ein = 
           E.EIN{
             params = [mkNoSubstTEN [dim], E.FLD (dim, alpha), E.FLD (dim, alpha)], 
             index = alpha, 
             body = E.If(E.Bool 0, E.Field(1, expindex) , E.Field(2, expindex))
           }
+          val _ = print(String.concat["\nein cond:", EinPP.toString(ein)])
+         in ein 
           end
 
   (* * * * * * * * * * * * * * * * * * * * * * * * * * * * * derivative * * * * * * * * * * * * * * * * * * * * * * * * * * * *)

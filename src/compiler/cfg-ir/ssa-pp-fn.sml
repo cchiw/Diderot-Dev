@@ -220,6 +220,13 @@ List.map IR.Node.toString preds)
             ]);
           ppCFG (incIndent out, body);
           prl (out, ["}\n"]))
+    | ppFunc out (IR.FuncP{name, paramsF, paramsT, body}) = (
+          prl (out, [
+              "  function ", Ty.toString(#1(IR.Func.ty name)), " ", IR.Func.toString name,
+              " (", String.concatWithMap ", " typedVar paramsF, ") {\n"
+            ]);
+          ppCFG (incIndent out, body);
+          prl (out, ["}\n"]))
 
     fun ppMethod (out, name) body = let
           val out1 = incIndent out

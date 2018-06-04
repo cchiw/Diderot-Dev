@@ -115,6 +115,7 @@ structure SimplePP : sig
                       string "insideImage("; var pos; string ","; var img;
                       string ","; string(Int.toString s); string ")")
                   | S.E_FieldFn f => (string "field_fn("; ppFunc (ppStrm, f); string ")")
+                  | S.E_CondField (v, e1, e2, ty) => (string "conditional(";var v; string ") then ";pp e1; " else ";pp e2)
                 (* end case *))
           in
             pp e
@@ -272,6 +273,24 @@ structure SimplePP : sig
             ppBlock (ppStrm, [], body);
             nl()
           end
+        | ppFuncDef ppStrm (S.FuncP{f, paramsF, paramsT, body}) = let
+          fun sp () = PP.space ppStrm 1
+          fun nl () = PP.newline ppStrm
+          val string = PP.string ppStrm
+          fun var x = ppVar (ppStrm, x)
+          in
+            PP.openHBox ppStrm;
+             if SimpleFunc.isDifferentiable f then (string "field"; sp()) else ();
+              string "function"; sp();
+              string(Ty.toString(SimpleFunc.resultTypeOf f));
+              string("#" ^ Int.toString(SimpleFunc.useCount f));
+              sp(); ppFunc(ppStrm, f); sp(); ppParams (ppStrm, paramsF);
+            PP.closeBox ppStrm;
+            nl();
+            ppBlock (ppStrm, [], body);
+            nl()
+          end
+
 
     fun ppStrand (ppStrm, strand) = let
           val S.Strand{

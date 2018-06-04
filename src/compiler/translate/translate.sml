@@ -301,31 +301,90 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
                 env
               end
           end
+	fun gatherES(lhs_comp, node) = let
+	    fun gatherE( node as IR.ND{kind,...}) = let
+	
+	    fun iter [] = []
+         | iter (e1::es) = gatherE(e1)@iter(es)
+		in (case kind 
+			of IR.ASSIGN{stm,pred,succ} =>  
+			    let 
+			    	val _ = print(concat["\nassign stm\n\tstm:", IR.assignmentToString((IR.ASSGN stm)), "\n\tpred:",IR.Node.toString(!pred),"\n\tsucc:",IR.Node.toString(!succ)])
+			        val rtn = (IR.ASSGN stm)::gatherE(!succ)
+			        val _ = print(concat["\n end assign:"])
+			        in rtn end
+			|  IR.ENTRY {succ,...}    => gatherE(!succ)
+			| IR.COND{pred, cond, trueBranch, falseBranch} => 
+			    let
+			        val _ = print(concat["\npred:", IR.Node.toString(!pred), "\n\ttrueBranch kind: ", IR.Node.toString(!trueBranch),"\n\tfalseBranch:", IR.Node.toString(!falseBranch)])   
+			        val rtn = iter([!trueBranch, !falseBranch])
+			        
+			        val IR.ND{kind,...} = !pred
+			        val IR.ASSIGN{stm as (lhs, rhs),pred,succ} = kind
+			           val lhs  = !cond   
+			        val dim = 2
+			        val alpha = []
+			        val args= []
+			        val ein = MkOperators.condField(dim, alpha)
+
+			        val A = IR.ASSGN(lhs, IR.EINAPP(ein, args))
+                    val _ = print(concat["\n end pred:"])
+                    in A::rtn end 
+            | IR.JOIN {preds, succ, ...} =>  
+             let
+                val _ = print(concat["\n join \n\t   pred :", String.concatWith "," (List. map IR.Node.toString (!preds))])
+                val _ = print(concat["\n \t succ :", IR.Node.toString(!succ)])
+                
+                in gatherE(!succ) end
+            | IR.EXIT{kind=ExitKind.RETURN _, pred, succ}  => 
+                let
+            	    val _ = print(concat["\nexit pred:",IR.Node.toString(!pred)])
+            	
+			        val _ = print(concat["\n end exit"])
+			        in [] end		
+            | _ => raise Fail ("uncovered node kind: "^IR.Node.toString(node))
+		    (* end case*))
+		end 
+	    in gatherE node end 
 	fun gather(node as IR.ND{kind,...}) = let
 
 	    fun iter [] = []
          | iter (e1::es) = gather(e1)@iter(es)
 		in (case kind 
-			of IR.ASSIGN{stm,pred,...} =>  
+			of IR.ASSIGN{stm,pred,succ} =>  
 			    let 
-			    	val _ = print(concat["\nassign:", IR.Node.toString(!pred)])
-			        val rtn =  (*(IR.ASSGN stm)::*)gather(!pred) 
+			    	val _ = print(concat["\nassign stm\n\tstm:", IR.assignmentToString((IR.ASSGN stm)), "\n\tpred:",IR.Node.toString(!pred),"\n\tsucc:",IR.Node.toString(!succ)])
+			        (*val rtn = ([IR.ASSGN stm])::gather(!pred) *)
+			        val rtn = (IR.ASSGN stm)::gather(!pred) 
 			        val _ = print(concat["\n end assign:"])
 			        in rtn end
 			|  IR.ENTRY _    => []
 			| IR.COND{pred, cond, trueBranch, falseBranch} => 
 			    let
-			        val _ = print(concat["\npred:", IR.Node.toString(!pred), "\n\ttrueBranch kind: ", IR.Node.toString(!trueBranch),"\n\tfalseBranch:", IR.Node.toString(!falseBranch)])   
-			        val rtn = gather(!pred) (*@gather(!trueBranch)@gather(!falseBranch)*)
+			        val _ = print(concat["\n condition pred:", IR.Node.toString(!pred), "\n\ttrueBranch kind: ", IR.Node.toString(!trueBranch),"\n\tfalseBranch:", IR.Node.toString(!falseBranch)])   
+			       
+			        val rtn = iter([!trueBranch, !falseBranch])
                     val _ = print(concat["\n end pred:"])
                     in rtn end 
-            | IR.JOIN {preds, succ, ...} =>  (*iter (!preds) *)
+            | IR.JOIN {preds, succ, ...} =>  
              let
-                val _ = print(concat["\n join :", String.concatWith "," (List. map IR.Node.toString (!preds))])
-                val rtn = iter (!preds)
+                val _ = print(concat["\n join \n\t   pred :", String.concatWith "," (List. map IR.Node.toString (!preds))])
+                val _ = print(concat["\n \t succ :", IR.Node.toString(!succ)])
+                
+                val [A,B] =  (!preds)
+                val  IR.ND{kind,...} = A
+                val IR.ASSIGN{stm,pred,succ} = kind
+                val _ = print(concat["\ninside join assign stm\n\tstm:", IR.assignmentToString((IR.ASSGN stm)), "\n\tpred:",IR.Node.toString(!pred),"\n\tsucc:",IR.Node.toString(!succ)])
+                 val rtn = [(IR.ASSGN stm)]
+			        val _ = print(concat["\n end inside join assign:"])
                 val _ = print(concat["\n end join:"])
                 in rtn  end
-            | IR.EXIT{kind=ExitKind.RETURN _, ...}  => []
+            | IR.EXIT{kind=ExitKind.RETURN _, pred, succ}  => 
+                    let
+            	val _ = print(concat["\nexit pred:",IR.Node.toString(!pred)])
+            	 val rtn = iter([!pred]) 
+			        val _ = print(concat["\n end exit"])
+			        in rtn end	
             | _ => raise Fail ("uncovered node kind: "^IR.Node.toString(node))
 		    (* end case*))
 		end 
@@ -503,23 +562,29 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
             		 (*function body _comp*)
             		val IR.FuncP{paramsF, body, paramsT,...} = getFieldFnDef f        	
 					(*Decompose function body *)
-					val IR.CFG{entry, exit} = body 					
+					val IR.CFG{entry, exit} = body 	
+					
+	  	  
+									
             		(*get computation inside field definition  _comp*)
             		val IR.ND{kind as IR.EXIT {pred, ...}, ...}  = exit         		
-					val IR.ND{kind, ...} = !pred
             		(*get last variable name used*) 
-					val lhs_comp =
-						(case (kind, paramsF)
-            				of (IR.ASSIGN{stm as (lhs_comp, _),...},_) =>  lhs_comp
-            				| (IR.ENTRY _, [lhs_comp])	  => lhs_comp
-            				| (IR.FOREACH _, _) => raise Fail ("uncovered node kind: "^IR.Node.toString(!pred))
-            				| (IR.COND{pred, cond, trueBranch, falseBranch}, [lhs_comp]) =>lhs_comp        
-            				| (IR.JOIN _, [lhs_comp]) =>lhs_comp  
-            				| _ => raise Fail ("uncovered node kind: "^IR.Node.toString(!pred))
-            			(* end case*)) 
+            		fun get_last_var (nd as IR.ND{kind, ...}) =
+            		    (case (kind, paramsF)
+            		        of (IR.ASSIGN{stm as (lhs_comp, _),...},_) =>  lhs_comp
+            		        | (IR.EXIT {pred, succ, kind as ExitKind.RETURN(SOME x)},_) =>  x
+            		        | (IR.ENTRY _, [lhs_comp])	  => lhs_comp
+            		        | (IR.JOIN {...}, [lhs_comp]) => lhs_comp
+            		        | _ => raise Fail ("uncovered node kind: "^IR.Node.toString(nd))
+            			(* end case*))             
+					val lhs_comp =  get_last_var(!pred)
+				
             		(*get all the statements used in the function body *) 
-            		val _ = print "Starting gather *****"     			
-            		val stmt_comp = List.rev(gather (!pred))    	  	
+            		val _ = print (concat["lhs_comp:", IR.Var.toString(lhs_comp)])
+            		val _ = print "\nentry"
+            		val stmt_compA = gatherES (lhs_comp, entry)     	
+            		  		val _ = print "\n pred"		
+            		val stmt_compB = List.rev(gather (!pred))    	  	
             		(*analyze parameters*)	              	
 					val lhs_PF = paramsF
 					val lhs_PT = paramsT
@@ -548,9 +613,11 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
 					val ein = IR.EINAPP(rator,args)
 				
 					val _ = List.map (fn v =>print("-"^IR.Var.toString(v))) args 
-       
-                in
-                	 stmt_allP@ stmt_comp@[IR.ASSGN(lhs, ein)]
+                    val stmts = stmt_allP@ stmt_compA@[IR.ASSGN(lhs, ein)]
+                    val _ = List.map (fn s =>print("\nA-"^IR.assignmentToString(s))) stmt_compA
+                    val _ = List.map (fn s =>print("\nB-"^IR.assignmentToString(s))) stmt_compB
+                    val _ = List.map (fn s =>print("\nC-"^IR.assignmentToString(s))) stmts
+                in stmts 
                 end
           (* end case *))
 
