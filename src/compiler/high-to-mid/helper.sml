@@ -52,10 +52,10 @@ structure Helper : sig
       | paramToString (i, E.SEQ (n, shp)) =    concat["Sequence[", i2s n, "]{", shp2s shp , "]"]
      fun prntNewbies(newbies, id) = let 
         val _ = (id)
-        in  List.map (fn (lhs, DstIR.EINAPP(e, a)) => (concat["\n\n ->:", MidTypes.toString(DstIR.Var.ty lhs), " ", DstIR.Var.name(lhs), " = ", EinPP.toString(e) , "-", ll(a, 0), "---->"])
-		            | (lhs, rhs) => (concat["\n\n -->:", DstIR.Var.name(lhs), " = ", DstIR.RHS.toString rhs])
+        val _ =   List.map (fn (lhs, DstIR.EINAPP(e, a)) => print(concat["\n\n ->:", MidTypes.toString(DstIR.Var.ty lhs), " ", DstIR.Var.name(lhs), " = ", EinPP.toString(e) , "-", ll(a, 0), "---->"])
+		     | (lhs, rhs) =>print (concat["\n\n -->:", DstIR.Var.name(lhs), " = ", DstIR.RHS.toString rhs])
             ) newbies
-        end
+        in [] end
      fun line(name, y, ein, args) = String.concat[name, ":", MidIR.Var.name(y), " = ", EinPP.toString(ein), "-", ll(args, 0)]
      fun toStringBA(name, e, args) = (String.concat["\n\n", name, ": body:", EinPP.expToString(e), " args#:", Int.toString(length(args)), "\n\n"])
 	 (* ------------------------------------ get RHS --------------------------------------------  *)
