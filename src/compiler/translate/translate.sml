@@ -320,27 +320,25 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
 	    *)
 	    fun gatherE(node as IR.ND{kind,...}) = 
 	        (case kind 
-                of IR.ASSIGN{stm,pred,succ} =>  
+                of IR.ASSIGN{stm as (lhs, _),pred,succ} =>  
                     let 
                         val (v,rtn) = gatherE(!succ)
-                        in (v, (IR.ASSGN stm)::rtn) end
+                        in (v,(IR.ASSGN stm)::rtn) end
                 | IR.ENTRY {succ,...}    => gatherE(!succ)
                 | IR.JOIN {preds, succ, ...} => gatherE(!succ)
                 | IR.EXIT{kind=ExitKind.RETURN (SOME v), pred, succ}  => (SOME(v),[])
                 | IR.COND{pred, cond, trueBranch, falseBranch} => 
-                    let                       
-                        fun handleBranch(node as IR.ND{kind,...}) = 
-                            (case kind
-                                of IR.ASSIGN{stm as (lhs, _),succ,...} => 
-                                    (case gatherE(!succ)
-                                        of (SOME(vExit), rtn) => (lhs, vExit, (IR.ASSGN stm)::rtn)
-                                        | _ => raise Fail (concat["uncovered node kind: ", IR.Node.toString(node)])
-                                    (* end case *))
+                    let                                          
+                        fun handleBranch node =  
+                            let 
+                                val (vExit, rtn) = gatherE (node)  
+                            in (case (vExit,List.hd(List.rev(rtn)))
+                                of ( SOME vExit, IR.ASSGN(lhs, _)) => (lhs, vExit, rtn) 
                                 | _ => raise Fail (concat["uncovered node kind: ", IR.Node.toString(node)])
-                            (* end case*))
-                        
-                        val (vBindT, vExitT, rtnT) = handleBranch(!trueBranch)
-                        val (vBindF, vExitF, rtnF) = handleBranch (!falseBranch)	
+                                 (*end case*))
+                            end 
+                        val (vT, vExitT, rtnT) = handleBranch (!trueBranch)                                                                      
+                        val (vF, vExitF, rtnF) = handleBranch (!falseBranch)	
                         val lhs_comp = 
                             if(IR.Var.same(vExitT,vExitF)) 
                             then vExitT
@@ -348,7 +346,7 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
                         (*val HighTypes.FieldTy{diff, shape, dim} = IR.Var.ty lhs_comp*)
                         val dim = 2
                         val alpha = []
-                        val args= [!cond, vBindT, vBindF] 
+                        val args= [!cond, vT, vF] 
                         val ein = MkOperators.condField(dim, alpha)
                         val A = IR.ASSGN(lhs_comp, IR.EINAPP(ein, args))
                         in (NONE, rtnT@rtnF@[A]) end  
@@ -511,12 +509,13 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
                     val ve2 = IR.Var.new ("e2", cvtTy(ty))
                     val ve3 = IR.Var.new ("e3", cvtTy(ty))
                     val args = [ve1,ve2,ve3]
-                    val _ = print "Mark A"
-                    val s1 = cvtExp (env, ve1,S.E_Var e1)
+                
                      val _ = print "Mark B"
                     val s2 = cvtExp (env, ve2,e2)
                      val _ = print "Mark C"
                     val s3 = cvtExp (env, ve3,e3)
+                        val _ = print "Mark A"
+                    val s1 = cvtExp (env, ve1, S.E_Var e1)
                     val rator  = MkOperators.condField(dim,shape)
                     val ein = IR.EINAPP(rator,args)
                 in

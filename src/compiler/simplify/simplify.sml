@@ -531,8 +531,8 @@ structure V = SimpleVar
                   end
               | AST.E_CondField(e1, e2, e3, ty) => let
                  val (stms, x) = simplifyExpToVar (cxt, e1, stms)
-val (stms, e2') = simplifyExp (cxt, e2, [])
-val (stms, e3') = simplifyExp (cxt, e3, [])
+                 val (stms, e2') = simplifyExp (cxt, e2, [])
+                 val (stms, e3') = simplifyExp (cxt, e3, [])
                 in
                     (stms, S.E_CondField(x, e2',e3', cvtTy ty))
                 end

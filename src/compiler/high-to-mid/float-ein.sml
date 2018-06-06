@@ -311,7 +311,7 @@ structure FloatEin : sig
                 val ([e3', e4'], params', args') =
                         filterOps ([e3', e4'], params', args', index, sx)
                 val comp' = E.Bool id
-                val ([e3',e4'], params, args) = filterOps ([e3', e4'], params', args, index, sx)
+ 
                 in
                     (E.If(comp', e3', e4'), params', args')
                 end
