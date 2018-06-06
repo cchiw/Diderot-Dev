@@ -117,7 +117,7 @@ structure Simple =
                                                  * the maximum support of the image.
                                                  *)
       | E_InsideFEM of var * var
-      | E_CondField of var * exp * exp * ty
+      | E_CondField of var * var * var * ty
       | E_FieldFn of func 
 
     fun typeOf (E_Var x) = SimpleVar.typeOf x

@@ -103,7 +103,7 @@ fun ppExp (e) = let
         | S.E_InsideImage(pos, img, s) => concat[ "insideImage(", var pos, ",", var img,
         ",", (Int.toString s), ")"]
         | S.E_FieldFn f =>  "field function"
-        | S.E_CondField (x, e1, e2, ty) => concat["conditional(", var x, ") then", pp e1, "else", pp e2]
+        | S.E_CondField (x, e1, e2, ty) => concat["conditional(", var x, ") then ", var e1, "else ", var e2]
         (* end case *))
     in
         pp e

@@ -504,18 +504,13 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
                 end
             | S.E_CondField(e1,e2,e3,ty as Ty.T_Field{diff, dim, shape}) =>
                 let
-                    val _ = print"\n\n found condition field simple"
                     val ve1 = IR.Var.new ("e1", HighTypes.BoolTy)
                     val ve2 = IR.Var.new ("e2", cvtTy(ty))
                     val ve3 = IR.Var.new ("e3", cvtTy(ty))
                     val args = [ve1,ve2,ve3]
-                
-                     val _ = print "Mark B"
-                    val s2 = cvtExp (env, ve2,e2)
-                     val _ = print "Mark C"
-                    val s3 = cvtExp (env, ve3,e3)
-                        val _ = print "Mark A"
-                    val s1 = cvtExp (env, ve1, S.E_Var e1)
+                    val s1 = cvtExp (env, ve1, S.E_Var (e1))
+                    val s2 =  cvtExp (env, ve2, S.E_Var (e2))
+                    val s3 = cvtExp (env, ve3, S.E_Var (e3))
                     val rator  = MkOperators.condField(dim,shape)
                     val ein = IR.EINAPP(rator,args)
                 in

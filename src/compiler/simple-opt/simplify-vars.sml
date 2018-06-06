@@ -86,7 +86,8 @@ structure SimplifyVars : sig
                   | S.E_LoadImage _ => ()
                   | S.E_InsideImage(pos, img, _) => (chkVar bvs pos; chkVar bvs img)
                   | S.E_FieldFn _ => ()
-                  | S.E_CondField (x, e1, e2, ty) => (analyzeExp (e1, VSet.empty); analyzeExp (e2, VSet.empty); chkVar bvs x)
+                  | S.E_CondField (x, e1, e2, ty) => ()
+                    (*(analyzeExp (e1, VSet.empty); analyzeExp (e2, VSet.empty); chkVar bvs x)*)
                 (* end case *))
           in
             fn blk => analyzeBlk (blk, VSet.empty)
@@ -249,7 +250,7 @@ structure SimplifyVars : sig
                   | S.E_LoadImage _ => exp
                   | S.E_InsideImage(pos, img, s) => S.E_InsideImage(rename pos, rename img, s)
                   | S.E_FieldFn _ => exp
-                  | S.E_CondField (x, e1, e2, ty) => S.E_CondField (rename x, renameExp e1, renameExp e2, ty)
+                  | S.E_CondField (x, e1, e2, ty) => S.E_CondField (rename x, rename e1, rename e2, ty)
                 (* end case *))
           in
             renameBlk

@@ -115,7 +115,7 @@ structure SimplePP : sig
                       string "insideImage("; var pos; string ","; var img;
                       string ","; string(Int.toString s); string ")")
                   | S.E_FieldFn f => (string "field_fn("; ppFunc (ppStrm, f); string ")")
-                  | S.E_CondField (v, e1, e2, ty) => (string "conditional(";var v; string ") then ";pp e1; " else ";pp e2)
+                  | S.E_CondField (v, e1, e2, ty) => (string "conditional(";var v; string ") then ";var e1; " else ";var e2)
                 (* end case *))
           in
             pp e

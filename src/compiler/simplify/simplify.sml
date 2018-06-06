@@ -530,36 +530,45 @@ structure V = SimpleVar
                     (stms, S.E_Slice(x, indices, cvtTy ty))
                   end
               | AST.E_CondField(e1, e2, e3, ty) => let
+              (*
                  val (stms, x) = simplifyExpToVar (cxt, e1, stms)
                  val (stms, e2') = simplifyExp (cxt, e2, [])
                  val (stms, e3') = simplifyExp (cxt, e3, [])
                 in
                     (stms, S.E_CondField(x, e2',e3', cvtTy ty))
-                end
+                end*)
+
+                  val result = newTemp(cvtTy ty)
+                  val (stms, x) = simplifyExpToVar (cxt, e1, S.S_Var(result, NONE) :: stms)
+                  fun simplifyBranch e = let
+                        val (stms, e) = simplifyExp (cxt, e, [])
+                        val result = newTemp(cvtTy ty)
+                        in
+                            (result, S.S_Assign(result, e)::stms)
+                        end
+                  val (v1, s1) = simplifyBranch e2
+                  val (v2, s2) = simplifyBranch e3
+                  val exp  = S.E_CondField(x, v1,v2, cvtTy ty)
+                 in
+                    (s1@s2@stms, exp)
+                  end
 
               | AST.E_Cond(e1, e2, e3, ty) => let
                 (* a conditional expression gets turned into an if-then-else statememt *)
                   val result = newTemp(cvtTy ty)
                   val (stms, x) = simplifyExpToVar (cxt, e1, S.S_Var(result, NONE) :: stms)
-                 
                   fun simplifyBranch e = let
                         val (stms, e) = simplifyExp (cxt, e, [])
                         (*val _ = print(concat["\n\t blk:",STy.toString(SimpleVar.typeOf result), SimpleVar.uniqueNameOf result,":",ppExp(e)])*)
                         in
                           mkBlock (S.S_Assign(result, e)::stms)
                         end
-                   
-
                   val s1 = simplifyBranch e2
-            
                   val s2 = simplifyBranch e3
-                   val exp  = S.S_IfThenElse(x, s1, s2)
-                 
-                    
-                          in
+                  val exp  = S.S_IfThenElse(x, s1, s2)
+                 in
                     (S.S_IfThenElse(x, s1, s2) :: stms, S.E_Var result)
                   end
-
               | AST.E_Orelse(e1, e2) => simplifyExp (
                   cxt,
                   AST.E_Cond(e1, AST.E_Lit(Literal.Bool true), e2, Ty.T_Bool),
