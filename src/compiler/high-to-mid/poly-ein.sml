@@ -56,7 +56,7 @@ structure PolyEin : sig
                     else 1
             (* replace polywrap args/params with probed position(s) args/params *)
             val e = getE body            
-            val (args, params, e) = P2.polyArgs(params, e, args,  SeqId, cfexp_ids, probe_ids)
+            val (args, params, e, rtn) = P2.polyArgs(params, e, args,  SeqId, cfexp_ids, probe_ids)
             val _ = (H.toStringBA("\n\n  Step 2 replace arguments", e, args))
             (* need to flatten before merging polynomials in product *)
             val e = P3.rewriteMerge(e)
@@ -65,7 +65,7 @@ structure PolyEin : sig
             val dx = getDx body  
             val e = P3.rewriteDifferentiate(E.Apply(E.Partial dx, e))
             val _ = ( H.toStringBA("\n\n  Step 4 differentiate ", e, args))
-         in (args, params, e) end 
+         in (args, params, e, rtn) end 
             
             
     (********************************** main *******************************)
@@ -85,7 +85,7 @@ structure PolyEin : sig
             		| NONE =>  (NONE, [])
             	(* end case *))
             val ein = Ein.EIN{body = body, index = index, params = params}
-            val (args, params, body)  = transform_Core (y, sx, ein, args, SeqId) 
+            val (args, params, body, rtn)  = transform_Core (y, sx, ein, args, SeqId) 
             (* Add summation wrapper back to ein expression *)
             val body = (case sx
             		of [] => body
@@ -105,7 +105,7 @@ structure PolyEin : sig
             val _ =  if(stg_poly) then ScanE.readIR_Single(newbie, "tmp-poly") else 1
              val _ = (String.concat["\n\n*******************\n"])
         in
-               [newbie]
+               rtn@[newbie]
         end
 
 

@@ -185,6 +185,7 @@ val differentiate: Ein.mu list * Ein.ein_exp -> Ein.ein_exp
                 val f' = differentiate(px, f)
                 val inv = E.Inverse(fnspace, f')
                 in  E.EvalFem (fnspace, [inv,f]) end
+            | E.Probe(e1, e2, ty)    => E.Const 0 
             | _    => raise Fail(EinPP.expToString(body))
         (* end case*))
         val _ = (String.concat["\n\ndiff:",EinPP.expToString(body),"\n\t-->",EinPP.expToString(body')])

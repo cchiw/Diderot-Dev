@@ -14,17 +14,19 @@ structure Helper : sig
 
     val getRHSEINSrc: HighIR.var -> string
     val getRHSEIN :  MidIR.var -> Ein.ein * MidIR.var list
+    val getRHSArgs : MidIR.var -> MidIR.var list
     val getRHSMesh :  MidIR.var -> MidOps.mesh
     val getRHSElement :  MidIR.var ->  MidOps.element
     val getRHSDegree :  MidIR.var ->  string
     val getRHSS :  MidIR.var ->  string
     val ll : MidIR.var list * int -> string
     val paramToString : int * Ein.param_kind -> string
-    val prntNewbies: (MidIR.var * MidIR.rhs) list * 'a -> string list
+    val prntNewbies: (MidIR.var * MidIR.rhs) list * string -> 'a list
     val toStringBA: string * Ein.ein_exp * MidIR.var list  -> string
     val line : string * MidIR.var * Ein.ein * MidIR.var list -> string
     val iterP: Ein.ein_exp list -> Ein.ein_exp
     val iterA: Ein.ein_exp list  -> Ein.ein_exp
+    val pullPosition: Ein.ein * MidIR.var list ->(MidIR.var * MidIR.rhs) list  * Ein.ein * MidIR.var list
     
   end = struct
 
@@ -52,23 +54,26 @@ structure Helper : sig
       | paramToString (i, E.SEQ (n, shp)) =    concat["Sequence[", i2s n, "]{", shp2s shp , "]"]
      fun prntNewbies(newbies, id) = let 
         val _ = (id)
-        val _ =   List.map (fn (lhs, DstIR.EINAPP(e, a)) => print(concat["\n\n ->:", MidTypes.toString(DstIR.Var.ty lhs), " ", DstIR.Var.name(lhs), " = ", EinPP.toString(e) , "-", ll(a, 0), "---->"])
-		     | (lhs, rhs) =>print (concat["\n\n -->:", DstIR.Var.name(lhs), " = ", DstIR.RHS.toString rhs])
+        val _ =   List.map (fn (lhs, DstIR.EINAPP(e, a)) => (concat["\n\n ->:", MidTypes.toString(DstIR.Var.ty lhs), " ", DstIR.Var.name(lhs), " = ", EinPP.toString(e) , "-", ll(a, 0), "---->"])
+		     | (lhs, rhs) => (concat["\n\n -->:", MidTypes.toString(DstIR.Var.ty lhs), DstIR.Var.name(lhs), " = ", DstIR.RHS.toString rhs])
             ) newbies
         in [] end
      fun line(name, y, ein, args) = String.concat[name, ":", MidIR.Var.name(y), " = ", EinPP.toString(ein), "-", ll(args, 0)]
      fun toStringBA(name, e, args) = (String.concat["\n\n", name, ": body:", EinPP.expToString(e), " args#:", Int.toString(length(args)), "\n\n"])
 	 (* ------------------------------------ get RHS --------------------------------------------  *)
     fun getRHSEINSrc x = (case SrcIR.Var.getDef x
-        of  SrcIR.EINAPP (ein, args) => ("ein-app")
-        | SrcIR.LIT l => (concat["\n\nSrcLIT expected LHS rhs operator for ", SrcIR.Var.toString x, " but found ", SrcIR.RHS.toString (SrcIR.LIT l)])
-        | SrcIR.OP l => (concat["\n\nsrcOP expected LHS rhs operator for ", SrcIR.Var.toString x, " but found ", SrcIR.RHS.toString (SrcIR.OP l)])
-        | SrcIR.CONS l => (concat["\n\nsrccons expected LHS rhs operator for ", SrcIR.Var.toString x, " but found ", SrcIR.RHS.toString (SrcIR.CONS l)])
-        | SrcIR.GLOBAL l => (concat["\n\nsrcglobal expected LHS rhs operator for ", SrcIR.Var.toString x, " but found ", SrcIR.RHS.toString (SrcIR.GLOBAL l)])
-        | rhs => (concat["\n\nsrcexpected rhs operator for ", SrcIR.Var.toString x, " but found ", SrcIR.RHS.toString rhs])
+        of rhs => (concat["\n\n lhs ", SrcIR.Var.toString x, " rhs ", SrcIR.RHS.toString rhs];"")
         (* end case *))
     fun getRHSEIN x = (case IR.Var.getDef x
         of  IR.EINAPP (ein, args) => (ein, args)
+        | IR.LIT l => raise Fail(concat["\n\nLIT expected LHS rhs operator for ", IR.Var.toString x, " but found ", IR.RHS.toString (IR.LIT l)])
+        | IR.OP l => raise Fail(concat["\n\nOP expected LHS rhs operator for ", IR.Var.toString x, " but found ", IR.RHS.toString (IR.OP l)])
+        | IR.CONS l => raise Fail(concat["\n\ncons expected LHS rhs operator for ", IR.Var.toString x, " but found ", IR.RHS.toString (IR.CONS l)])
+        | IR.GLOBAL l => raise Fail(concat["\n\nglobal expected LHS rhs operator for ", IR.Var.toString x, " but found ", IR.RHS.toString (IR.GLOBAL l)])
+        | rhs => raise Fail(concat["\n\nexpected rhs operator for ", IR.Var.toString x, " but found ", IR.RHS.toString rhs])
+        (* end case *))
+    fun getRHSArgs x = (case IR.Var.getDef x
+        of  IR.EINAPP (ein, args) => args
         | IR.LIT l => raise Fail(concat["\n\nLIT expected LHS rhs operator for ", IR.Var.toString x, " but found ", IR.RHS.toString (IR.LIT l)])
         | IR.OP l => raise Fail(concat["\n\nOP expected LHS rhs operator for ", IR.Var.toString x, " but found ", IR.RHS.toString (IR.OP l)])
         | IR.CONS l => raise Fail(concat["\n\ncons expected LHS rhs operator for ", IR.Var.toString x, " but found ", IR.RHS.toString (IR.CONS l)])
@@ -127,4 +132,22 @@ structure Helper : sig
 		| iterAA (E.Opn(E.Add, ys)::es, rest) = iterAA(ys@es, rest)
 		| iterAA (e1::es, rest)   = iterAA(es, e1::rest)
 	in iterAA(es, []) end	
+	
+	
+	fun pullPosition(E.EIN{body as E.Probe(f,[pos],ty), params, index}, args) =
+        let
+
+            val shape = []
+            val vP = V.new ("posoutside", Ty.tensorTy shape)
+            val ein = Ein.EIN{body=pos, params=params, index= shape}
+            val stmt = FloatEin.transform(vP, ein, args)
+            val _ = prntNewbies(stmt, "new stmt")
+            val body' = E.Probe(f, [E.Tensor(List.length(args),[])], ty)
+            val params' = params@[E.TEN(true, shape)]
+            val args' =  args@[vP]
+            val ein = Ein.EIN{body=body', params=params', index=index}
+            in 
+                (stmt, ein, args')   (*@PolyEin.transform(y, ein, args@[vP]) *)
+            end 
+                
 end

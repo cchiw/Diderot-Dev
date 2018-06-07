@@ -21,23 +21,33 @@ structure translateField : sig
     structure OF = EvalFem
 
 
-    fun transform (y, IR.EINAPP(ein as E.EIN{body,...}, args)) = 
-    	(case (body)
-        	of E.Probe(E.OField(ofld, _,_),_,_) => 
-         		(case ofld
-            		of E.CFExp _      => PolyEin.transform(y, ein, args)
-                	| E.DataFem _     => OF.scan_evaluate(y, IR.EINAPP(ein, args))
-                	| E.BuildFem _    => OF.scan_evaluate(y, IR.EINAPP(ein, args))
-            	(* end case*))
-       	 	|  E.Sum(_, E.Probe(E.OField(ofld, _,_),_,_)) => 
-        		(case ofld
-              	 	of E.CFExp _      => PolyEin.transform(y, ein, args)
-               	 	| E.DataFem _     => OF.sum_evaluate (y, IR.EINAPP(ein, args))
-                	| E.BuildFem _    => OF.sum_evaluate (y, IR.EINAPP(ein, args))
-           		 (* end case*))
-        	| _ =>   [(y, IR.EINAPP(ein, args))]
-         (* end case*))
-    | transform (y, e) =  [(y, e)]
+    fun OfieldTransform (y, IR.EINAPP(ein, args), f, isSum) = 
+    	(case f
+    	    of E.OField(E.CFExp _ , _,_) =>  PolyEin.transform(y, ein, args) 
+            | E.OField _ => if(isSum) 
+                    then OF.sum_evaluate (y, IR.EINAPP(ein, args))
+                     else  OF.scan_evaluate(y, IR.EINAPP(ein, args))
+            | _ => [(y, IR.EINAPP(ein, args))]
+        (*end case*))
 
 
+   fun transform (y, rhs as IR.EINAPP(ein as E.EIN{body, params, index}, args)) = 
+        (case body 
+            of E.Probe(f, [E.Tensor _], _) =>   OfieldTransform (y, rhs, f, false)
+            | E.Probe(f, [pos], _) =>
+                let
+                val  (stmt, ein, args)  = Helper.pullPosition(ein, args)
+                val rhs = IR.EINAPP(ein, args)
+                in stmt@OfieldTransform (y, rhs, f, false) end 
+            | E.Probe(f, _,_) =>   OfieldTransform (y, rhs, f, false)
+            | E.Sum(_, E.Probe(f, [E.Tensor _],ty)) =>   OfieldTransform (y, rhs, f, true)
+            | E.Sum(_, E.Probe(f, [pos], ty)) =>
+                let
+                val  (stmt, ein, args)  = Helper.pullPosition(ein, args)
+                val rhs = IR.EINAPP(ein, args)
+                in stmt@OfieldTransform (y, rhs, f, true) end 
+            | E.Sum(_, E.Probe(f, _,_)) =>   OfieldTransform (y, rhs, f, true)
+            | _ =>  [(y, rhs)]
+        (* end case*))
+     | transform (y, rhs) =  [(y, rhs)]
 end

@@ -1340,7 +1340,7 @@ structure MkOperators : sig
             else List.tabulate(n, fn id => E.Tensor(id+1, []))
 
        val ein = E.EIN{
-                params = [E.FLD (dim, alpha)]@ (List.map (fn talpha => mkNoSubstTEN talpha)  talphas), 
+                params = [E.FLD (dim, alpha)]@ (List.map (fn talpha => mkTEN talpha)  talphas), (*NoSubst*)
                 index = alpha, 
                 body = E.Probe(fldtem, probeterm, NONE)
             }

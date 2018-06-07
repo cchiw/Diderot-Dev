@@ -201,8 +201,9 @@ structure ProbeEin : sig
 
   (* fieldReconstruction expands the body for the probed field *)
     fun fieldReconstruction (avail, sx, alpha, shape, dx,  Vid, Vidnew, kid, hid, tid, args) = let
+    val _ = "cat 1"
           val (vI, vH, vN, vF, vP, info, border, dim) = handleArgs (avail, Vid, hid, tid, args)
-       
+           val _ = "cat 2"
          (* create kernel body *)
           fun createKrn (0,  krnexp, vAs,_,esum_binds,ss) =
             (krnexp, vAs,List.rev esum_binds, ss)
@@ -218,27 +219,22 @@ structure ProbeEin : sig
                 in
                 createKrn (dir', kexp0::krnexp, vA::vAs, hs,esum_bind::esum_binds,s::ss)
                 end
-
+    val _ = "cat 3"
           val hs = getKernelDsts (vH,dim)
           (* final ein expression body to represent field reconstruction *)
           val (krnexp, vKs, esum_binds,ss) = createKrn (dim, [], [],List.rev hs,[],[])
           
-
+    val _ = "cat 4"
           (* creating summation Index *)
           val vs = List.tabulate (dim, fn i => (i +sx))
-          
-          (* (* represent image in ein expression with tensor *)
-           val esum = List.map (fn i => (i, 1-s, s)) vs
-           val imgexp = E.Img(Vidnew, alpha, List.map (fn i=> E.Value i)  vs, s)
-          val exp =  E.Sum(esum, E.Opn(E.Prod, imgexp::krnexp))
-          *)
+              val _ = "cat 5"
           
           val imgexp = E.Img(Vidnew, alpha, List.map (fn i=> E.Value i)  vs, ss)
           val exp =  E.Sum(esum_binds, E.Opn(E.Prod, imgexp::krnexp))
-          
+              val _ = "cat 7"
           (* create load voxel operator for image *)
           val vLd = mkLdVoxel (avail, vI, vN, info, alpha, shape, dim, ss, border)
-          
+              val _ = "cat 8"
           in
            (vLd::vKs, vP,  exp)
           end
@@ -294,20 +290,26 @@ structure ProbeEin : sig
           val pid = length params
           val Vidnew = pid+1
           val kid = Vidnew
-          val _ = (concat["\nInside replaceProbe:",EinPP.expToString(probe)])
+          val _ = (concat["\nInside replaceProbe:",EinPP.expToString(probe), " nargs:",Int.toString(length(args))])
           val E.Probe(E.Conv(Vid, alpha, hid, dx), [E.Tensor(tid, _)],_) = probe
+          val _ = "tmp A"
           val E.IMG(dim, shape) = List.nth(params, Vid)
           val freshIndex = getsumshift (sx, length index)
+                    val _ = "tmp B"
           val (dx', tshape, sx', Ps) = T.imageToWorld (freshIndex, dim, dx, pid)
           val sxn = freshIndex + length dx' (*next available index id *)
+                    val _ = "tmp C"
           val (args', vP, probe') = fieldReconstruction (
                 avail, sxn, alpha, shape, dx', Vid, Vidnew, kid, hid, tid, args)
         (* add new params transformation matrix (Pid), image param, and kernel ids *)
+                  val _ = "tmp D"
           val pP = E.TEN(true, [dim, dim])
           val pV = List.nth(params, Vid)
           val pK = List.tabulate(dim,fn _=> E.KRN)
+                    val _ = "tmp E"
           val params' = params @ (pP::pV::pK)
           val (_, body') = arrangeBody (body, Ps, sx', probe')
+                    val _ = "tmp F"
           val einapp = (y, IR.EINAPP(mkEin(params', index, body'), args @ (vP::args')))
           in
             AvailRHS.addAssignToList (avail, einapp)
@@ -384,7 +386,9 @@ structure ProbeEin : sig
    * A this point we only have simple ein ops
    * Looks to see if the expression has a probe. If so, replaces it.
    *)
-    fun expand avail (e as (_, IR.EINAPP(Ein.EIN{body, ...}, _))) = (case body
+    fun expandP avail (e as (lhs, IR.EINAPP(ein as Ein.EIN{body, ...}, args))) = (print("\n\t"^IR.Var.toString(lhs)^"="^EinPP.toString(ein));
+            List.map (fn v => print("-"^IR.Var.toString v))  args;
+            case body
            of E.Probe(E.Conv(_, _, _, []) ,_,_) =>
                 replaceProbe (avail, e, body, [])
             | (E.Probe(E.Conv(_, alpha, _, dx) ,_,_)) =>
@@ -399,7 +403,22 @@ structure ProbeEin : sig
                 replaceProbe (avail, e, E.Probe p, sx)
             | _ => AvailRHS.addAssignToList (avail, e)
           (* end case *))
-        | expand avail e = AvailRHS.addAssignToList (avail, e)
         
-
+    fun expand avail (e as (y, IR.EINAPP(ein as Ein.EIN{body, params, index}, args))) = (case body
+        of E.Probe(_, [E.Tensor _], _) =>  expandP avail e 
+          | E.Probe(f, [pos], ty) =>  
+            let
+            val _ = "\nhere"
+                val  (stmt, ein, args)  = Helper.pullPosition(ein, args)
+                val _ = List.map (fn s => AvailRHS.addAssignToList (avail, s)) stmt
+                val e  = (y, IR.EINAPP(ein, args))
+                         val _ = "\nhere done"
+            in 
+                expandP avail e 
+            end
+        | E.Probe _ =>  expandP avail e 
+        | E.Sum(_, E.Probe _) =>  expandP avail e 
+        | _ => AvailRHS.addAssignToList (avail, e)
+        (*end csae*))
+    | expand avail e = AvailRHS.addAssignToList (avail, e)
   end (* ProbeEin *)

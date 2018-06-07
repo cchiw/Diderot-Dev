@@ -10,7 +10,7 @@ structure PolyEin2 : sig
 
     val polyArgs :  Ein.param_kind list * Ein.ein_exp * MidIR.var list * Ein.mu option
           * (int * Ein.inputTy) list * int list
-          -> MidIR.var list * Ein.param_kind list * Ein.ein_exp
+          -> MidIR.var list * Ein.param_kind list * Ein.ein_exp * (MidIR.var * MidIR.rhs) list
 
   end = struct
 
@@ -87,7 +87,8 @@ structure PolyEin2 : sig
                 | E.Opn(E.Swap id , es)         =>  if (ISet.member(mapp, id)) then raise Fail "revisit here" else body  
                 | _    => body
             (* end case*))
-        in rewrite body end
+        in rewrite body  end
+
         
     (* Replace the arguments identified in cfexp-ids with the arguments in probe-ids
     * params - EIN params
@@ -126,27 +127,35 @@ structure PolyEin2 : sig
 					val (args, params, mapp) = findArg(0, args, [], params, [], ISet.empty)
 					(* get dimension of vector that is being broken into components*)
 					val param_pos = List.nth(params, pid)
-					(* rewrite position tensor with deltas in body *)
-					val _ = H.toStringBA("mark1", e, args)
+				
+					val _ =( H.toStringBA("mark1", e, args))
+									
 					val e = replace (e, dim, SeqId_current, mapp)
 					val _ = H.toStringBA("mark2", e, args)
 				in (args, params, e) end								
 			(*iterate over all the input tensor variable expressions *)
-			fun iter([], args, params, _, e) = (args, params, e)
-			  | iter((pid, E.T)::es, args, params, idx::idxs, e) = let
+			fun iter([], args, params, _, e, rtn) = (args, params, e, rtn)
+			  | iter((pid, E.T)::es, args, params, idx::idxs, e, rtn) = let
 			  	(*variable is treated as a tensor so a simple variable swap is sufficient *)
 				val args = List.take(args, pid)@[List.nth(args, idx)]@List.drop(args, pid+1) 
-				in iter(es, args, params, idxs, e) end
-			  | iter((pid, E.F)::es, args, params, idx::idxs, e) = 
+				in iter(es, args, params, idxs, e,rtn) end
+			  | iter((pid, E.F)::es, args, params, idx::idxs, e, rtn) = 
 			  	(*variable is treated as a field so it needs to be expanded into its components*)
-				let
+				let(*
+				    val _ =  (String.concat["\nfield pid:", Int.toString(pid), "idx:", Int.toString(idx)])
+				    val _ = List.map (fn v => ("\ninside:"^IR.Var.name(v))) args
+					val arg_y = List.nth(args, pid)
+					val arg_x = List.nth(args, idx)
+					val rtn1 = (arg_y, IR.VAR (arg_x))
+					*)
+					(*FIXME need to iterate upward*)
 					val (args, params, e) = single_TF (pid, args, params, idx, e)
 				in
-					iter(es, args, params, idxs, e)
+					iter(es, args, params, idxs, e, rtn)
 				end
 			(*probe_id: start of position variables for probe operation *)
-			val (args, params, e) = iter(cfexp_ids, args, params, probe_ids, e)
-		in (args, params, e) end
+			val (args, params, e, rtn) = iter(cfexp_ids, args, params, probe_ids, e, [])
+		in (args, params, e, rtn) end
 		
 
   end
