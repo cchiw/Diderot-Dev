@@ -136,7 +136,7 @@ structure Helper : sig
 	
 	fun pullPosition(E.EIN{body as E.Probe(f,[pos],ty), params, index}, args) =
         let
-
+                    val _ = (String.concat["\n pull position:",EinPP.expToString(body)])
             val shape = []
             val vP = V.new ("posoutside", Ty.tensorTy shape)
             val ein = Ein.EIN{body=pos, params=params, index= shape}

@@ -98,6 +98,9 @@ fun doNormalize (e',args:HighIR.var list) = let
    *)
 fun rewriteEin (changed, params, place, newEinOp, newArgs, done, arg, orig, lhs) = (
     case List.nth(params, place)
+   (* FIXME, try substituting probes
+    * depending on the fld expression itself instead of the parameter restraint
+    *)
             of Ein.TEN(false, _) => (
                 (changed, orig, place+1, done@[arg]))
 	    | _ => (case Apply.apply (orig, place, newEinOp,newArgs,done)

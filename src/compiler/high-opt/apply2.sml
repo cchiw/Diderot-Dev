@@ -93,7 +93,7 @@ structure Apply : sig
                   | E.Conv (v, mx, h, ux) => E.Conv(mapParam v, mapAlpha mx, mapParam h, mapAlpha ux)
                   | E.Partial mx => E.Partial (mapAlpha mx)
                   | E.Apply(e1, e2) => E.Apply(apply e1, apply e2)
-                  | E.Probe(f, pos, ty) => E.Probe(apply f, List.map apply pos,ty)
+                  | E.Probe(f, pos, ty) => E.Probe(apply f, (*List.map apply*) pos,ty)
                     (* does not remap indices in field *)
                   | E.Comp(e1, es) =>  
                   	let
@@ -149,24 +149,21 @@ fun ll ([],cnt) = ""
 | ll (a1::args,cnt) = String.concat[" ", Int.toString(cnt),"_", HighTypes.toString(HighIR.Var.ty a1), " ", HighIR.Var.name(a1),",", ll(args,cnt+1)]
   (* Looks for params id that match substitution *)
    fun apply (e1 as E.EIN{params, index, body}, place, e2,newArgs,done) = let
-		  val _ = print(String.concat["\n\nInside Apply:e1:",EinPP.toString(e1), ":",ll(done,0)])
-		  val _ = print(String.concat["\n\nwith :",EinPP.toString(e2), ":",ll(newArgs,0)," \nat:",Int.toString(place),"\n"])
+		  val _ = (String.concat["\n\nInside Apply:e1:",EinPP.toString(e1), ":",ll(done,0)])
+		  val _ = (String.concat["\n\nwith :",EinPP.toString(e2), ":",ll(newArgs,0)," \nat:",Int.toString(place),"\n"])
 		  val E.EIN{params=params2, index=index2, body=body2} = e2
           val changed = ref false
           val (params', origId, substId, paramShift) = rewriteParams(params, params2, place)
           val sumIndex = ref(length index)
           val insideComp = ref(false)
 
-        (* mx: size of tensor being replaced
-         * shape: expected size of tensor being replaced
-         *)
           fun rewrite (id, mx, e, shape) = let
                 val comp = !insideComp
                 (* note change here*)
                 val x = if(comp) then (length index) else  !sumIndex
 
-                val _ = print(String.concat["\nInside rewrite:",EinPP.expToString(e)])
-				val _ = print(String.concat["mx:",Int.toString(length mx)," shape:",Int.toString(length shape)])
+                val _ = (String.concat["\nInside rewrite:",EinPP.expToString(e)])
+				val _ =  (String.concat["mx:",Int.toString(length mx)," shape:",Int.toString(length shape)])
 
                 in
                   if (id = place)
@@ -190,23 +187,7 @@ fun ll ([],cnt) = ""
                   | E.Lift e1 => E.Lift(apply (e1, shape))
                   | E.Conv(v, mx, h, ux) => E.Conv(mapId(v, origId, 0), mx, mapId(h, origId, 0), ux)
                   | E.Apply(e1, e2) => E.Apply(apply (e1, shape), apply  (e2, shape))
-                  (* FIXME replacing position variable in probe term
-                  | E.Probe(fld as  E.Field(id,_), [pos1 as E.Tensor(pid, _)], ty) =>  let
-                       val E.FLD(dim, _) =  List.nth(params,id)
-                       val fld = apply (fld, shape)
-                       val pos1 =  E.Tensor(pid, [])
-                       val posn = rewrite (pid, [], pos1, [])
-                      in E.Probe(fld, [posn],ty)
-                      end
-                   | E.Probe(fld as  E.Conv(id,_,_,_), [pos1 as E.Tensor(pid, _)], ty) =>  let
-                       val E.IMG(dim, _) =  List.nth(params,id)
-                       val fld = apply (fld, shape)
-                       val pos1 =  E.Tensor(pid, [])
-                       val posn = rewrite (pid, [], pos1, [])
-                      in E.Probe(fld, [posn],ty)
-                      end
-                      *)
-                  | E.Probe(f, pos, ty) => E.Probe(apply (f, shape), List.map (fn e1=> apply(e1, shape)) pos,ty)
+                  | E.Probe(f, pos, ty) => E.Probe(apply (f, shape), (*List.map (fn e1=> apply(e1, []))*) pos,ty)
                   | E.Comp(e1, es) => 
                     let
                         val fouter = apply(e1, shape)

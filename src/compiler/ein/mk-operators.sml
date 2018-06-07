@@ -1338,9 +1338,9 @@ structure MkOperators : sig
             if (n = 1)
             then [E.Tensor(1, [])]
             else List.tabulate(n, fn id => E.Tensor(id+1, []))
-
+        (*NoSubst needed in the cfexp case*)
        val ein = E.EIN{
-                params = [E.FLD (dim, alpha)]@ (List.map (fn talpha => mkTEN talpha)  talphas), (*NoSubst*)
+                params = [E.FLD (dim, alpha)]@ (List.map (fn talpha => mkNoSubstTEN talpha)  talphas), 
                 index = alpha, 
                 body = E.Probe(fldtem, probeterm, NONE)
             }
