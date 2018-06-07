@@ -51,15 +51,15 @@ structure EinPP : sig
             | E.Delta ix => delta ix
             | E.Epsilon(ix, jx, kx) => concat["ϵ_{i", index2s ix, ",i", index2s jx, ",i", index2s kx, "}"]
             | E.Eps2(ix, jx) => concat["ϵ_{i", index2s ix, ",i", index2s jx, "}"]
-            | E.Field(id, []) => "F" ^ i2s id
-            | E.Field(id, alpha) => concat["F", i2s id, multiIndex2s alpha]
+            | E.Field(id, []) => "Fld" ^ i2s id
+            | E.Field(id, alpha) => concat["Fld", i2s id, multiIndex2s alpha]
             | E.Lift e1 => concat["«", expToString e1, "»"]
             | E.Conv(img, alpha, kern, beta) => let
                 val alpha = if null alpha then "" else multiIndex2s alpha
                 val beta = if null beta then "" else "dx" ^ multiIndex2s beta
                 in
                  (* concat ["V", i2s img, alpha, "⊛", beta, "H", i2s kern]*)
-                   concat ["F", i2s img, alpha, "_", beta]
+                   concat ["Conv", i2s img, alpha, "_", beta]
                 end
             | E.Partial alpha => "∂/∂x" ^ multiIndex2s alpha
             | E.Apply(e1, e2) => concat [ expToString e1, "@(", expToString e2, ")"]
@@ -144,7 +144,7 @@ structure EinPP : sig
                     | E.Bool id     => concat ["bool",i2s id]
                         (*end case*))
                in
-                concat[ "\nif(", c, ") then ", expToString e3," else ", expToString e4]
+                concat[ "if(", c, ") then ", expToString e3," else ", expToString e4]
                end
           (* end case *))
     fun paramToString (i, E.TEN(t, shp)) = concat["T", i2s i, "{", shp2s shp, "}"]

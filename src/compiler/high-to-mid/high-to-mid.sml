@@ -260,14 +260,14 @@ structure HighToMid : sig
               | SrcOp.BuildElement e => assign (DstOp.BuildElement (e))
               | SrcOp.BuildSpace => assign (DstOp.BuildSpace)
               | SrcOp.sp_getCell => FC.getCell(y, Env.renameList(env, args))
-              | SrcOp.printIR =>  (ScanEin.expand(y, List.map getRHS args);dummy())
+              | SrcOp.IR =>  (ScanEin.expand(y, List.map getRHS args);dummy())
               | SrcOp.KrnMultipleTwoD =>  assign (DstOp.KrnMultipleTwoD)
               | SrcOp.KrnMultipleThreeD =>  assign (DstOp.KrnMultipleThreeD)
               | SrcOp.KrnMultipleFourD =>  assign (DstOp.KrnMultipleFourD)
               | rator => raise Fail("bogus operator " ^ SrcOp.toString rator)
             (* end case *)
           end
-handle ex => (print(concat["HighToMid.expandOp: error converting ", SrcOp.toString rator, "\n"]); raise ex)
+handle ex => ((concat["HighToMid.expandOp: error converting ", SrcOp.toString rator, "\n"]); raise ex)
 
   (* expandEINAPP: env* midil.var*EIN*mid-ilvar->DstIR.ASSGN list
    * Field operators are changed to zero
@@ -278,7 +278,7 @@ handle ex => (print(concat["HighToMid.expandOp: error converting ", SrcOp.toStri
                 then HandleEin.expand (y, rator, Env.renameList(env, args))
                 else []
           (* end case *))
-handle ex => (print(concat["HighToMid.expandEINAPP: error converting ", MidIR.Var.toString y, " = ",
+handle ex => ((concat["HighToMid.expandEINAPP: error converting ", MidIR.Var.toString y, " = ",
 EinPP.toString rator, " ", "(", String.concatWithMap ", " HighIR.Var.toString args, ")\n"]);
 raise ex)
 
@@ -319,7 +319,7 @@ raise ex)
               | SrcIR.OP(SrcOp.Eigen3x3, xs) => mkOP (DstOp.EigenVecs3x3, xs)
               | SrcIR.OP(SrcOp.KillAll, []) => mkOP (DstOp.KillAll, [])
               | SrcIR.OP(SrcOp.StabilizeAll, []) => mkOP (DstOp.StabilizeAll, [])
-              | SrcIR.OP(SrcOp.Print tys, xs) => mkOP (DstOp.Print(List.map cvtTy tys), xs)
+              | SrcIR.OP(SrcOp. tys, xs) => mkOP (DstOp.(List.map cvtTy tys), xs)
               | SrcIR.MAPREDUCE mrs => let
                   val mrs = List.map
                         (fn (r, f, xs) => (r, Env.renameFV(env, f), Env.renameList(env, xs)))

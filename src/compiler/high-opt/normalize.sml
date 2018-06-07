@@ -101,17 +101,21 @@ fun rewriteEin (changed, params, place, newEinOp, newArgs, done, arg, orig, lhs)
    (* FIXME, try substituting probes
     * depending on the fld expression itself instead of the parameter restraint
     *)
-            of Ein.TEN(false, _) => (
+        of (*Ein.TEN(false, _) => (
                 (changed, orig, place+1, done@[arg]))
-	    | _ => (case Apply.apply (orig, place, newEinOp,newArgs,done)
-                    of SOME einOp => let
+	    | *)_ => (case Apply.apply (orig, place, newEinOp,newArgs,done)
+                    of (SOME einOp, keepVar) => let
                         val _ = (String.concat["\n\nAfter Application:",EinPP.toString(einOp), ":",ll(done @ newArgs,0)])
                          (* einOp is the result of the beta-reduction *)
                         in
                         (decUse arg; List.app incUse newArgs;
                         (true, einOp, place + length newArgs, done @ newArgs))
                         end
-                    | NONE => ( (* arg was unused in orig, so we can get rid of it *)
+                        
+                    | (NONE, true) => ( (* arg was unused in orig, so we can get rid of it *)
+                     
+                        (changed, orig, place+1, done@[arg]))
+                    | (NONE, _) => ( (* arg was unused in orig, so we can get rid of it *)
                         decUse arg;
                         (true, orig, place, done))
                     (* end case *))

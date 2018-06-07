@@ -24,7 +24,7 @@ structure HandleEin : sig
 
   fun single_pass newbies = 
      let
-             val _ = H.prntNewbies(newbies, "\n\n\n marker: single -pass fields")
+
         (* **************** split phase ************* *)
         fun iter([], ys) = ys
          | iter((lhs, DstIR.EINAPP(e, a))::es, ys) = let
@@ -48,7 +48,7 @@ structure HandleEin : sig
                 
     fun expand (lhs, ein, args) = let
             val _ = ("\n\n   ***********\n")
-            val _ = (String.concat["\n\n   expand ***********\n:",MidIR.Var.name(lhs),"=", EinPP.toString(ein),"-",ll(args,0)])
+            val _ = (String.concat["\n\n   expand ***********\n:",MidIR.Var.toString(lhs),"=", EinPP.toString(ein),"-",ll(args,0)])
             val sliceFlag = Controls.get Ctl.sliceFlag
             val fullSplitFlag = Controls.get Ctl.fullSplitFlag
             val replaceFlag = Controls.get Ctl.replaceFlag
@@ -71,9 +71,9 @@ structure HandleEin : sig
             val avail = AvailRHS.new()
             val _ = List.app  (ProbeEin.expand avail) newbies;
             val stmts = List.rev (AvailRHS.getAssignments avail)
-            val _ = H.prntNewbies(stmts, "\n\n\npost probe ein ")
+            (*val _ = H.prntNewbies(stmts, "\n\n\npost probe ein ")*)
             val asgn = List.map DstIR.ASSGN stmts
-            val _ = H.prntNewbies(stmts, "\n\n\n marker: post probe")
+            (*val _ = H.prntNewbies(stmts, "\n\n\n marker: post probe")*)
             val _ = "exit"
             val _ = ("\n\n   ***********\n")
             in

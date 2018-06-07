@@ -386,8 +386,8 @@ structure ProbeEin : sig
    * A this point we only have simple ein ops
    * Looks to see if the expression has a probe. If so, replaces it.
    *)
-    fun expandP avail (e as (lhs, IR.EINAPP(ein as Ein.EIN{body, ...}, args))) = (print("\n\t"^IR.Var.toString(lhs)^"="^EinPP.toString(ein));
-            List.map (fn v => print("-"^IR.Var.toString v))  args;
+    fun expandP avail (e as (lhs, IR.EINAPP(ein as Ein.EIN{body, ...}, args))) = (("\n\t"^IR.Var.toString(lhs)^"="^EinPP.toString(ein));
+            List.map (fn v => ("-"^IR.Var.toString v))  args;
             case body
            of E.Probe(E.Conv(_, _, _, []) ,_,_) =>
                 replaceProbe (avail, e, body, [])

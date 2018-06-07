@@ -44,7 +44,7 @@ structure Helper : sig
     fun useCount (SrcIR.V{useCnt, ...}) = !useCnt
     fun ll ([], cnt) = ""
       | ll (a1::args, cnt) = 
-      	String.concat["\n\t", Int.toString(cnt), "_", MidTypes.toString(DstIR.Var.ty a1), " ", MidIR.Var.name(a1), ", ", ll(args, cnt+1)]
+      	String.concat["\n\t", Int.toString(cnt), "_", MidTypes.toString(DstIR.Var.ty a1), " ", MidIR.Var.toString(a1), ", ", ll(args, cnt+1)]
     val i2s = Int.toString
     val shp2s = String.concatWithMap " " i2s
     fun paramToString (i, E.TEN(t, shp)) = concat["T", i2s i, "[", shp2s shp, "]"]

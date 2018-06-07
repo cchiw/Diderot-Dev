@@ -339,14 +339,14 @@ structure CleanIndex : sig
           * ashape ISet.set  : all the indices mentioned in body
           * tshape (mu list) : shape of tensor replacement
           *)
-          val isPrint = false
+          val is = false
 
-           val _ = if(isPrint) then  print(String.concat["\n\n clean: ",EinPP.expToString(e)]) else print ""
+           val _ = if(is) then  (String.concat["\n\n clean: ",EinPP.expToString(e)]) else  ""
            val ashape = aShape e
            (*val _ = (shapeToString ("ashape",ashape))*)
            val tshape = tShape(index, sx, e)
 
-          val _ = if(isPrint) then  print(shapeToString (" tshape",  tshape)) else print ""
+          val _ = if(is) then  (shapeToString (" tshape",  tshape)) else  ""
          (* Create sizeMapp: index_id to dimension index_id is bound to*)
            val sizeMapp = mkSizeMapp (index, sx)
          (* Find size of e by looking up tshape in the sizeMapp.
@@ -358,7 +358,7 @@ structure CleanIndex : sig
            val indexMapp = mkIndexMapp (index, sx, ashape, tshape)
          (* Rewrite subexpression: e  =>e' *)
            val e' = rewriteIx (indexMapp, e)
-           val _ = if(isPrint) then  print (String.concat["\n===> ",EinPP.expToString(e')])  else print ""
+           val _ = if(is) then   (String.concat["\n===> ",EinPP.expToString(e')])  else  ""
            in
              (tshape, sizes, e')
            end

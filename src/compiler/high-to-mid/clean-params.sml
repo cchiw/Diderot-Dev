@@ -131,15 +131,19 @@ fun ll ([],cnt) = ""
     *cleans params
     *)
     fun clean (body, params, index, args) = let
-           val orig = Ein.EIN{body=body, params=params,index=index}
 
+
+
+
+           val orig = Ein.EIN{body=body, params=params,index=index}
+val _ = (String.concat["\ncleaning:",EinPP.toString(orig),ll(args,0)])
           val freeParams = getFreeParams body
           val (mapp, Nparams, Nargs) = mkMapp (freeParams, params, args)
           val Nbody = rewriteParam (mapp, body)
         val newbie = Ein.EIN{body=Nbody, params=Nparams,index=index}
-(*
-val _ = print(String.concat["\ncleaning:",EinPP.toString(orig),ll(args,0),"\n->",EinPP.toString(newbie),ll(Nargs,0)])
-*)
+
+val _ = (String.concat["-", EinPP.toString(newbie),ll(Nargs,0)])
+
           in
             DstIR.EINAPP(Ein.EIN{params=Nparams, index=index, body=Nbody}, Nargs)
           end

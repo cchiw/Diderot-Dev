@@ -10,7 +10,7 @@
 
 structure Apply : sig
 
-    val apply : Ein.ein * int * Ein.ein *  HighIR.var list*  HighIR.var list -> Ein.ein option
+    val apply : Ein.ein * int * Ein.ein *  HighIR.var list*  HighIR.var list -> Ein.ein option * bool
 
   end = struct
 
@@ -149,14 +149,16 @@ fun ll ([],cnt) = ""
 | ll (a1::args,cnt) = String.concat[" ", Int.toString(cnt),"_", HighTypes.toString(HighIR.Var.ty a1), " ", HighIR.Var.name(a1),",", ll(args,cnt+1)]
   (* Looks for params id that match substitution *)
    fun apply (e1 as E.EIN{params, index, body}, place, e2,newArgs,done) = let
-		  val _ = print(String.concat["\n\nInside Apply:e1:",EinPP.toString(e1), ":",ll(done,0)])
-		  val _ = print(String.concat["\n\nwith :",EinPP.toString(e2), ":",ll(newArgs,0)," \nat:",Int.toString(place),"\n"])
+		  val _ = (String.concat["\n\n***Inside Apply:e1:",EinPP.toString(e1), ":",ll(done,0)])
+		  val _ = (String.concat["\nwith :",EinPP.toString(e2), ":",ll(newArgs,0)," \nat:",Int.toString(place),"\n"])
 		  val E.EIN{params=params2, index=index2, body=body2} = e2
           val changed = ref false
           val (params', origId, substId, paramShift) = rewriteParams(params, params2, place)
           val sumIndex = ref(length index)
           val insideComp = ref(false)
-
+          (*Added to decide if we replace probed term*)
+          val inProbe = ref false
+          val inOField = ref false 
         (* mx: size of tensor being replaced
          * shape: expected size of tensor being replaced
          *)
@@ -165,8 +167,8 @@ fun ll ([],cnt) = ""
                 (* note change here*)
                 val x = if(comp) then (length index) else  !sumIndex
 
-                val _ = print(String.concat["\nInside rewrite:",EinPP.expToString(e)])
-				val _ = print(String.concat["mx:",Int.toString(length mx)," shape:",Int.toString(length shape)])
+                val _ = (String.concat["\nInside rewrite:",EinPP.expToString(e)])
+				val _ = (String.concat["\t mx:",Int.toString(length mx)," shape:",Int.toString(length shape)])
 
                 in
                   if (id = place)
@@ -181,32 +183,33 @@ fun ll ([],cnt) = ""
                         |  _ => raise Fail "term to be replaced is not a Tensor or Fields"
                       (* end case *))
                 end
+
           (*N.T.S shape is there because of composition index space*)
           fun sumI e = let val (v,_,_) = List.last e in v end
           fun apply (b, shape) = (case b
-                 of E.Tensor(id, mx) => rewrite (id, mx, b, shape)
+                 of E.Tensor(id, mx) =>  (("\nfound id:"^Int.toString(id));
+                    if (!inOField)  then (" inOfield:rewriting" ;rewrite (id, mx, b, shape)) 
+                    else if(!inProbe) 
+                        then  ( "inProbe-trye: not rewriting";E.Tensor(mapId(id, origId, 0), mx)) 
+                        else("inProbe-false rewriting" ;rewrite (id, mx, b, shape))) 
+                        
                   | E.Field(id, mx) => rewrite (id, mx, b, shape)
                   | E.Zero(mx) => b
                   | E.Lift e1 => E.Lift(apply (e1, shape))
                   | E.Conv(v, mx, h, ux) => E.Conv(mapId(v, origId, 0), mx, mapId(h, origId, 0), ux)
                   | E.Apply(e1, e2) => E.Apply(apply (e1, shape), apply  (e2, shape))
-                  (* FIXME replacing position variable in probe term
-                  | E.Probe(fld as  E.Field(id,_), [pos1 as E.Tensor(pid, _)], ty) =>  let
-                       val E.FLD(dim, _) =  List.nth(params,id)
-                       val fld = apply (fld, shape)
-                       val pos1 =  E.Tensor(pid, [])
-                       val posn = rewrite (pid, [], pos1, [])
-                      in E.Probe(fld, [posn],ty)
-                      end
-                   | E.Probe(fld as  E.Conv(id,_,_,_), [pos1 as E.Tensor(pid, _)], ty) =>  let
-                       val E.IMG(dim, _) =  List.nth(params,id)
-                       val fld = apply (fld, shape)
-                       val pos1 =  E.Tensor(pid, [])
-                       val posn = rewrite (pid, [], pos1, [])
-                      in E.Probe(fld, [posn],ty)
-                      end
-                      *)
-                  | E.Probe(f, pos, ty) => E.Probe(apply (f, shape), List.map (fn e1=> apply(e1, shape)) pos,ty)
+                  | E.Probe(fld, pos, ty) => let
+                    val isCfExp =  (case fld
+                        of E.OField(E.CFExp _ , _, _) =>(inOField:=true; true)
+                        |   _ => (inProbe:=true;false)
+                         (* end case*))
+                    val fld =  apply (fld, shape)
+                    val pos = (*FIXME check inOField here instead?*)
+                        (case (isCfExp, pos)
+                            of (true, [E.Tensor(pid, _)]) => [rewrite (pid, [],E.Tensor(pid,[]), [])] (*FIXME for multiple positions*)
+                            | _ => List.map (fn e1=> (apply(e1, shape))) pos 
+                        (*end case *))
+                     in  E.Probe(fld, pos,ty) end                     
                   | E.Comp(e1, es) => 
                     let
                         val fouter = apply(e1, shape)
@@ -215,8 +218,9 @@ fun ll ([],cnt) = ""
                           (insideComp:= true; E.Comp(fouter, es'))
                         end
                   | E.OField(E.CFExp es, e2, E.Partial alpha) => let
+                        val _ = (String.concat["\nfield for cfexp:",EinPP.expToString(body)])
                         val ps = List.map (fn (id, inputTy) => (mapId(id, origId, 0), inputTy)) es
-                        in E.OField(E.CFExp ps, apply(e2, shape), E.Partial alpha) end
+                        in  (!inOField=true;E.OField(E.CFExp ps, apply(e2, shape), E.Partial alpha)) end
                   | E.OField(ofld, e2, E.Partial alpha)
                     => E.OField(ofld, apply(e2, shape), E.Partial alpha)
                   | E.Value _ => raise Fail "expression before expand"
@@ -247,8 +251,8 @@ fun ll ([],cnt) = ""
           (*second argument is size of replacement*)
           in
             if (! changed)
-              then SOME(newbie)
-              else NONE
+              then (SOME(newbie),true)
+              else (NONE, true)
           end
 
     end
