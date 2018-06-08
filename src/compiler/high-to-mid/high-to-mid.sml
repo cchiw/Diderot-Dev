@@ -260,7 +260,7 @@ structure HighToMid : sig
               | SrcOp.BuildElement e => assign (DstOp.BuildElement (e))
               | SrcOp.BuildSpace => assign (DstOp.BuildSpace)
               | SrcOp.sp_getCell => FC.getCell(y, Env.renameList(env, args))
-              | SrcOp.IR =>  (ScanEin.expand(y, List.map getRHS args);dummy())
+              | SrcOp.printIR =>  (ScanEin.expand(y, List.map getRHS args);dummy())
               | SrcOp.KrnMultipleTwoD =>  assign (DstOp.KrnMultipleTwoD)
               | SrcOp.KrnMultipleThreeD =>  assign (DstOp.KrnMultipleThreeD)
               | SrcOp.KrnMultipleFourD =>  assign (DstOp.KrnMultipleFourD)
@@ -319,7 +319,7 @@ raise ex)
               | SrcIR.OP(SrcOp.Eigen3x3, xs) => mkOP (DstOp.EigenVecs3x3, xs)
               | SrcIR.OP(SrcOp.KillAll, []) => mkOP (DstOp.KillAll, [])
               | SrcIR.OP(SrcOp.StabilizeAll, []) => mkOP (DstOp.StabilizeAll, [])
-              | SrcIR.OP(SrcOp. tys, xs) => mkOP (DstOp.(List.map cvtTy tys), xs)
+              | SrcIR.OP(SrcOp.Print tys, xs) => mkOP (DstOp.Print(List.map cvtTy tys), xs)
               | SrcIR.MAPREDUCE mrs => let
                   val mrs = List.map
                         (fn (r, f, xs) => (r, Env.renameFV(env, f), Env.renameList(env, xs)))
