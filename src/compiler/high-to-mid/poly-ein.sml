@@ -39,8 +39,8 @@ structure PolyEin : sig
     fun transform_Core (y, sx, ein as Ein.EIN{body, index, params}, args_orig, SeqId) = 
         let
             val _ = (concat["\n\n\n   transform core:",EinPP.toString(ein)])
-        	val _ = print("\n\n*******************\n") 
-            val _ = print(H.einToString("core:", y, ein, args_orig)) 
+        	val _ = ("\n\n*******************\n") 
+            val _ = (H.einToString("core:", y, ein, args_orig)) 
              
             (*check to see that it is the right number of arguments*)
             val E.Probe(E.OField(E.CFExp cfexp_ids, exp_fn, E.Partial dx), expProbe, pty) = body
@@ -58,18 +58,18 @@ structure PolyEin : sig
             *)
             
             
-             val _ = print(H.bodyToString("\n\n  starting", exp_fn, args_orig))         
+             val _ = (H.bodyToString("\n\n  starting", exp_fn, args_orig))         
             val (args, params, e, rtn) = P2.polyArgs(params, exp_fn, args_orig,  SeqId, cfexp_ids, probe_ids)
-            val _ = print(H.bodyToString("\n\n  Step 2 replace arguments", e, args))
+            val _ = (H.bodyToString("\n\n  Step 2 replace arguments", e, args))
             (* need to flatten before merging polynomials in product *)
             val e = P3.rewriteMerge(e)
-            val _ = print(H.bodyToString("\n\n  Step 3 merge poly term", e, args))
+            val _ = (H.bodyToString("\n\n  Step 3 merge poly term", e, args))
            (* normalize ein by cleaning it up and differntiating*)
            
             val (e, params, args) = CleanParams.clean_Params (e, params, args)
-            val _ = print(H.bodyToString("\n\n  After cleaning up arguments", e, args)) 
+            val _ = (H.bodyToString("\n\n  After cleaning up arguments", e, args)) 
             val e = P3.applyDx(E.Apply(E.Partial(dx), e))
-            val _ = print(H.bodyToString("\n\n  Step 4 differentiate ", e, args))
+            val _ = (H.bodyToString("\n\n  Step 4 differentiate ", e, args))
          in (args, params, e, rtn) end 
             
             

@@ -145,6 +145,7 @@ structure CheckGlobals : sig
                             Env.functionScope(env, resTy, #tree bindF),
                             cxt, #tree bindX, x)
                       val bodyTy = CheckExpr.check (env', cxt, body)
+                      val _ = CheckFieldFunc.check (env', cxt, body)
                       in
                         case Util.coerceType (resTy, bodyTy)
                          of SOME e => (
@@ -165,38 +166,38 @@ structure CheckGlobals : sig
                       err (cxt, [S "GD_FieldFunc expected field type for '", A(#tree bindF), S "'"]);
                       (ERROR, env))
                 (* end case *))  
-        	 | PT.GD_FieldFuncP(ty, bindF, paramsF, paramsT, body) => (case CheckType.check(env, cxt, ty)
-        	 	(*Multiple input *)
+             | PT.GD_FieldFuncP(ty, bindF, paramsF, paramsT, body) => (case CheckType.check(env, cxt, ty)
+                (*Multiple input *)
                  of ty' as Ty.T_OField{diff, shape, input} => let
                       val f = Var.new(#tree bindF, #span bindF, Var.GlobalVar, ty')
                       val resTy = Ty.T_Tensor shape                      
                       val env' = Env.functionScope(env, resTy, #tree bindF)
-                	  val (paramsF', env') = CheckParams.check (env', cxt, Var.FunParam, paramsF)
-                	  val (paramsTs', paramsT', env') = (case paramsT
-                	  	of SOME p => let
-                	  		val (paramsT', env')  = CheckParams.check (env', cxt, Var.FunParam, p)
-                	  		in (paramsT', SOME paramsT', env')  end
-                	  	| NONE => ([], NONE, env')
-                	  	(* end case *))                            
+                      val (paramsF', env') = CheckParams.check (env', cxt, Var.FunParam, paramsF)
+                      val (paramsTs', paramsT', env') = (case paramsT
+                        of SOME p => let
+                            val (paramsT', env')  = CheckParams.check (env', cxt, Var.FunParam, p)
+                            in (paramsT', SOME paramsT', env')  end
+                        | NONE => ([], NONE, env')
+                        (* end case *))                            
                       val bodyTy = CheckExpr.check (env', cxt, body)
 (*
                       val insTy = List.map  (fn s => Ty.T_Tensor s) input
                       val paramTy = List.map  (fn PT.P_Param (ty,v)=> ty) (paramsF'@paramsTs')
                       fun checkInput([],[]) = 1
                       | checkInput(e1::e1s, param::params) = (case Util.coerceType (e1, param)
-                      	of SOME _ => checkInput(e1s, params)
-                      	| NONE => raise Fail("wrong input sizes")
-                      	(*end case*))
+                        of SOME _ => checkInput(e1s, params)
+                        | NONE => raise Fail("wrong input sizes")
+                        (*end case*))
                      val _ =  checkInput(insTy, paramTy)
                       *)                      
                       
                       in
                         case Util.coerceType (resTy, bodyTy)
                          of SOME e => 
-                         		(
-                               	 OTHER(AST.D_DiffFunc(f, paramsF', paramsT', e)),
-                                	Env.insertGlobal(env, cxt, #tree bindF, f)
-                              	)
+                                (
+                                 OTHER(AST.D_DiffFunc(f, paramsF', paramsT', e)),
+                                    Env.insertGlobal(env, cxt, #tree bindF, f)
+                                )
                           | NONE => (
                               err (cxt, [
                                   S "type of r.h.s. definition for '", A(#tree bindF),

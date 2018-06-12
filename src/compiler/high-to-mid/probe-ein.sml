@@ -406,6 +406,7 @@ structure ProbeEin : sig
         
     fun expand avail (e as (y, IR.EINAPP(ein as Ein.EIN{body, params, index}, args))) = (case body
         of E.Probe(_, [E.Tensor _], _) =>  expandP avail e 
+        (*
           | E.Probe(f, [pos], ty) =>  
             let
             val _ = "\nhere"
@@ -415,7 +416,7 @@ structure ProbeEin : sig
                          val _ = "\nhere done"
             in 
                 expandP avail e 
-            end
+            end*)
         | E.Probe _ =>  expandP avail e 
         | E.Sum(_, E.Probe _) =>  expandP avail e 
         | _ => AvailRHS.addAssignToList (avail, e)
