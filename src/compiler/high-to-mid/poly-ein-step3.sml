@@ -9,8 +9,7 @@
 structure PolyEin3 : sig
 
     val rewriteMerge : Ein.ein_exp -> Ein.ein_exp
-    val rewriteDifferentiate :  Ein.ein_exp  -> Ein.ein_exp
-
+    val applyDx : Ein.ein_exp  -> Ein.ein_exp
   end = struct
 
     structure IR = MidIR
@@ -23,7 +22,6 @@ structure PolyEin3 : sig
     structure DstIR = MidIR
     structure ScanE = ScanEin
     structure H = Helper
-	val ll = H.ll
 	val paramToString = H.paramToString
 	val iterP = H.iterP
 	val iterA = H.iterA
@@ -99,16 +97,18 @@ structure PolyEin3 : sig
 		
 		
 	(*apply differentiation*)
-    fun rewriteDifferentiate body = (case body
+    fun applyDx body = (case body
 		of E.Apply (E.Partial [], e)       => e  
 		| E.Apply(E.Partial (d1::dx), e)   =>
 			let 
 				(* differentiate *)
 				val e = DerivativeEin.differentiate ([d1], e)
-			in rewriteDifferentiate (E.Apply(E.Partial dx, e)) end 	    
-		| E.Op1(op1, e1)                => E.Op1(op1, rewriteDifferentiate e1)
-		| E.Op2(op2, e1,e2)             => E.Op2(op2, rewriteDifferentiate e1, rewriteDifferentiate e2)
-		| E.Opn(opn, es)                => E.Opn(opn, List.map rewriteDifferentiate es)
+			in applyDx  (E.Apply(E.Partial dx, e)) end 	    
+		| E.Op1(op1, e1)                => E.Op1(op1, applyDx  e1)
+		| E.Op2(op2, e1,e2)             => E.Op2(op2, applyDx  e1, applyDx  e2)
+		| E.Opn(opn, es)                => E.Opn(opn, List.map applyDx  es)
 		| _                             => body
 		(* end case*))
+
+        
   end

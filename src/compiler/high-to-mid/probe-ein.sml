@@ -409,7 +409,7 @@ structure ProbeEin : sig
           | E.Probe(f, [pos], ty) =>  
             let
             val _ = "\nhere"
-                val  (stmt, ein, args)  = Helper.pullPosition(ein, args)
+                val  (stmt, ein, args) = FloatEin.liftPos(ein, args)
                 val _ = List.map (fn s => AvailRHS.addAssignToList (avail, s)) stmt
                 val e  = (y, IR.EINAPP(ein, args))
                          val _ = "\nhere done"

@@ -167,8 +167,8 @@ fun ll ([],cnt) = ""
                 (* note change here*)
                 val x = if(comp) then (length index) else  !sumIndex
 
-                val _ = (String.concat["\nInside rewrite:",EinPP.expToString(e)])
-				val _ = (String.concat["\t mx:",Int.toString(length mx)," shape:",Int.toString(length shape)])
+                val _ = print(String.concat["\nInside rewrite:",EinPP.expToString(e)])
+				val _ = print(String.concat["\t mx:",Int.toString(length mx)," shape:",Int.toString(length shape)])
 
                 in
                   if (id = place)

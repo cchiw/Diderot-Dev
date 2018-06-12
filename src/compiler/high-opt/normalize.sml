@@ -40,7 +40,7 @@ structure Normalize : sig
 			fun getEinRHS (IR.EINAPP app) = ( "EINAPP";SOME app)
 			| getEinRHS (IR.GLOBAL xy) = 
 				("Global"(*;getEinApp (V.getLocalDef xy)*);NONE)
-				(*Fxime global variable should be replaced for field-func*)
+				(*FIXME global variable should be replaced for field-func*)
 			| getEinRHS (IR.STATE _) = ("state";NONE)
 			| getEinRHS (IR.VAR _) = ("var";NONE)
 			| getEinRHS (IR.LIT _) = ("lit";NONE)
@@ -72,7 +72,7 @@ fun ll ([],cnt) = ""
 (*mkfield cfexp  needs args *)
 fun doNormalize (e',args:HighIR.var list) = let
           val ordered = Reorder.transform e'
-   (* val _ = (String.concat["\n\npost do normalize:",EinPP.toString(e'),"--->"])*)
+         val _ = print(String.concat["\n\npost do normalize:",EinPP.toString(e'),"--->"])
 
           val rtn = case NormalizeEin.transform(ordered,args)
              of NONE => ordered
@@ -138,15 +138,15 @@ val _ = (String.concat["\n\n****************************************************
               | rewrite (true, einOp, _, [], args') =(
                 SOME[(lhs, IR.EINAPP(doNormalize (einOp,args'), args'))])
               | rewrite (changed, einOp, place, x::xs, args') = let
-val _  = (String.concat["\n\tPlace:",Int.toString(place)])
+
                 in case getEinApp x
                  of NONE => (rewrite (changed, einOp, place+1, xs, args'@[x]))
                   | SOME(newE, newA) => let
                         val Ein.EIN{params, ...} = einOp
-val _ = (String.concat["\n\n----------------------------------------\n\nBefore rewriting:",EinPP.toString(einOp), ":",ll(args'@(x::xs),0)])
+val _ = print(String.concat["\n\n----------------------------------------\n\nBefore rewriting:",EinPP.toString(einOp), ":",ll(args'@(x::xs),0)," \n\t place:", Int.toString(place)])
                       val (changed, einOp', place', done') =
                             rewriteEin (changed, params, place, newE, newA, args', x, einOp, lhs)
-val _ =(String.concat["\n\nDone rewriting:",EinPP.toString(einOp'), ":",ll(done'@xs,0)])
+val _ = print(String.concat["\n\nDone rewriting:",EinPP.toString(einOp'), ":",ll(done'@xs,0)])
                       in
                         rewrite (changed, einOp', place', xs, done')
                       end

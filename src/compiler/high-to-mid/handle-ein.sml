@@ -17,8 +17,6 @@ structure HandleEin : sig
     structure DstIR = MidIR
     structure ScanE = ScanEin
     structure H = Helper
-    val ll = H.ll
-
 
     val flagmatch = true
 
@@ -42,13 +40,13 @@ structure HandleEin : sig
         (* **************** expand-fem ************* *)
 
         val newbies = List.foldr (fn (e,acc)=>  translateField.transform(e)@acc ) []  newbies
-        val _ = H.prntNewbies(newbies, "\n\n\n marker: post translatign fields")
+        val _ = H. multipleRhsToString("post translating fields", newbies)
         val _ = ScanE.readIR_Split(newbies)                
         in newbies end 
                 
     fun expand (lhs, ein, args) = let
             val _ = ("\n\n   ***********\n")
-            val _ = (String.concat["\n\n   expand ***********\n:",MidIR.Var.toString(lhs),"=", EinPP.toString(ein),"-",ll(args,0)])
+            val _ = Helper.einToString("start expand", lhs, ein, args)
             val sliceFlag = Controls.get Ctl.sliceFlag
             val fullSplitFlag = Controls.get Ctl.fullSplitFlag
             val replaceFlag = Controls.get Ctl.replaceFlag
@@ -66,7 +64,6 @@ structure HandleEin : sig
             val newbies = single_pass newbies
              val newbies = single_pass newbies
             (* ************** ProbeEIN *********** *)
-            val _ = ("****about to call probe ein")
             (*   val _ = "about to call probe ein"*)
             val avail = AvailRHS.new()
             val _ = List.app  (ProbeEin.expand avail) newbies;
@@ -74,7 +71,6 @@ structure HandleEin : sig
             (*val _ = H.prntNewbies(stmts, "\n\n\npost probe ein ")*)
             val asgn = List.map DstIR.ASSGN stmts
             (*val _ = H.prntNewbies(stmts, "\n\n\n marker: post probe")*)
-            val _ = "exit"
             val _ = ("\n\n   ***********\n")
             in
                 asgn

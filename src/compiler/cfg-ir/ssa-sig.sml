@@ -141,6 +141,7 @@ signature SSA =
       | APPLY of func * var list        (* function application *)
       | MAPREDUCE of (Reductions.t * func * var list) list
                                         (* parallel map-reduce *)
+    
 
     and var = V of {
         name : string,                  (* name *)

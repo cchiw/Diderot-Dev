@@ -20,7 +20,7 @@ structure translateField : sig
     structure ISet = IntRedBlackSet
     structure OF = EvalFem
 
-
+           
     fun OfieldTransform (y, IR.EINAPP(ein, args), f, isSum) = 
     	(case f
     	    of E.OField(E.CFExp _ , _,_) =>  PolyEin.transform(y, ein, args) 
@@ -36,14 +36,14 @@ structure translateField : sig
             of E.Probe(f, [E.Tensor _], _) =>   OfieldTransform (y, rhs, f, false)
             | E.Probe(f, [pos], _) =>
                 let
-                val  (stmt, ein, args)  = Helper.pullPosition(ein, args)
+                val  (stmt, ein, args) = FloatEin.liftPos(ein, args)
                 val rhs = IR.EINAPP(ein, args)
                 in stmt@OfieldTransform (y, rhs, f, false) end 
             | E.Probe(f, _,_) =>   OfieldTransform (y, rhs, f, false)
-            | E.Sum(_, E.Probe(f, [E.Tensor _],ty)) =>   OfieldTransform (y, rhs, f, true)
+            | E.Sum(_, E.Probe(f, [E.Tensor _],ty)) =>  OfieldTransform (y, rhs, f, true)
             | E.Sum(_, E.Probe(f, [pos], ty)) =>
                 let
-                val  (stmt, ein, args)  = Helper.pullPosition(ein, args)
+                val  (stmt, ein, args)  = FloatEin.liftPos(ein, args)
                 val rhs = IR.EINAPP(ein, args)
                 in stmt@OfieldTransform (y, rhs, f, true) end 
             | E.Sum(_, E.Probe(f, _,_)) =>   OfieldTransform (y, rhs, f, true)

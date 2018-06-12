@@ -44,7 +44,7 @@ structure FindCellFem : sig
 				(case ofield
 					of E.DataFem dataid => let
 						val (mesh, element)  = (ME.NoneMesh, ME.NoneE)
-						val datafile = H.getRHSS (List.nth(args, dataid))
+						val datafile = H.getRHSLiteral (List.nth(args, dataid))
 						in
 							([], mesh, element, datafile)
 						end
@@ -57,7 +57,7 @@ structure FindCellFem : sig
 							| _ => raise Fail "Expected integer for dimension, but got something else"
 						(* translate to fnspace to string*)
 						val space  = String.concat[ME.toStringMesh mesh, "_",  ME.toStringElement element, "_",Int.toString(dd)]
-						val pathtospace = H.getRHSS (List.nth(args,path))
+						val pathtospace = H.getRHSLiteral (List.nth(args,path))
 						val datafile = String.concat[pathtospace,space,".json"]
 						val _ = (datafile)
 						in
@@ -105,7 +105,6 @@ structure FindCellFem : sig
  	(* check ifposition is inside field *)
     fun inside(y, dim, [vpH,fH], [vp, f]) =
         let
-        	val _ = H.getRHSEINSrc fH
             val (E.EIN{body,...}, args) = H.getRHSEIN f (*remy change here was f*) (*get EIN operator attached to variable*)
             val (Pall, space, sdim, dim, sBasisFunctions, vL, mN, mP, vTC, vfindcell, mC, vX, vB,sBasisDervs) = translate(body, vp, args)
             val p14 = (y, IR.OP(Op.checkCell, [vfindcell]))

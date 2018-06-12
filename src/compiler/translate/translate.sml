@@ -343,12 +343,30 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
                             if(IR.Var.same(vExitT,vExitF)) 
                             then vExitT
                             else raise Fail ("uncovered node kind: "^IR.Node.toString(node))
-                        (*val HighTypes.FieldTy{diff, shape, dim} = IR.Var.ty lhs_comp*)
+                       
                         val dim = 2
                         val alpha = []
-                        val args= [!cond, vT, vF] 
-                        val ein = MkOperators.condField(dim, alpha)
-                        val A = IR.ASSGN(lhs_comp, IR.EINAPP(ein, args))
+                        val IR.ND{kind,...} = (!pred)
+                        val einapp = (case (kind)
+                              of IR.ASSIGN{stm as (lhs, IR.OP(HighOps.GT ty, args)),...} => 
+                                let 
+                                    val args= args@[vT, vF] 
+                                    val ein = MkOperators.condField_GT(dim, alpha)
+                                in IR.EINAPP(ein, args) end
+                              | IR.ASSIGN{stm as (lhs, IR.OP(HighOps.LT ty, args)),...} => 
+                                let 
+                                    val args= args@[vT, vF] 
+                                    val ein = MkOperators.condField_LT(dim, alpha)
+                                in IR.EINAPP(ein, args) end
+                              | _ =>  (*raise Fail ("uncovered node kind: "^IR.Node.toString(node))*)
+                              (*when inside a field function term needs to be expressible in EIN *)
+                               let
+                                val _ = print"other"
+                                val args= [!cond, vT, vF] 
+                                val ein = MkOperators.condField(dim, alpha)
+                                in IR.EINAPP(ein, args) end
+                            (*end case*))
+                        val A = IR.ASSGN(lhs_comp, einapp)
                         in (NONE, rtnT@rtnF@[A]) end  
                 | _ => raise Fail ("uncovered node kind: "^IR.Node.toString(node))
             (* end case*))
@@ -513,6 +531,9 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
                     val s3 = cvtExp (env, ve3, S.E_Var (e3))
                     val rator  = MkOperators.condField(dim,shape)
                     val ein = IR.EINAPP(rator,args)
+                    val _ = print("\n conditional fields1-")
+                    (*OP. op_gt*)
+                    val _ = List.map (fn s =>print("\n\t-"^IR.assignmentToString(s))) s1
                 in
                     s1@s2@s3@[IR.ASSGN(lhs, ein)]
                 end
@@ -540,7 +561,7 @@ print(concat["doVar (", SV.uniqueNameOf srcVar, ", ", IR.phiToString phi, ", _) 
 					val lhs_PT = paramsT
 					val lhs_allP  = lhs_PF@lhs_PT 
 					(*for each argument set equal to a dummy var *)
-            		val stmt_allP =  List.map (fn v as IR.V{name,...} => IR.ASSGN(v, IR.LIT(Literal.String (name)))) (lhs_allP)     
+            		val stmt_allP =  List.map (fn v as IR.V{name,...} => IR.ASSGN(v, IR.LIT(Literal.InVar (name)))) (lhs_allP)     
             		(*get tensor size of arguments*)
             		val alphas_PF = List.map tensorSize lhs_PF
             		val alphas_PT = List.map tensorSize lhs_PT

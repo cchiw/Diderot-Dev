@@ -9,7 +9,8 @@
 structure FloatEin : sig
 
     val transform : MidIR.var * Ein.ein * MidIR.var list -> MidIR.assign list
-
+    val liftPos : Ein.ein * MidIR.var list ->(MidIR.var * MidIR.rhs) list  * Ein.ein * MidIR.var list
+    
   end = struct
 
     structure IR = MidIR
@@ -343,4 +344,19 @@ structure FloatEin : sig
             List.rev ((y, einapp) :: AvailRHS.getAssignments avail)
           end
 
+	fun liftPos(E.EIN{body as E.Probe(f,[pos],ty), params, index}, args) =
+        let
+            val _ = (String.concat["\n pull position:",EinPP.expToString(body)])
+            val shape = []
+            val vP = V.new ("posoutside", Ty.tensorTy shape)
+            val ein = Ein.EIN{body=pos, params=params, index= shape}
+            val stmt = transform(vP, ein, args)
+            val body' = E.Probe(f, [E.Tensor(List.length(args),[])], ty)
+            val params' = params@[E.TEN(true, shape)]
+            val args' =  args@[vP]
+            val ein = Ein.EIN{body=body', params=params', index=index}
+            in 
+                (stmt, ein, args')   (*@PolyEin.transform(y, ein, args@[vP]) *)
+            end 
+            
   end

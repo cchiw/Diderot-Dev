@@ -225,6 +225,7 @@ structure MidToLow : sig
               | SrcIR.STATE(SOME x, fld) =>
                   assign (DstIR.STATE(SOME(Env.rename(env, x)), Env.renameSV(env, fld)))
               | SrcIR.VAR x => assign (DstIR.VAR(Env.rename(env, x)))
+              | SrcIR.LIT (Literal.InVar s) =>  raise Fail("bogus rhs for ASSIGN: " ^ SrcIR.RHS.toString rhs)
               | SrcIR.LIT lit => assign (DstIR.LIT lit)
               | SrcIR.OP(rator, args) => List.map DstIR.ASSGN (expandOp (env, y', rator, args))
               | SrcIR.CONS(args, ty) => assign (DstIR.CONS(Env.renameList(env, args), cvtTy ty))

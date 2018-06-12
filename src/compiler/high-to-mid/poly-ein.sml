@@ -25,46 +25,51 @@ structure PolyEin : sig
     structure P2 = PolyEin2
     structure P3 = PolyEin3
 
-	val ll = H.ll
+
 	val paramToString = H.paramToString
 	val iterP = H.iterP
 	val iterA = H.iterA	
    	fun getSx (E.Sum(sx, e)) = (sx, e)
       | getSx e = ([], e)
-    fun getPty (E.Probe(E.OField(E.CFExp pargs, e, E.Partial dx), expProbe, pty)) = pty
-    fun getE (E.Probe(E.OField(E.CFExp pargs, e, E.Partial dx), expProbe, pty)) = e
-    fun getDx (E.Probe(E.OField(E.CFExp pargs, e, E.Partial dx), expProbe, pty)) = dx
-    fun getPargs (E.Probe(E.OField(E.CFExp pargs, e, E.Partial dx), expProbe, pty)) = pargs
-    fun getIDs (E.Probe(E.OField(E.CFExp pargs, e, E.Partial dx), expProbe, pty))  = 
-    	List.map (fn E.Tensor(tid, _) => tid) expProbe 
+
     (********************************** main *******************************)
     (* main function 
     * translate probe of cfexp to  poly terms 
     *)
-    fun transform_Core (y, sx, ein as Ein.EIN{body, index, params} , args, SeqId) = 
+    fun transform_Core (y, sx, ein as Ein.EIN{body, index, params}, args_orig, SeqId) = 
         let
             val _ = (concat["\n\n\n   transform core:",EinPP.toString(ein)])
-        	val _ = ("\n\n*******************\n") 
-            val _ = (H.line("core:", y, ein, args))  
+        	val _ = print("\n\n*******************\n") 
+            val _ = print(H.einToString("core:", y, ein, args_orig)) 
+             
             (*check to see that it is the right number of arguments*)
-            val cfexp_ids = getPargs body 
+            val E.Probe(E.OField(E.CFExp cfexp_ids, exp_fn, E.Partial dx), expProbe, pty) = body
+            val probe_ids = List.map (fn E.Tensor(tid, _) => tid) expProbe 
             val n_pargs = length(cfexp_ids)
-            val probe_ids =  getIDs(body)
             val n_probe = length(probe_ids)
             val _ = if(not(n_pargs = n_probe))
                     then raise  Fail(concat[" n_pargs:", Int.toString( n_pargs), "n_probe:", Int.toString(n_probe)])
                     else 1
-            (* replace polywrap args/params with probed position(s) args/params *)
-            val e = getE body            
-            val (args, params, e, rtn) = P2.polyArgs(params, e, args,  SeqId, cfexp_ids, probe_ids)
-            val _ = (H.toStringBA("\n\n  Step 2 replace arguments", e, args))
+            (* replace polywrap args/params with probed position(s) args/params *)  
+            (* check RHS of all parameters used in function body *)
+            val _ =  checkFieldFunc.checkParams(cfexp_ids, exp_fn, args_orig)
+            (* Note: Add a command line flag to disable checking:
+            * Helps when conditional or whatever doesn't use args and this is a mistake
+            *)
+            
+            
+             val _ = print(H.bodyToString("\n\n  starting", exp_fn, args_orig))         
+            val (args, params, e, rtn) = P2.polyArgs(params, exp_fn, args_orig,  SeqId, cfexp_ids, probe_ids)
+            val _ = print(H.bodyToString("\n\n  Step 2 replace arguments", e, args))
             (* need to flatten before merging polynomials in product *)
             val e = P3.rewriteMerge(e)
-            val _ = (H.toStringBA("\n\n  Step 3 merge poly term", e, args))
+            val _ = print(H.bodyToString("\n\n  Step 3 merge poly term", e, args))
            (* normalize ein by cleaning it up and differntiating*)
-            val dx = getDx body  
-            val e = P3.rewriteDifferentiate(E.Apply(E.Partial dx, e))
-            val _ = ( H.toStringBA("\n\n  Step 4 differentiate ", e, args))
+           
+            val (e, params, args) = CleanParams.clean_Params (e, params, args)
+            val _ = print(H.bodyToString("\n\n  After cleaning up arguments", e, args)) 
+            val e = P3.applyDx(E.Apply(E.Partial(dx), e))
+            val _ = print(H.bodyToString("\n\n  Step 4 differentiate ", e, args))
          in (args, params, e, rtn) end 
             
             
@@ -74,10 +79,10 @@ structure PolyEin : sig
     *)
     fun transform (y, ein, args) = 
         let
-            val _ = (H.line("\n\n   Step 0 Wrapper", y, ein, args))
+            val _ = (H.einToString("\n\n   Step 0 Wrapper", y, ein, args))
             val Ein.EIN{body, index, params} = ein
             val (sx, body) =  getSx body
-		    val  pty = getPty body
+		    val E.Probe(E.OField(E.CFExp cfexp_ids, exp_fn, E.Partial dx), expProbe, pty) = body
         	(* FIX ME variable is used in summation for sequences *)
         	val freshid = 101        	
             val (SeqId, sx_seq) = (case pty 
@@ -97,7 +102,7 @@ structure PolyEin : sig
             		| NONE =>  body
             	(* end case *))
             val ein = Ein.EIN{body = body, index = index, params = params}
-            val _ = (H.line("\n\n   Step 5 ", y, ein, args))
+            val _ = (H.einToString("\n\n   Step 5 ", y, ein, args))
 
             (********************************** done  *******************************)
             val newbie = (y, IR.EINAPP(ein, args))

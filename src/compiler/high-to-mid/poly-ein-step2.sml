@@ -24,7 +24,6 @@ structure PolyEin2 : sig
     structure DstIR = MidIR
     structure ScanE = ScanEin
     structure H = Helper
-	val ll = H.ll
 	val paramToString = H.paramToString
 	val iterP = H.iterP
 	val iterA = H.iterA
@@ -117,21 +116,25 @@ structure PolyEin2 : sig
 					val arg_new = List.nth(args, idx)
 					val param_new = List.nth(params, idx)
 					val arg_rewrited = List.nth(args, pid)
-					val _ = (String.concat["\n\nrewrite :", IR.Var.name  arg_rewrited, " with new :", IR.Var.name  arg_new])
+					val _ = print(String.concat["\n\nrewrite :", IR.Var.toString  arg_rewrited, " with new :", IR.Var.name  arg_new])
 					(*id keeps track of placement and puts it in mapp*)
 					fun findArg(_, es, newargs, [], newparams, mapp) = ((List.rev newargs)@es, List.rev newparams, mapp)
 					| findArg(id, e1::es, newargs, p1::ps, newparams, mapp) = 
-						if(IR.Var.same(e1, arg_rewrited))
+					    let 
+					        val _ = print(concat[" \n\t current: ", IR.Var.toString(e1)])
+					in 
+						if(IR.Var.same(e1, arg_rewrited)) 
 						then findArg(id+1, es, arg_new::newargs, ps, param_new::newparams, ISet.add(mapp, id))
 						else findArg(id+1, es, e1::newargs, ps , p1::newparams, mapp)
+						end
 					val (args, params, mapp) = findArg(0, args, [], params, [], ISet.empty)
 					(* get dimension of vector that is being broken into components*)
 					val param_pos = List.nth(params, pid)
 				
-					val _ =( H.toStringBA("mark1", e, args))
+					val _ =( H.bodyToString("mark1", e, args))
 									
 					val e = replace (e, dim, SeqId_current, mapp)
-					val _ = H.toStringBA("mark2", e, args)
+					val _ = H.bodyToString("mark2", e, args)
 				in (args, params, e) end								
 			(*iterate over all the input tensor variable expressions *)
 			fun iter([], args, params, _, e, rtn) = (args, params, e, rtn)

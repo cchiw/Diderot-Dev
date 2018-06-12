@@ -15,6 +15,8 @@
 *)
 structure CleanParams : sig
 
+    val getFreeParams : Ein.ein_exp -> IntRedBlackSet.set
+    val clean_Params : Ein.ein_exp * Ein.param_kind list * MidIR.var list -> Ein.ein_exp * Ein.param_kind list * MidIR.var list
     val clean : Ein.ein_exp * Ein.param_kind list * Ein.index_bind list * MidIR.var list -> MidIR.rhs
 
   end = struct
@@ -124,28 +126,26 @@ structure CleanParams : sig
             rewrite e
           end
 
-fun ll ([],cnt) = ""
-| ll (a1::args,cnt) = String.concat[Int.toString(cnt),"-",MidIR.Var.name(a1),",", ll(args,cnt+1)]
-
-    (* cleanParams:var*ein_exp*param*index* var list ->code
-    *cleans params
+    (* cleanParams:var*ein_exp*param*index* var list ->code 
+    * cleans params
     *)
-    fun clean (body, params, index, args) = let
+    fun clean_Params (body, params, args) = 
+        let
+            val freeParams = getFreeParams body
+            val (mapp, Nparams, Nargs) = mkMapp (freeParams, params, args)
+            val Nbody = rewriteParam (mapp, body)        
+        in 
+            (Nbody, Nparams, Nargs)
 
-
-
-
-           val orig = Ein.EIN{body=body, params=params,index=index}
-val _ = (String.concat["\ncleaning:",EinPP.toString(orig),ll(args,0)])
-          val freeParams = getFreeParams body
-          val (mapp, Nparams, Nargs) = mkMapp (freeParams, params, args)
-          val Nbody = rewriteParam (mapp, body)
-        val newbie = Ein.EIN{body=Nbody, params=Nparams,index=index}
-
-val _ = (String.concat["-", EinPP.toString(newbie),ll(Nargs,0)])
-
-          in
-            DstIR.EINAPP(Ein.EIN{params=Nparams, index=index, body=Nbody}, Nargs)
-          end
-
+        end
+        
+    (*returns EINAPP*)  
+    fun clean (body, params, index, args) = 
+        let
+            val orig = Ein.EIN{body=body, params=params,index=index}
+            val (Nbody, Nparams, Nargs) =  clean_Params (body, params, args) 
+            val newbie = Ein.EIN{body=Nbody, params=Nparams,index=index}
+            in
+                DstIR.EINAPP(Ein.EIN{params=Nparams, index=index, body=Nbody}, Nargs)
+            end
   end (* CleanParam *)
