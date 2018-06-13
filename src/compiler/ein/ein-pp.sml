@@ -137,14 +137,17 @@ structure EinPP : sig
            | E.Inverse (_,e1) => concat ["(", expToString e1, ")","¯¹"]
            | E.EvalFem (_,[e1,e2]) => concat [expToString e1,"[",expToString e2,"]" ]
            | E.EvalFem (_, [e1,e2,e3]) =>  concat [expToString e1,"[",expToString e2,"[",expToString e3,"]","]" ]
-           | E.If (comp, e3, e4) => let
-                val c = (case comp
-                    of E.GT(e1, e2) => concat [expToString e1, ">", expToString e2]
-                    | E.LT(e1, e2)  => concat [expToString e1, "<", expToString e2]
-                    | E.Bool id     => concat ["bool",i2s id]
-                        (*end case*))
+           | E.If (E.Var id, e3, e4) =>    concat[ "if(", Int.toString(id), ") then ", expToString e3," else ", expToString e4]
+           | E.If (E.Compare(op1, e1, e2), e3, e4) => let
+                val c = (case op1
+                    of E.GT => ">"
+                    | E.LT => "<"
+                    | E.GTE => "=>"
+                    | E.LTE => "<="
+                    | E.EQ => "="
+                    (*end case*))
                in
-                concat[ "if(", c, ") then ", expToString e3," else ", expToString e4]
+                concat[ "if(", expToString e1, c, expToString e2, ") then ", expToString e3," else ", expToString e4]
                end
           (* end case *))
     fun paramToString (i, E.TEN(t, shp)) = concat["T", i2s i, "{", shp2s shp, "}"]
@@ -238,15 +241,18 @@ structure EinPP : sig
         | E.Op3(E.Clamp, e1, e2, e3) => concat["Clamp <", expToString e1, ",", expToString e2, ",", expToString e3,">"]
         | E.Opn(E.Add, el) => concat["Add"]
         | E.Opn(E.Prod, el) => concat["Prod"]
-        | E.If (comp, e3, e4) => let
-            val c = (case comp
-            of E.GT(e1, e2) => ">"
-            | E.LT(e1, e2)  => "<"
-            | E.Bool id   => concat["var",i2s id]
-            (*end case*))
-            in
-                concat[ "\nif(", c, ") then ", expToString e3," else ", expToString e4]
-            end
+        | E.If (E.Var id, e3, e4) =>    concat[ "if(", Int.toString(id), ") then ", expToString e3," else ", expToString e4]
+        | E.If (E.Compare(op1, e1, e2), e3, e4) => let
+            val c = (case op1
+                of E.GT => ">"
+                | E.LT => "<"
+                | E.GTE => "=>"
+                | E.LTE => "<="
+                | E.EQ => "="
+                (*end case*))
+               in
+                concat[ "if(", expToString e1, c, expToString e2, ") then ", expToString e3," else ", expToString e4]
+               end
         | E.Opn(E.Swap (id), es) => concat["SWAP[",i2s id,"](-)"]
     (* end case *))
   end

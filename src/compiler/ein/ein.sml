@@ -56,7 +56,9 @@ structure Ein =
 	(*Also types of items that can be reduced over some summation index*)
     and opn = Add | Prod | Swap of param_id | MaxN | MinN
 
-    and compare = GT of ein_exp * ein_exp| LT of ein_exp * ein_exp | Bool of param_id
+    and compare = GT | GTE | LT | LTE | EQ
+    
+    and conditional = Compare of compare * ein_exp * ein_exp | Var of param_id
 
     and inputTy = T | F (*treat as a tensor or field during differentiaton *)
 
@@ -91,7 +93,7 @@ structure Ein =
       | Value of index_id (* Lift index *)
       | Img of param_id * alpha * pos list * int list
       | Krn of param_id * (mu * mu) list * int
-      | If of compare * ein_exp * ein_exp
+      | If of conditional * ein_exp * ein_exp
     (* Ops *)
       | Sum of sumrange list * ein_exp
       | Op1 of unary * ein_exp

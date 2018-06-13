@@ -88,14 +88,12 @@ structure NormalizeEin : sig
                 return (E.Op3(op3, E.Probe(e1, x, ty), E.Probe(e2, x, ty), E.Probe(e3, x, ty)))
               | E.Opn(opn, [])     => err "Probe of empty operator"
               | E.Opn(opn, es)     => return (E.Opn(opn, List.map (fn e => E.Probe(e, x, ty)) es))
-              | E.If(comp, e3, e4)
+              | E.If(E.Compare(op1, e1, e2), e3, e4)
                 =>  let
-                    val comp2 =(case comp
-                    of E.GT(e1, e2) => E.GT(E.Probe(e1, x, ty), E.Probe(e2, x, ty))
-                     | E.LT(e1, e2) => E.LT(E.Probe(e1, x, ty), E.Probe(e2, x, ty))
-                     | E.Bool id   => E.Bool id
-                (* end case*))
+                    val comp2 = E.Compare(op1, E.Probe(e1, x, ty), E.Probe(e2, x, ty))
                 in (ST.tick cntProbe; (E.If(comp2, E.Probe(e3, x, ty), E.Probe(e4, x, ty)))) end
+              | E.If(E.Var id, e3, e4) 
+                => (ST.tick cntProbe;  E.If(E.Var id, E.Probe(e3, x, ty), E.Probe(e4, x, ty)))
               | _                  => E.Probe(fld, x, ty)
             (* end case *)
           end
@@ -203,12 +201,12 @@ structure NormalizeEin : sig
                 (************** min|max **************)
                  | E.Op2(E.Min, e1, e2)     =>
                     let
-                        val comp = E.LT(e1, e2)
+                        val comp = E.Compare(E.LT, e1, e2)
                         val exp  = E.If(comp, e1, e2)
                     in (ST.tick cntProbe; exp) end
                   | E.Op2(E.Max, e1, e2)     =>
                     let
-                        val comp = E.GT(e1, e2)
+                        val comp = E.Compare(E.GT, e1, e2)
                         val exp  = E.If(comp, e1, e2)
                     in (ST.tick cntProbe; exp) end
                   | E.Op3(op3, e1, e2, e3)=> E.Op3(op3, rewrite e1, rewrite e2, rewrite e3)
@@ -419,9 +417,8 @@ structure NormalizeEin : sig
                         (* end case *)
                       end
                   | E.Opn(opn, es) => E.Opn(opn, List.map rewrite es)
-                  | E.If(E.GT(e1, e2), e3, e4) => E.If(E.GT(rewrite e1, rewrite e2), rewrite e3, rewrite e4)
-                  | E.If(E.LT(e1, e2), e3, e4) => E.If(E.LT(rewrite e1, rewrite e2), rewrite e3, rewrite e4)
-                | E.If(E.Bool e1, e3, e4) => E.If(E.Bool e1, rewrite e3, rewrite e4)
+                  | E.If(E.Compare(op1, e1, e2), e3, e4) => E.If(E.Compare(op1, rewrite e1, rewrite e2), rewrite e3, rewrite e4)
+                  | E.If(E.Var id, e3, e4) => E.If(E.Var id, rewrite e3, rewrite e4)
                 |  _ =>  raise Fail "unhandled"
 
                 (* end case *))

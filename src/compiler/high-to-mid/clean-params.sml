@@ -44,6 +44,10 @@ structure CleanParams : sig
                   | E.Value _ => raise Fail "unexpected Value"
                   | E.Img _ => raise Fail "unexpected Img"
                   | E.Krn _ => raise Fail "unexpected Krn"
+                  | E.If(E.Compare(_, e1, e2), e3, e4) =>
+                    walk (e4, walk (e3, walk (e2, walk (e1, mapp))))
+                  | E.If(E.Var id, e3, e4) =>
+                    walk (e4, walk (e3,ISet.add(mapp, id)))
                   | E.Sum(_, e1) => walk (e1, mapp)
                   | E.Op1(_, e1) => walk (e1, mapp)
                   | E.Op2(_, e1, e2) => walk (e2, walk (e1, mapp))
@@ -60,12 +64,6 @@ structure CleanParams : sig
                   | E.OField(E.BuildFem (id,s), e2, _)
                     => walk (e2, ISet.add(ISet.add(mapp, id), s))
                   | E.Poly(e1, _,_) =>  walk(e1,mapp)
-                  | E.If(E.GT(e1, e2), e3, e4) =>
-                    walk (e4, walk (e3, walk (e2, walk (e1, mapp))))
-                  | E.If(E.LT(e1, e2), e3, e4) =>
-                    walk (e4, walk (e3, walk (e2, walk (e1, mapp))))
-                  | E.If(E.Bool id, e3, e4) =>
-                    walk (e4, walk (e3,ISet.add(mapp, id)))
                   | _ => mapp
                 (* end case *))
           in
@@ -100,6 +98,10 @@ structure CleanParams : sig
           fun rewrite b = (case b
                  of E.Tensor(id, alpha) => E.Tensor(getId id, alpha)
                   | E.Conv(v, alpha, h, dx) => E.Conv(getId v, alpha, getId h, dx)
+                  | E.If(E.Compare(op1, e1, e2), e3, e4)
+                    => E.If(E.Compare(op1, rewrite e1, rewrite e2), rewrite e3, rewrite e4)
+                  | E.If(E.Var(id), e3, e4)
+                    => E.If(E.Var(getId id), rewrite e3, rewrite e4)
                   | E.Sum(sx ,e1) => E.Sum(sx, rewrite e1)
                   | E.Op1(op1, e1) => E.Op1(op1, rewrite e1)
                   | E.Op2(op2, e1,e2) => E.Op2(op2, rewrite e1, rewrite e2)
@@ -114,12 +116,6 @@ structure CleanParams : sig
                   | E.OField(E.BuildFem (id,s), e2, dx)
                     => E.OField(E.BuildFem (getId id, getId s), rewrite e2,rewrite  dx)
                   | E.Probe(e1, e2, e3) => E.Probe(rewrite e1, List.map rewrite e2, e3)
-                  | E.If(E.GT(e1, e2), e3, e4)
-                    => E.If(E.GT(rewrite e1, rewrite e2), rewrite e3, rewrite e4)
-                  | E.If(E.LT(e1, e2), e3, e4)
-                    => E.If(E.LT(rewrite e1, rewrite e2), rewrite e3, rewrite e4)
-                  | E.If(E.Bool(id), e3, e4)
-                    => E.If(E.Bool(getId id), rewrite e3, rewrite e4)
                   | _ => b
                 (* end case *))
           in

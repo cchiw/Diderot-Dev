@@ -108,12 +108,9 @@ structure CleanIndex : sig
                   | E.Comp(e1, _) => shape(e1, ixs)
                   | E.OField(_, e2,E.Partial alpha) => shape (e2, addMus(ixs, alpha))
                   | E.Poly (_, _, alpha) => addMus(ixs, alpha)
-                  | E.If(E.GT(e1, e2), e3, e4) =>
+                  | E.If(E.Compare(op1, e1, e2), e3, e4) =>
                     shape (e1,shape (e2, shape (e3, shape(e4, ixs))))
-                  | E.If(E.LT(e1, e2), e3, e4) =>
-                    shape (e1,shape (e2, shape (e3, shape(e4, ixs))))
-                  | E.If(E.Bool id, e3, e4) =>
-                        shape (e3, shape(e4, ixs))
+                  | E.If(_, e3, e4) => shape (e3, shape(e4, ixs))
                   | _ => raise Fail "impossible"
                 (* end case *))
           in
@@ -168,11 +165,9 @@ structure CleanIndex : sig
                   | E.Comp(e1, _) => shape(e1, ixs)
                   | E.OField(_, e2, E.Partial alpha) => shape(e2, alpha@ixs)
                   | E.Poly(_, _, alpha) => alpha@ ixs
-                  | E.If(E.GT(e1, e2), e3, e4) =>
+                  | E.If(E.Compare(_,e1, e2), e3, e4) =>
                     shape' ([e1, e2, e3, e4], ixs)
-                  | E.If(E.LT(e1, e2), e3, e4) =>
-                    shape' ([e1, e2, e3, e4], ixs)
-                  | E.If(E.Bool id, e3, e4) =>
+                  | E.If(E.Var id, e3, e4) =>
                     shape' ([e3, e4], ixs)
                   | _ => raise Fail ("impossible"^EinPP.expToString(b))
             (* end case *))
@@ -295,6 +290,10 @@ structure CleanIndex : sig
                   | E.Value e1 => raise Fail "unexpected Value"
                   | E.Img _ => raise Fail "unexpected Img"
                   | E.Krn _ => raise Fail "unexpected Krn"
+                  | E.If(E.Compare(op1, e1, e2), e3, e4) =>
+                    E.If(E.Compare(op1, rewrite e1, rewrite e2), rewrite e3, rewrite e4)
+                  | E.If(E.Var id, e3, e4) =>
+                    E.If(E.Var id, rewrite e3, rewrite e4)
                   | E.Sum(sx, e1) => E.Sum(getSx sx, rewrite e1)
                   | E.Op1(op1, e1) => E.Op1(op1, rewrite e1)
                   | E.Op2(op2, e1, e2) => E.Op2(op2, rewrite e1, rewrite e2)
@@ -303,12 +302,6 @@ structure CleanIndex : sig
                   | E.Comp(e1, es) => E.Comp(rewrite e1, es)
                   | E.OField (opn, e1,  E.Partial  dx) =>  E.OField (opn, rewrite e1,  E.Partial (getAlpha  dx))
                   | E.Poly(e1,n,dx) => E.Poly(rewrite e1, n, getAlpha dx)
-                  | E.If(E.GT(e1, e2), e3, e4) =>
-                    E.If(E.GT(rewrite e1, rewrite e2), rewrite e3, rewrite e4)
-                  | E.If(E.LT(e1, e2), e3, e4) =>
-                    E.If(E.LT(rewrite e1, rewrite e2), rewrite e3, rewrite e4)
-                  | E.If(E.Bool id, e3, e4) =>
-                    E.If(E.Bool id, rewrite e3, rewrite e4)
             (* end case *))
           in
             rewrite e

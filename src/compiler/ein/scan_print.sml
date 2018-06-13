@@ -752,16 +752,19 @@ structure ScanPP : sig
                     val (ns,beta) = iterIDS(1,ps,"",[])
                     val n = Int.toString(length(ps))
                     in (concat["Swap(",cvtId(args,param_id),",",n,")<",ns,">"],beta) end
-                | E.If(comp, e2, e3) => let
+                | E.If(E.Compare(op1, e4, e5), e2, e3) => let
                     val (s2, alpha2) = getAlpha (e2)
                     val (s3, alpha3) = getAlpha (e3)
-                    val (cop, e4, e5) = (case comp
-                        of E.GT(e4,e5) =>   (">",e4,e5)
-                        | E.LT(e4,e5)  =>   ("<",e4,e5)
-                    (* end case *))
+                    val c = (case op1
+                        of E.GT => ">"
+                        | E.LT => "<"
+                        | E.GTE => "=>"
+                        | E.LTE => "<="
+                        | E.EQ => "="
+                        (*end case*))
                     val (s4, _) = getAlpha (e4)
                     val (s5, _) = getAlpha (e5)
-                    val cname = concat["(",s4,cop,s5,")"]
+                    val cname = concat["(", s4, c, s5, ")"]
                     val name =  concat(["\nIf ",cname,"\n\t then ", s2, "\n\t else ",s3])
                     in (name, alpha2) end
 

@@ -89,11 +89,11 @@ structure Derivative : sig
             case op2
              of E.Sub => mkSub (inner1, inner2)
              | E.Max =>  let
-                val comp = E.GT(e1, e2)
+                val comp = E.Compare(E.GT, e1, e2)
                 val exp  = E.If(comp, inner1, inner2)
                 in iterDn exp end
              | E.Min =>  let
-                val comp = E.LT(e1, e2)
+                val comp = E.Compare(E.LT, e1, e2)
                 val exp  = E.If(comp, inner1, inner2)
                 in iterDn exp end
               | E.Div => (case (e1, e2)

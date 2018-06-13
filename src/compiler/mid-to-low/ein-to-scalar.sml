@@ -206,16 +206,19 @@ val _ = (String.concat["\nin direction i:",Int.toString(i),"-",Int.toString(j)])
                             end
                          | _ => raise Fail("unsupported ein-exp: " ^ EinPP.expToString body)
                         (* end case*))
-                    | E.If(comp, e3, e4) =>
+                    | E.If(E.Compare(op1, e1, e2), e3, e4) =>
                         let
-                        	val vC = (case comp
-                        		of E.GT(e1,e2) => Mk.boolGT(avail, gen (mapp, e1), gen (mapp, e2))
-                        		 | E.LT(e1,e2) => Mk.boolLT(avail, gen (mapp, e1), gen (mapp, e2))
-                        		 | E.Bool id   => List.nth(lowArgs, id)
+                            val vA = gen (mapp, e1)
+                            val vB = gen (mapp, e2)
+                        	val vC = (case op1
+                        		of E.GT => Mk.boolGT(avail, vA, vB)
+                        		 | E.LT => Mk.boolLT(avail, vA, vB)
                         	(* end case*))
                         in
                             Mk.realIf(avail, vC, gen (mapp, e3), gen (mapp, e4))
                         end
+                    | E.If(E.Var id, e3, e4) 
+                        => Mk.realIf(avail, List.nth(lowArgs, id), gen (mapp, e3), gen (mapp, e4))
                   | _ => raise Fail("unsupported ein-exp: " ^ EinPP.expToString body)
                   (*end case*)
                 end

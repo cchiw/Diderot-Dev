@@ -75,9 +75,8 @@ structure EinSums : sig
               | E.Op2(_, e1, e2)          => sort [e1, e2]
               | E.Op3(_, e1, e2, e3)      => sort [e1, e2, e3]
               | E.Opn(_, es)              => sort es
-              | E.If(E.LT(e1,e2), e3, e4) => sort [e1, e2, e3, e4]
-              | E.If(E.GT(e1,e2), e3, e4) => sort [e1, e2, e3, e4]
-              | E.If(E.Bool _, e3, e4)    => sort [e3, e4]
+              | E.If(E.Compare(_, e1, e2), e3, e4) => sort [e1, e2, e3, e4]
+              | E.If(E.Var _, e3, e4)     => sort [e3, e4]
             (* end case *)
           end
 
@@ -163,6 +162,9 @@ structure EinSums : sig
                   | E.Value _             => raise Fail"Value before Expand"
                   | E.Img _               => raise Fail"Img before Expand"
                   | E.Krn _               => raise Fail"Krn before Expand"
+                  | E.If(E.Compare(op1, e1, e2), e3, e4)
+                    => E.If(E.Compare(op1, rewriteBody e1,rewriteBody e2), rewriteBody e3, rewriteBody e4)
+                  | E.If(E.Var id, e3, e4) => E.If(E.Var id,rewriteBody e3, rewriteBody e4)
                   | E.Sum(sx, E.Opn(E.Prod, [e1])) => (merge (shiftSum(sx, [ rewriteBody e1])))
                   | E.Sum(sx, E.Opn(E.Prod, [e1,e2])) => (merge (shiftSum(sx, [rewriteBody e1, rewriteBody e2])))
                   | E.Sum(sx, E.Opn(E.Prod, e)) => (merge (shiftSum(sx, e)))
@@ -172,9 +174,6 @@ structure EinSums : sig
                   | E.Op3(op3, e1, e2, e3)=>
                         E.Op3(op3, rewriteBody e1, rewriteBody e2, rewriteBody e3)
                   | E.Opn(opn, es)        => E.Opn(opn, List.map rewriteBody es)
-                  | E.If(E.LT(e1,e2), e3, e4) => E.If(E.LT(rewriteBody e1,rewriteBody e2), rewriteBody e3, rewriteBody e4)
-                  | E.If(E.GT(e1,e2), e3, e4) => E.If(E.GT(rewriteBody e1,rewriteBody e2), rewriteBody e3, rewriteBody e4)
-                  | E.If(E.Bool id, e3, e4) => E.If(E.Bool id,rewriteBody e3, rewriteBody e4)
                   | _                     => body
                 (* end case *))
         in rewriteBody body end

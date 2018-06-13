@@ -1206,7 +1206,7 @@ structure MkOperators : sig
           E.EIN{
             params = [mkNoSubstTEN[], E.FLD (dim, alpha), E.FLD (dim, alpha)], 
             index = alpha, 
-            body = E.If(E.Bool 0, E.Field(1, expindex) , E.Field(2, expindex))
+            body = E.If(E.Var 0, E.Field(1, expindex) , E.Field(2, expindex))
           }
           val _ = print(String.concat["\nein cond:", EinPP.toString(ein)])
          in ein 
@@ -1218,7 +1218,7 @@ structure MkOperators : sig
           E.EIN{
             params = [mkTEN[], mkTEN[], E.FLD (dim, alpha), E.FLD (dim, alpha)], 
             index = alpha, 
-            body = E.If(condition(E.Tensor(0,[]),E.Tensor(1,[])), E.Field(2, expindex) , E.Field(3, expindex))
+            body = E.If(E.Compare(condition, E.Tensor(0,[]),E.Tensor(1,[])), E.Field(2, expindex) , E.Field(3, expindex))
           }
           val _ = print(String.concat["\nein cond:", EinPP.toString(ein)])
          in ein 

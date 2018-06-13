@@ -119,9 +119,8 @@ structure Apply : sig
                   | E.Op3(op3, e1, e2, e3) => E.Op3(op3, apply e1, apply e2, apply e3)
                   | E.Opn(E.Swap id, e1) => E.Opn(E.Swap (mapParam id), List.map apply e1)
                   | E.Opn(opn, e1) => E.Opn(opn, List.map apply e1)
-                  | E.If(E.LT(e1,e2), e3, e4) =>  E.If(E.LT(apply e1, apply e2), apply e3, apply e4)
-                  | E.If(E.GT(e1,e2), e3, e4) =>  E.If(E.GT(apply e1, apply e2), apply e3, apply e4)
-                  | E.If(E.Bool id, e3, e4) =>  E.If(E.Bool(mapParam id), apply e3, apply e4)
+                  | E.If(E.Compare(op1, e1,e2), e3, e4) =>  E.If(E.Compare(op1, apply e1, apply e2), apply e3, apply e4)
+                  | E.If(E.Var id, e3, e4) =>  E.If(E.Var id, apply e3, apply e4)
                 (* end case *))
           in
             apply e
@@ -236,13 +235,10 @@ fun ll ([],cnt) = ""
                   | E.Op2(op2, e1, e2) => E.Op2(op2, apply(e1, shape), apply(e2, shape))
                   | E.Op3(op3, e1, e2, e3) => E.Op3(op3, apply (e1, shape), apply (e2, shape), apply (e3, shape))
                   | E.Opn(opn, es) => E.Opn(opn, List.map (fn e1=> apply(e1,shape)) es)
-                  | E.If(comp, e3, e4) => let
-                    val  c= (case comp
-                    of E.GT(e1, e2) => E.GT(apply (e1, shape), apply  (e2, shape))
-                    | E.LT(e1, e2)  => E.LT(apply (e1, shape), apply  (e2, shape))
-                    | E.Bool id  => E.Bool(mapId(id, origId, 0))
-                    (* end case*))
-                    in E.If(c, apply (e3, shape), apply  (e4, shape)) end
+                  | E.If(E.Compare(op1, e1, e2), e3, e4) 
+                    => E.If(E.Compare(op1, apply(e1, shape), apply(e2, shape)), apply (e3, shape), apply (e4, shape))
+                  | E.If(E.Var id, e3, e4) 
+                    => E.If(E.Var (mapId(id, origId, 0)), apply (e3, shape), apply (e4, shape))
                   | _ => b
                 (* end case *))
           val body'' = apply (body,index2)
