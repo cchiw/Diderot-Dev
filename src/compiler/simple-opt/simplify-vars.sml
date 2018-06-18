@@ -87,7 +87,6 @@ structure SimplifyVars : sig
                   | S.E_InsideImage(pos, img, _) => (chkVar bvs pos; chkVar bvs img)
                   | S.E_FieldFn _ => ()
                   | S.E_CondField (x, e1, e2, ty) => ()
-                    (*(analyzeExp (e1, VSet.empty); analyzeExp (e2, VSet.empty); chkVar bvs x)*)
                 (* end case *))
           in
             fn blk => analyzeBlk (blk, VSet.empty)

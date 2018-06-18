@@ -254,11 +254,12 @@ structure TypeUtil : sig
             | Ty.T_Error => true
             | _ => false
           (* end case *))
+          
     (*Augmented^ for if else statement*)
     fun isValueTypeIf ty = (case prune ty
-         of Ty.T_Field _ => true
-         | _ => isValueType ty
-         (* end case *))
+           of Ty.T_Field _ => true
+            | _ => isValueType ty
+          (* end case *))
  
      (* returns true if the type is an FemTy *)
      fun isMeshType ty = (case prune ty

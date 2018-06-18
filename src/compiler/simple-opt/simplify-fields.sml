@@ -225,8 +225,7 @@ then (print "\nconvert f";NONE)
               | S.E_InsideImage _ => raise Fail "premature InsideImage"
               (* QUESTION: is this a valid way to handle field functions? *)
               | S.E_FieldFn f => (bindImages(lhs, VMap.empty); NONE)
-              | S.E_CondField (x, e1, e2, ty) => (*doAssign (lhs, e1)*)
-              (bindImages(lhs, VMap.empty); NONE)
+              | S.E_CondField (x, e1, e2, ty) => (bindImages(lhs, VMap.empty); NONE)
               (*Fixme *)
             (* end case *)
           end

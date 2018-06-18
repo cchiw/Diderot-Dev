@@ -1,3 +1,4 @@
+(* converts EIN operator to a string that uses latex commands *)
 structure EinPPLat : sig
 
     val toString_reader : Ein.ein -> string
@@ -8,62 +9,60 @@ structure EinPPLat : sig
 
     val i2s = Int.toString
     val shp2s = String.concatWithMap " " i2s
-fun ti2s (id, E.T) = "t_"^Int.toString(id)
-| ti2s (id, E.F) = "f_"^Int.toString(id)
+    fun ti2s (id, E.T) = "t_"^Int.toString(id)
+      | ti2s (id, E.F) = "f_"^Int.toString(id)
     fun index2s (E.C cx) = concat["'", i2s cx, "'"]
       | index2s (E.V ix) = "i" ^ i2s ix
-
     fun multiIndex2s [] = ""
-      | multiIndex2s alpha = concat ["_{", String.concatWithMap "," index2s alpha, "}"]
-
-    fun delta (a, b) = concat["\\delta_{", index2s a, ",", index2s b,"}"]
-    fun deltaKrn (a, b) = concat["\\delta_{", index2s a, ",", index2s b,"}"]
+      | multiIndex2s alpha = concat ["_{", String.concatWithMap ", " index2s alpha, "}"]
+    fun delta (a, b) = concat["\\delta_{", index2s a, ", ", index2s b, "}"]
+    fun deltaKrn (a, b) = concat["\\delta_{", index2s a, ", ", index2s b, "}"]
     fun deriv [] = ""
-      | deriv alpha = concat["\\nabla",multiIndex2s alpha]
+      | deriv alpha = concat["\\nabla", multiIndex2s alpha]
     fun expToString e = (case e
            of E.Const r => i2s r
             | E.ConstR r => Rational.toString r
-            | E.Tensor(id, []) => concat["T^{P", i2s id,"}"]
-            | E.Tensor(id, alpha) => concat["T^{P", i2s id,"}", multiIndex2s alpha]
+            | E.Tensor(id, []) => concat["T^{P", i2s id, "}"]
+            | E.Tensor(id, alpha) => concat["T^{P", i2s id, "}", multiIndex2s alpha]
             | E.Zero(alpha) => concat["Z", multiIndex2s alpha]
             | E.Delta ix => delta ix
-            | E.Epsilon(ix, jx, kx) => concat["\\mathcal{E}_{i", index2s ix, ",i", index2s jx, ",i", index2s kx, "}"]
-            | E.Eps2(ix, jx) => concat["\\mathcal{E}_{i", index2s ix, ",i", index2s jx, "}"]
-            | E.Field(id, []) => concat["f^{P", i2s id,"}"]
-            | E.Field(id, alpha) => concat["f^{P", i2s id, "}",multiIndex2s alpha]
+            | E.Epsilon(ix, jx, kx) => concat["\\mathcal{E}_{i", index2s ix, ", i", index2s jx, ", i", index2s kx, "}"]
+            | E.Eps2(ix, jx) => concat["\\mathcal{E}_{i", index2s ix, ", i", index2s jx, "}"]
+            | E.Field(id, []) => concat["f^{P", i2s id, "}"]
+            | E.Field(id, alpha) => concat["f^{P", i2s id, "}", multiIndex2s alpha]
             | E.Lift e1 => concat["«", expToString e1, "»"]
             | E.Conv(img, alpha, kern, []) => let
                 val alpha = if null alpha then "" else multiIndex2s alpha
                 in
-                    concat ["F^{P", i2s img, "}",alpha]
+                    concat ["F^{P", i2s img, "}", alpha]
                 end
 
             | E.Conv(img, alpha, kern, beta) => let
                 val alpha = if null alpha then "" else multiIndex2s alpha
                 val beta = if null beta then "" else "\\nabla" ^ multiIndex2s beta
                 in
-                   concat [beta, "F^{P", i2s img, "}",alpha]
+                   concat [beta, "F^{P", i2s img, "}", alpha]
                 end
             | E.Partial alpha => "\nabla" ^ multiIndex2s alpha
             | E.Apply(e1, e2) => concat [ expToString e1, "@(", expToString e2, ")"]
-            | E.Probe(e1, e2,_) =>  expToString e1
+            | E.Probe(e1, e2, _) =>  expToString e1
             | E.Comp(e1, es) => let
                 fun iter ([]) = ""
-                | iter ((e2, n1)::es) =
-                concat ["[", expToString e2 , concat ["{", shp2s n1, "}"],  "]", iter(es)]
-                in concat ["Cmp(", expToString e1,")", (iter(es))] end
+                  | iter ((e2, n1)::es) = 
+                    concat ["[", expToString e2 , concat ["{", shp2s n1, "}"],  "]", iter(es)]
+                in concat ["Cmp(", expToString e1, ")", (iter(es))] end
             | E.OField(E.CFExp es1, e1, E.Partial [])
-                => concat ["CFExp[ids:", String.concatWithMap " ," ti2s  es1,"](exp:",expToString e1,")"]
+               => concat ["CFExp[ids:", String.concatWithMap " , " ti2s  es1, "](exp:", expToString e1, ")"]
             | E.OField(E.CFExp  es, e1, E.Partial alpha)
-                => concat [  expToString(E.OField(E.CFExp(es), e1, E.Partial [])) ,"dx",multiIndex2s alpha, ")"]
-            | E.OField(E.DataFem id, e1, E.Partial alpha) => concat ["DataFEM(",expToString e1,")_",i2s id, deriv alpha, ")"]
-            | E.OField(E.BuildFem (id,id2), e1,E.Partial  alpha) => concat ["BuildFEM(",expToString e1,")_", i2s id, "[",i2s id2,"]",deriv alpha, ")"]
-            | E.Poly(E.Tensor(tid, cx), 1, dx) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")",deriv dx]
-            | E.Poly(E.Tensor(tid, cx), n, dx) => concat ["(P", i2s tid,"_", multiIndex2s  cx, ")^",  i2s n, deriv  dx]
+               => concat [  expToString(E.OField(E.CFExp(es), e1, E.Partial [])) , "dx", multiIndex2s alpha, ")"]
+            | E.OField(E.DataFem id, e1, E.Partial alpha) => concat ["DataFEM(", expToString e1, ")_", i2s id, deriv alpha, ")"]
+            | E.OField(E.BuildFem (id, id2), e1, E.Partial  alpha) => concat ["BuildFEM(", expToString e1, ")_", i2s id, "[", i2s id2, "]", deriv alpha, ")"]
+            | E.Poly(E.Tensor(tid, cx), 1, dx) => concat ["(P", i2s tid, "_", multiIndex2s  cx, ")", deriv dx]
+            | E.Poly(E.Tensor(tid, cx), n, dx) => concat ["(P", i2s tid, "_", multiIndex2s  cx, ")^",  i2s n, deriv  dx]
             | E.Value ix => "i" ^ i2s ix
             | E.Img(fid, alpha, pos, s) => concat [
-                  "V", i2s fid, multiIndex2s alpha, "(",shp2s s, ")[",
-                  String.concatWithMap "," expToString pos, "]"
+                  "V", i2s fid, multiIndex2s alpha, "(", shp2s s, ")[", 
+                  String.concatWithMap ", " expToString pos, "]"
                 ]
             | E.Krn(tid, [], dim) => concat["H", i2s tid, "(", Int.toString dim, ")"]
             | E.Krn(tid, betas, dim) => concat[
@@ -97,32 +96,29 @@ fun ti2s (id, E.T) = "t_"^Int.toString(id)
            | E.Op2(E.Max, e1, e2) => concat ["Max(", expToString e1, " , ", expToString e2, ")"]
            | E.Op2(E.Min, e1, e2) => concat ["Min(", expToString e1, " ,  ", expToString e2, ")"]
            | E.Op2(E.Sub, e1, e2) => concat ["(", expToString e1, ") - (", expToString e2, ")"]
-| E.Op2(E.Div, e1, e2) => concat ["\\frac{", expToString e1, "}{", expToString e2, "}"]
-           | E.Op3(E.Clamp, e1, e2, e3) => concat["Clamp (", expToString e1, ",", expToString e2, ",", expToString e3,")"]
-           | E.Opn(E.Add, el) => concat["(", String.concatWithMap " + " expToString el,")"]
+           | E.Op3(E.Clamp, e1, e2, e3) => concat["Clamp (", expToString e1, ", ", expToString e2, ", ", expToString e3, ")"]
+           | E.Opn(E.Add, el) => concat["(", String.concatWithMap " + " expToString el, ")"]
            | E.Opn(E.Prod, el) => concat["(", String.concatWithMap " * " expToString el, ")"]
-           | E.Opn(E.Swap (id), es) => concat["Swap[",i2s id,"](", String.concatWithMap ", " expToString es,")"]
-           | E.If (E.Var id, e3, e4) =>    concat[ "if(", Int.toString(id), ") then ", expToString e3," else ", expToString e4]
+           | E.Opn(E.Swap (id), es) => concat["Swap[", i2s id, "](", String.concatWithMap ", " expToString es, ")"]
+           | E.If (E.Var id, e3, e4) =>    concat[ "if(", Int.toString(id), ") then ", expToString e3, " else ", expToString e4]
            | E.If (E.Compare(op1, e1, e2), e3, e4) => let
                 val c = (case op1
                     of E.GT => ">"
                     | E.LT => "<"
-                    | E.GTE => "=>"
-                    | E.LTE => "<="
-                    | E.EQ => "="
-                    (*end case*))
+                    | E.GTE => " =>"
+                    | E.LTE => "< = "
+                    | E.EQ => " = "
+                    (* end case *))
                in
-                concat["\nif(", expToString e1, c, expToString e2, ") then ", expToString e3," else ", expToString e4]
+                concat["\nif(", expToString e1, c, expToString e2, ") then ", expToString e3, " else ", expToString e4]
                end               
           (* end case *))
-
-
 
     fun toString_reader (Ein.EIN{params, index, body}) = let
         val params = EinPP.paramsToString (params)
         val index = if null index then "" else concat["{", shp2s index, "}"]
-          in
-          concat["Params:$\\lambda$", params, " \\\\ \\phantom{++}Body:$", expToString body, "$\\\\ \\phantom{++}Size:$", index,"$"]
+        in
+          concat["Params:$\\lambda$", params, " \\\\ \\phantom{++}Body:$", expToString body, "$\\\\ \\phantom{++}Size:$", index, "$"]
         end
 
     end

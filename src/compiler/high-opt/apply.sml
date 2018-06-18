@@ -69,8 +69,10 @@ structure Apply : sig
           fun mapSum l = List.map (fn (a, b, c) => (mapSingle a, b, c)) l
         (*  fun mapParam id = mapId2(id, subId, 0)*)
         fun mapParam id = let
+                  val _ = print(concat["length args", Int.toString(length(newArgs)), "id:", Int.toString(id)])
             val vA=List.nth(newArgs ,id)
             val  _ = ("\nlooking for :"^HighIR.Var.name(vA))
+            
             fun iter([],_)=mapId2(id, subId, 0)
               | iter(e1::es,n)=
                 (("\n"^Int.toString(n)^" -looking at:"^HighIR.Var.name(e1));
@@ -80,7 +82,7 @@ structure Apply : sig
             in iter(done@newArgs,0) end
 
          fun p()=if(!insideComp) then "insideCompT" else "insideCompF"
-         fun apply e = ( (*("\n\neinexp \t:"^EinPP.expToString(e)^"-"^p());*)case e
+         fun apply e = (print("\n\neinexp \t:"^EinPP.expToString(e)^"-"^p());case e
                  of E.Const _ => e
                   | E.ConstR _ => e
                   | E.Tensor(id, mx) => E.Tensor(mapParam id, mapAlpha mx)
@@ -120,7 +122,7 @@ structure Apply : sig
                   | E.Opn(E.Swap id, e1) => E.Opn(E.Swap (mapParam id), List.map apply e1)
                   | E.Opn(opn, e1) => E.Opn(opn, List.map apply e1)
                   | E.If(E.Compare(op1, e1,e2), e3, e4) =>  E.If(E.Compare(op1, apply e1, apply e2), apply e3, apply e4)
-                  | E.If(E.Var id, e3, e4) =>  E.If(E.Var id, apply e3, apply e4)
+                  | E.If(E.Var id, e3, e4) =>  E.If(E.Var (mapParam id), apply e3, apply e4)
                 (* end case *))
           in
             apply e
@@ -148,8 +150,8 @@ fun ll ([],cnt) = ""
 | ll (a1::args,cnt) = String.concat[" ", Int.toString(cnt),"_", HighTypes.toString(HighIR.Var.ty a1), " ", HighIR.Var.name(a1),",", ll(args,cnt+1)]
   (* Looks for params id that match substitution *)
    fun apply (e1 as E.EIN{params, index, body}, place, e2,newArgs,done) = let
-		  val _ = (String.concat["\n\n***Inside Apply:e1:",EinPP.toString(e1), ":",ll(done,0)])
-		  val _ = (String.concat["\nwith :",EinPP.toString(e2), ":",ll(newArgs,0)," \nat:",Int.toString(place),"\n"])
+		  val _ = print(String.concat["\n\n***Inside Apply:e1:",EinPP.toString(e1), ":",ll(done,0)])
+		  val _ = print(String.concat["\nwith :",EinPP.toString(e2), ":",ll(newArgs,0)," \nat:",Int.toString(place),"\n"])
 		  val E.EIN{params=params2, index=index2, body=body2} = e2
           val changed = ref false
           val (params', origId, substId, paramShift) = rewriteParams(params, params2, place)
@@ -166,8 +168,8 @@ fun ll ([],cnt) = ""
                 (* note change here*)
                 val x = if(comp) then (length index) else  !sumIndex
 
-                val _ = print(String.concat["\nInside rewrite:",EinPP.expToString(e)])
-				val _ = print(String.concat["\t mx:",Int.toString(length mx)," shape:",Int.toString(length shape)])
+                val _ = (String.concat["\nInside rewrite:",EinPP.expToString(e)])
+				val _ = (String.concat["\t mx:",Int.toString(length mx)," shape:",Int.toString(length shape)])
 
                 in
                   if (id = place)
