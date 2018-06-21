@@ -167,7 +167,58 @@ structure EvalFem : sig
             	| SOME _    =>  slice_evaluate (y, rhs)
             (* end case*))
         end
-
+(*
+    fn Teo(lhs, IR.EINAPP(ein as E.EIN{body,index,params}, args)) =
+        let
+                    
+            val E.Probe(E.OField(ofield, E.Tensor(fid, alpha), px), pos, _) = body
+            (* E.DataFem(datafileid, _) < parameter id for data file
+             * E.Tensor(fid, alpha) < body  where fid is the field parameter
+             * px < differentiation variable
+             * pos < list of position expressions
+             *)
+           
+            (* assumes current argument order *)
+            val [vF, vP, vI, vK] = args
+            (* in the future use parameter ids to get arguments
+             like this...
+             val vF = List.nth(args, fid)
+             NTS put parameters for vI and vK in EIN expression
+             
+            *)
+            val vR= V.new ("probe sq", Ty.TensorTy size)
+            val s1 = (vR, IR.OP(Op.probeseq, [K, i])) (* n.t.s  look up probe seq *)
+            
+        
+            (* parameter ids for cfexp tensors *)
+            val qid = 0   (* f*)
+            val tid = 1   (* t *)
+            val posid = 2  (* pos *) 
+            val rid = 3  (* R *)
+            (* create two dummy variables for cfexp field arguments vQ and vT*)
+            val vQ= V.new ("psdfdsfobe sq", Ty.TensorTy size)
+            val vT= V.new ("probe sq", Ty.TensorTy size)
+            val s2 = (vQ, IR.Lit(IR.Literal(0))
+            val s3 = (vT, IR.Lit(IR.Literal(0))
+            
+            
+            (*note order of variables should match ids *)
+            val args = [vQ, vT, vP, vR]
+            
+            (* expression that represents body of cfexp *)
+            (* note: inside EIN expression use qid as parameter id for f, and tid as parameter id for t *)  
+            val exp_body = fld-to-exp (ofield, qid, tid) 
+            val exp_in = [(qid, E.F), (tid, E.T)])  (*represent  *)
+            val exp_pos = [E.Tensor(posid, []), E.Tensor(rid, [])] (*represent probed positions *)
+         
+            val ein_app = E.Probe(E.OField(E.CFEXP(exp_in, exp_body, px), exp_pos, NONE)
+            val s = (lhs, IR.EINAPP(ein_app, args))
+            in [s1, s2,....] end
+            
+    *)     
+            
+            
+            
 
 end
 

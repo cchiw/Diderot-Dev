@@ -24,9 +24,12 @@ structure translateField : sig
     fun OfieldTransform (y, IR.EINAPP(ein, args), f, isSum) = 
     	(case f
     	    of E.OField(E.CFExp _ , _,_) =>  PolyEin.transform(y, ein, args) 
-            | E.OField _ => if(isSum) 
+            | E.OField (E.DataFem _ , _ , _) => if(isSum) 
                     then OF.sum_evaluate (y, IR.EINAPP(ein, args))
                      else  OF.scan_evaluate(y, IR.EINAPP(ein, args))
+                     (*
+            | E.OField (E.DataFem(_, E.Seq) =>   teo's function(y, IR.EINAPP(ein, args))
+            *)
             | _ => [(y, IR.EINAPP(ein, args))]
         (*end case*))
 
